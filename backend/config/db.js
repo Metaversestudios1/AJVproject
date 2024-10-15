@@ -5,8 +5,8 @@ dotenv.config();
 
 const connectDB = async () =>{
     try{
-         await mongoose.connect(process.env.MONGODB_URI);
-        //await mongoose.connect("mongodb://localhost:27017/Aviator");
+        //  await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect("mongodb://localhost:27017/AJV");
         console.log('mongdb connected');
 
     }catch(error){
