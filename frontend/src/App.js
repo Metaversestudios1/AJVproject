@@ -11,7 +11,12 @@ import Error from "./components/Error"
 
 import AuthProvider from "./context/AuthContext";
 
-import User from "./components/User/User"
+import Client from "./components/Client/Client"
+import AddClient from "./components/Client/AddClient"
+import AddAgent from './components/Agent/AddAgent';
+import Agent from './components/Agent/Agent';
+import AddProperty from './components/Property/AddProperty';
+import Property from './components/Property/Property';
 
 
 
@@ -68,14 +73,116 @@ function App() {
     },
 
     {
-      path: "/users",
+      path: "/clients",
       element: (
         <PrivateRoute>
         <div className="flex h-screen">
           <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
-            <User/>
+            <Client/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/clients/addclient",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddClient/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/clients",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Client/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/clients/addclient",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddClient/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/agents",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Agent/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/agents/addagent",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddAgent/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/properties",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Property/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/properties/addproperty",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddProperty/>
           </div>
         </div>
         </PrivateRoute>
