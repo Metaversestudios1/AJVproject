@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
 const clientSchema = new mongoose.Schema({
-  name: {
+  clientname: {
     type: String,   
   },
   contactNumber: {
+    type: String,
+  },
+  client_id:{
     type: String,
   },
   bookedProperties: [
@@ -34,10 +37,7 @@ const clientSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now, // Automatically sets the createdAt field to the current date/time
-  },
+  
   updatedAt: {
     type: Date,
     default: Date.now, // Automatically sets the updatedAt field to the current date/time

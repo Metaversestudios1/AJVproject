@@ -10,6 +10,10 @@ const AdminRoute = require("./Routes/AdminRoute");
 const UserRoute = require("./Routes/UserRoute");
 const SettingRoutes = require("./Routes/SettingRoutes");
 const ClientRoutes = require("./Routes/ClientRoutes");
+const PropertyRoutes = require("./Routes/PropertyRoutes");
+const AgentRoutes = require("./Routes/AgentRoutes");
+const ProjectRoutes = require("./Routes/ProjectRoutes");
+const CommisionRoutes = require("./Routes/CommisionRoutes");
 
 
 // Connect to the database
@@ -28,11 +32,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
-// Use your routes
-// app.use('/api', GameRoutes(io));
 app.use("/api", UserRoute);
 app.use("/api", AdminRoute);
 app.use("/api", SettingRoutes);
+app.use("/api", PropertyRoutes);
+app.use("/api", AgentRoutes);
+app.use("/api", ProjectRoutes);
+app.use("/api", ClientRoutes);
+app.use("/api", CommisionRoutes);
+
 
 // Root route
 app.get("/", (req, res) => {
