@@ -13,19 +13,43 @@ const AddClient = () => {
   const navigate = useNavigate();
  
   const initialState = {
-    name: "",
+    clientname: "",
     email: "",
     address: "",
     contactNumber: "",
+   // client_id:"",
     bookedProperties: "",
     preferredPropertyType: "",
     notes: "",
     budget: "",
   };
   const [data, setData] = useState(initialState);
-
- 
+  const[client_id,setclientID]=useState('');
+  const[property,setproperty]=useState([]);
   
+console.log(property);
+ 
+  useEffect(() => {
+    fetchclientID();
+    fetchproperty();
+  }, []);
+
+  const fetchclientID = async () => {
+    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getNextclientId`);
+    const response = await res.json();
+      if (response.success) {
+      setclientID(response.agent_id);
+    }
+  };
+
+  const fetchproperty = async () => {
+    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`);
+    const response = await res.json();
+      if (response.success) {
+      setproperty(response.result);
+    }
+  };
+
  
  
   const validateclientform = () => {
@@ -39,7 +63,7 @@ const AddClient = () => {
     // Initialize jQuery validation
     $("#clientform").validate({
       rules: {
-        name: {
+        clientname: {
           required: true,
         },
         email: {
@@ -59,15 +83,13 @@ const AddClient = () => {
         preferredPropertyType: {
           required: true,
         },
-        notes: {
-          required: true, // Apply custom experience validation
-        },
-        budget: {
+    
+        password: {
           required: true, // Apply custom experience validation
         },
       },
       messages: {
-        name: {
+        clientname: {
           required: "Please enter name",
         },
         email: {
@@ -77,15 +99,18 @@ const AddClient = () => {
         address: {
           required: "Please enter address",
         },
+        password: {
+          required: "Please enter password",
+        },
         contactNumber: {
-          required: "Please enter contact details",
+          required: "Please enter phone number",
           validPhone: "Phone number must be exactly 10 digits", // Custom error message
         },
         bookedProperties: {
           required: "Please enter booked properties details",
         },
         preferredPropertyType: {
-          required: "Please select a role",
+          required: "Please enter preferred Property Type",
         },
         notes: {
           required: "Please enter a Note",
@@ -128,42 +153,15 @@ const AddClient = () => {
     try {
       setLoader(true);
       const formData = new FormData();
-
-      // Append other fields to FormData
-      Object.keys(data).forEach((key) => {
-        if (typeof data[key] === "object" && data[key] !== null) {
-          // If the field is an object (e.g., bank_details), handle it separately
-          if (key === "bank_details") {
-            Object.keys(data[key]).forEach((nestedKey) => {
-              formData.append(
-                `bank_details[${nestedKey}]`,
-                data[key][nestedKey]
-              );
-            });
-          } else if (key === "projects_assigned") {
-            // Append array data (e.g., projects_assigned) to FormData
-            data[key].forEach((value) => {
-              formData.append(`${key}[]`, value);
-            });
-          } else {
-            // Handle file uploads (photo, document)
-            formData.append(key, data[key]);
-          }
-        } else {
-          // For primitive data types, append directly
-          formData.append(key, data[key]);
-        }
-      });
-      console.log(formData);
-
-      const res = await fetch(`http://localhost:8000//api/insertemployee`, {
+      const res = await fetch(`http://localhost:8000/api/insertClient`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
       const response = await res.json();
       if (response.success) {
         setMobileValid("");
-        toast.success("New employee is added Successfully!", {
+        toast.success("New client is added Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
@@ -174,7 +172,7 @@ const AddClient = () => {
           theme: "light",
         });
         setTimeout(() => {
-          navigate("/employees");
+          navigate("/clients");
         }, 1500);
       } else {
         setLoader(false);
@@ -231,22 +229,41 @@ const AddClient = () => {
         <div className="w-[70%] m-auto my-10">
           <form id="clientform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-              <div>
+            <div>
                 <label
-                  htmlFor="name"
+                  htmlFor="client_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Full Name<span className="text-red-900 text-lg ">&#x2a;</span>
+                  Client ID <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="name"
-                  value={data.name}
+                readOnly
+                  name="client_id"
+                  value={client_id}
                   onChange={handleChange}
                   type="text"
-                  id="name"
+                  id="client_id"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="John"
-                  required
+                  
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="clientname"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Client Name <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="clientname"
+                  value={data.clientname}
+                  onChange={handleChange}
+                  type="text"
+                  id="clientname"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="John"
+                  
                 />
               </div>
 
@@ -259,14 +276,38 @@ const AddClient = () => {
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="contact_number"
-                  value={data.contact_number}
+                  name="contactNumber"
+                  value={data.contactNumber}
                   onChange={handleChange}
                   type="text"
-                  id="contact"
+                  id="contactNumber"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="123-45-678"
-                  required
+                  
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  preferred Property Type
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="preferredPropertyType"
+                  value={data.preferredPropertyType}
+                  onChange={handleChange}
+                  type="text"
+                  id="preferredPropertyType"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Residential, Commercial, etc"
+                  
                 />
                 {mobileValid && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -275,24 +316,25 @@ const AddClient = () => {
                 )}
               </div>
             </div>
+            
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div className="">
                 <label
                   htmlFor="personal_email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Email address
+                  Email 
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="personal_email"
-                  value={data.personal_email}
+                  name="email"
+                  value={data.email}
                   onChange={handleChange}
                   type="email"
-                  id="personal_email"
+                  id="email"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="john.doe@company.com"
-                  required
+                  
                 />
               </div>
               <div className="">
@@ -300,19 +342,20 @@ const AddClient = () => {
                   htmlFor="company_email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Company Email address
+                   address
                 </label>
                 <input
-                  name="company_email"
-                  value={data.company_email}
+                  name="address"
+                  value={data.address}
                   onChange={handleChange}
-                  type="email"
-                  id="company_email"
+                  type="address"
+                  id="address"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="john.doe@company.com"
+                  placeholder="1234 Elm Street, Suite 567, Springfield, IL, 62704, USA"
                 />
               </div>
             </div>
+            
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div className="">
                 <label
@@ -329,63 +372,76 @@ const AddClient = () => {
                   id="password"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="•••••••••"
-                  required
+                  
                 />
               </div>
               <div className="">
                 <label
-                  htmlFor="photo"
+                  htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Profile Picture
+                  bookedProperties<span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
-                <input
-                  name="photo"
-                  onChange={handleFileChange}
-                  type="file"
-                  id="photo"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="Enter the task completion time"
-                />
+                <select
+                name="bookedProperties"
+                value={data?.bookedProperties}
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                
+              >
+                <option value="">Select a property name</option>
+                {property.map((option) => {
+                  return (
+                    <option
+                      key={option._id}
+                      value={option._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      {option.propertyname}
+                    </option>
+                  );
+                })}
+              </select>
               </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div className="">
                 <label
-                  htmlFor="date_of_birth"
+                  htmlFor="budget"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Date of Birth
+                  Budget
                 </label>
                 <input
-                  name="date_of_birth"
-                  value={data?.date_of_birth}
+                  name="budget"
+                  value={data.budget}
                   onChange={handleChange}
-                  type="date"
-                  id="date_of_birth"
-                  placeholder=""
+                  type="Number"
+                  id="budget"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="$546"
+                  
                 />
               </div>
-              <div>
+              <div className="">
                 <label
-                  htmlFor="nationality"
+                  htmlFor="note"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Nationality
+                  Note
                 </label>
                 <input
-                  name="nationality"
-                  value={data?.nationality}
+                  name="note"
+                  value={data.note}
                   onChange={handleChange}
                   type="text"
-                  id="nationality"
-                  placeholder="nationality"
+                  id="note"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="lorem ipsum ..."
+                  
                 />
               </div>
+              
+              
             </div>
-
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button
               type="submit"

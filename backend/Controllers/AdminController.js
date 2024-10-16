@@ -39,6 +39,8 @@ const login = async (req, res) => {
 
     // Find the admin by email
     const admin = await Admin.findOne({ email });
+    
+    console.log(admin);
     if (!admin) {
       return res
         .status(404)

@@ -13,7 +13,7 @@ const siteSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['Booked', 'Available'], // Enum for site booking status
-        required: true,
+        default:'Available'
     },
     agentId: {
         type: mongoose.Schema.Types.ObjectId,

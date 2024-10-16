@@ -1,6 +1,7 @@
 const Client = require("../Models/ClientModel");
 const bcrypt = require("bcrypt");
 const insertClient = async (req, res) => {
+  console.log(req.body)
   try {
     const newClient = new Client(req.body);
     await newClient.save();
@@ -158,7 +159,7 @@ const getNextclientId = async (req,res) => {
       if (!lastclient) {
           return res
           .status(404)
-          .json({ success: true,agent_id:100001 });
+          .json({ success: true,agent_id:200001 });
       }
       return res
       .status(404)

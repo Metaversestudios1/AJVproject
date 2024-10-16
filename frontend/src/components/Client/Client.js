@@ -23,19 +23,20 @@ const Client = () => {
 
   const fetchData = async () => {
     setLoader(true);
-    // const res = await fetch(
-    //   `http://localhost:8000/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
-    // );
-    // const response = await res.json();
-    // if (response.success) {
-    //   setNoData(false);
-    //   if (response.result.length === 0) {
-    //     setNoData(true);
-    //   }
-      setClients([{name: "john"}]);
+    const res = await fetch(
+      `http://localhost:8000/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
+    );
+    const response = await res.json();
+    console.log(response.result);
+    if (response.success) {
+      setNoData(false);
+      if (response.result.length === 0) {
+        setNoData(true);
+      }
+      setClients(response.result);
       setCount(5);
       setLoader(false);
-    // }
+     }
   };
 
   const handleDelete = async (e, id) => {
@@ -190,25 +191,25 @@ const Client = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
-                    {item?.name || "john"}
+                    {item?.clientname}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.contactNumber}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.email || "john@gmail.com"}
+                    {item?.email }
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.address || "#john address"}
+                    {item?.address }
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.bookedProperties || "5"}
+                    {item?.bookedProperties}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.preferredPropertyType || "-"}
+                    {item?.preferredPropertyType }
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.budget || "1000000"}
+                    {item?.budget ? parseInt(item.budget) : 'N/A'}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.notes}

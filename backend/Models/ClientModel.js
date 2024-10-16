@@ -10,32 +10,28 @@ const clientSchema = new mongoose.Schema({
   client_id:{
     type: String,
   },
-  bookedProperties: [
+  bookedProperties: 
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Property', // Assuming 'Property' is another model you have defined
-    },
-  ],
+      type: String,
+     },
   email: {
     type: String,
-    required: true,
     unique: true, // Ensures no duplicate email addresses
   },
   address: {
     type: String,
-    required: false,
+   
   },
   preferredPropertyType: {
     type: String,
-    required: false,
+ 
   },
   budget: {
     type: mongoose.Types.Decimal128, // Use Decimal128 for budget
-    required: false,
+    default: null,
   },
   notes: {
     type: String,
-    required: false,
   },
   
   updatedAt: {
