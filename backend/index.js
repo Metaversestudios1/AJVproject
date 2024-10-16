@@ -21,14 +21,14 @@ const SiteRoutes = require("./Routes/SiteRoutes");
 connectDB();
 const server = http.createServer(app);
 const corsOptions = {
-  origin: "https://aj-vproject-front.vercel.app",
+  origin: ["https://aj-vproject-front.vercel.app"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   credentials: true,
   allowedHeaders: "Content-Type,Authorization",
   optionsSuccessStatus: 204,
 };
-// Apply CORS middleware to the app
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
@@ -49,6 +49,10 @@ app.get("/", (req, res) => {
   res.send("Hello World !");
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
