@@ -9,7 +9,7 @@ const AuthProvider = ({ children }) => {
 
   // const fetchAuth = async () => {
   //   try {
-  //     const response = await fetch(`http://localhost:8000//protected`, {
+  //     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}//protected`, {
   //       method: 'GET',
   //       credentials: 'include', // Include cookies for authentication
   //     });

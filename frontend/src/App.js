@@ -16,6 +16,12 @@ import AddAgent from './components/Agent/AddAgent';
 import Agent from './components/Agent/Agent';
 import AddProperty from './components/Property/AddProperty';
 import Property from './components/Property/Property';
+import AddSite from './components/Sites/AddSite';
+import EditSite from './components/Sites/EditSite';
+import Sites from './components/Sites/Sites';
+import AddPropertyDetails from './components/Sites/AddPropertyDetails';
+import EditClient from './components/Client/EditClient';
+
 
 
 
@@ -87,35 +93,22 @@ function App() {
         </PrivateRoute>
       ),
     },
-    {
-      path: "/clients",
-      element: (
-        <PrivateRoute>
-        <div className="flex h-screen">
-          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
-          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-            <Navbar toggleSideBar={toggleSideBar} />
-            <Client/>
-          </div>
-        </div>
-        </PrivateRoute>
-      ),
-    },
 
     {
-      path: "/clients/addclient",
+      path: "/clients/editclient/:id",
       element: (
         <PrivateRoute>
         <div className="flex h-screen">
           <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
-            <AddClient/>
+            <EditClient/>
           </div>
         </div>
         </PrivateRoute>
       ),
     },
+   
     {
       path: "/agents",
       element: (
@@ -169,6 +162,63 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <AddProperty/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/sites",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Sites/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/sites/addSite/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddSite/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/sites/editsite/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <EditSite/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/addPropertyDetails/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddPropertyDetails/>
           </div>
         </div>
         </PrivateRoute>

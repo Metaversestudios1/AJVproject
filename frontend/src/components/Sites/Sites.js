@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import { NavLink } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { GoKebabHorizontal } from "react-icons/go";
 import "react-toastify/dist/ReactToastify.css";
-
-const Property = () => {
-  const [properties, setProperties] = useState([]);
+import { GoBookmarkFill } from "react-icons/go";
+import { MdEdit } from "react-icons/md";
+const Sites = () => {
+  const [sites, setSites] = useState([]);
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
@@ -23,7 +23,7 @@ const Property = () => {
   const fetchData = async () => {
     setLoader(true);
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty?page=${page}&limit=${pageSize}&search=${search}`
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}`
     );
     const response = await res.json();
     if (response.success) {
@@ -31,7 +31,7 @@ const Property = () => {
       if (response.result.length === 0) {
         setNoData(true);
       }
-      setProperties(response.result);
+      setSites(response.result);
       setCount(5);
       setLoader(false);
     }
@@ -42,9 +42,9 @@ const Property = () => {
       "Are you sure, you want to delete the user?"
     );
     if (permissionOfDelete) {
-      let propertyOne = properties.length === 1;
+      let siteOne = sites.length === 1;
       if (count === 1) {
-        propertyOne = false;
+        siteOne = false;
       }
       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`, {
         method: "DELETE",
@@ -66,7 +66,7 @@ const Property = () => {
           progress: undefined,
           theme: "light",
         });
-        if (propertyOne) {
+        if (siteOne) {
           setPage(page - 1);
         } else {
           fetchData();
@@ -106,14 +106,14 @@ const Property = () => {
       />
 
       <div className="flex items-center">
-        <div className="text-2xl font-bold mx-2 my-8 px-4">Property List</div>
+        <div className="text-2xl font-bold mx-2 my-8 px-4">Sites List</div>
       </div>
       <div className="flex justify-between">
-        <NavLink to="/properties/addproperty">
+        {/*<NavLink to="/properties/addproperty">
           <button className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
             Add New
           </button>
-        </NavLink>
+        </NavLink>*/}
 
         <div className={`flex items-center`}>
           <input
@@ -140,7 +140,7 @@ const Property = () => {
         </div>
       )}
       <div className="relative overflow-x-auto m-5 mb-0">
-        {properties.length > 0 && (
+        {sites.length > 0 && (
           <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
@@ -148,19 +148,22 @@ const Property = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  propertyname
+                  propertyId
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  description 
+                  site Number
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  address
+                  agentId
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  sites
+                  clientId
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Created At
+                  status
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  created at
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Action
@@ -169,7 +172,7 @@ const Property = () => {
             </thead>
 
             <tbody>
-              {properties.map((item, index) => (
+              {sites.map((item, index) => (
                 <tr key={item?._id} className="bg-white">
                   <th
                     scope="row"
@@ -181,42 +184,43 @@ const Property = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
-                    {item?.propertyname}
+                    {item?.propertyId}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.description}
+                    {item?.siteNumber}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.address}
+                    {item?.agentId}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.sites}
+                    {item?.clientId}
+                  </td>
+                  <td className="px-6 py-4 border-2 border-gray-300">
+                    {item?.status}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.createdAt?.split("T")[0]}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center">
-                  <GoKebabHorizontal
-                  className="text-lg transform rotate-90 cursor-pointer"
-                  onClick={() => handleKebabClick(item._id)}
-                  />
-                  </div>
+                    <div className="flex justify-center">
+                      <GoKebabHorizontal
+                        className="text-lg transform rotate-90 cursor-pointer"
+                        onClick={() => handleKebabClick(item._id)}
+                      />
+                    </div>
                     {activePropertyId === item._id && (
                       <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                      <NavLink to={`/sites/addSite/${item?._id}`}>
-                      <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Add Sites
-                        </button>
+                        <NavLink to={`/addPropertyDetails/${item?._id}`}>
+                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                            <GoBookmarkFill className="inline mr-2" /> Click to book a site
+                          </button>
                         </NavLink>
-                        {/*<button
-                          onClick={() => console.log("Edit:", item._id)}
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          <CiEdit className="inline mr-2" /> Edit
-                        </button>
+                        <NavLink to={`/sites/editsite/${item?._id}`}>
+                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                            <MdEdit className="inline mr-2" /> Edit
+                          </button>
+                        </NavLink>
+                        {/*
                         <button
                           onClick={() => handleDelete(item._id)}
                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -238,7 +242,7 @@ const Property = () => {
         </div>
       )}
 
-      {properties.length > 0 && (
+      {sites.length > 0 && (
         <div className="flex flex-col items-center my-10">
           <span className="text-sm text-black">
             Showing{" "}
@@ -260,7 +264,7 @@ const Property = () => {
             <button
               onClick={() => setPage(page + 1)}
               disabled={
-                properties.length < pageSize || startIndex + pageSize >= count
+                sites.length < pageSize || startIndex + pageSize >= count
               }
               className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900"
             >
@@ -273,4 +277,4 @@ const Property = () => {
   );
 };
 
-export default Property;
+export default Sites;

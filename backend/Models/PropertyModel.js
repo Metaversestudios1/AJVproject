@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const propertySchema = new mongoose.Schema({
     propertyname: {
         type: String,    
-    },
+    }, 
     status: {
         type: String,
         enum: ['Booked', 'Available'], // Enum for property status
-        required: true,
+        default: "Available"
     },
     description: {
         type: String,

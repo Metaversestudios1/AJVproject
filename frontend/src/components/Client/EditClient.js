@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
 
-const AddAgent = () => {
+const EditClient = () => {
   const [loader, setLoader] = useState(false);
   const [mobileValid, setMobileValid] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
- 
+  const params = useParams();
+  const { id } = params;
   const initialState = {
-    name: "",
+    clientname: "",
     email: "",
     address: "",
     contactNumber: "",
@@ -23,12 +24,49 @@ const AddAgent = () => {
     budget: "",
   };
   const [data, setData] = useState(initialState);
+  const [client_id, setclientID] = useState("");
+  const [property, setproperty] = useState([]);
 
- 
-  
- 
- 
-  const validateagentform = () => {
+  useEffect(() => {
+    fetchOldData();
+    fetchproperty();
+  }, []);
+  const fetchOldData = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const response = await res.json();
+    if (response.success) {
+      setData({
+        ...data,
+        clientname: response.result.clientname,
+        email: response.result.email,
+        address: response.result.address,
+        contactNumber: response.result.contactNumber,
+        client_id: response.result.client_id,
+        bookedProperties: response.result.bookedProperties,
+        preferredPropertyType: response.result.preferredPropertyType,
+        notes: response.result.notes,
+        budget: response.result.budget,
+      });
+    }
+  };
+  const fetchproperty = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`
+    );
+    const response = await res.json();
+    if (response.success) {
+      setproperty(response.result);
+    }
+  };
+
+  const validateclientform = () => {
     $.validator.addMethod(
       "validPhone",
       function (value, element) {
@@ -37,9 +75,9 @@ const AddAgent = () => {
       "Please enter a valid 10-digit phone number."
     );
     // Initialize jQuery validation
-    $("#agentform").validate({
+    $("#clientform").validate({
       rules: {
-        name: {
+        clientname: {
           required: true,
         },
         email: {
@@ -59,15 +97,13 @@ const AddAgent = () => {
         preferredPropertyType: {
           required: true,
         },
-        notes: {
-          required: true, // Apply custom experience validation
-        },
-        budget: {
+
+        password: {
           required: true, // Apply custom experience validation
         },
       },
       messages: {
-        name: {
+        clientname: {
           required: "Please enter name",
         },
         email: {
@@ -77,15 +113,18 @@ const AddAgent = () => {
         address: {
           required: "Please enter address",
         },
+        password: {
+          required: "Please enter password",
+        },
         contactNumber: {
-          required: "Please enter contact details",
+          required: "Please enter phone number",
           validPhone: "Phone number must be exactly 10 digits", // Custom error message
         },
         bookedProperties: {
           required: "Please enter booked properties details",
         },
         preferredPropertyType: {
-          required: "Please select a role",
+          required: "Please enter preferred Property Type",
         },
         notes: {
           required: "Please enter a Note",
@@ -108,62 +147,38 @@ const AddAgent = () => {
     });
 
     // Return validation status
-    return $("#agentform").valid();
+    return $("#clientform").valid();
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // Check if the name includes nested object properties
-   setData({...data, [name]:value})
+    setData({ ...data, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateagentform()) {
+    if (!validateclientform()) {
       //setError("Please fill in all required fields.");
       return;
     }
 
     try {
       setLoader(true);
-      const formData = new FormData();
-
-      // Append other fields to FormData
-      Object.keys(data).forEach((key) => {
-        if (typeof data[key] === "object" && data[key] !== null) {
-          // If the field is an object (e.g., bank_details), handle it separately
-          if (key === "bank_details") {
-            Object.keys(data[key]).forEach((nestedKey) => {
-              formData.append(
-                `bank_details[${nestedKey}]`,
-                data[key][nestedKey]
-              );
-            });
-          } else if (key === "projects_assigned") {
-            // Append array data (e.g., projects_assigned) to FormData
-            data[key].forEach((value) => {
-              formData.append(`${key}[]`, value);
-            });
-          } else {
-            // Handle file uploads (photo, document)
-            formData.append(key, data[key]);
-          }
-        } else {
-          // For primitive data types, append directly
-          formData.append(key, data[key]);
+      const updatedata = {id, data}
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/updateClient`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedata),
         }
-      });
-      console.log(formData);
-
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}//api/insertemployee`, {
-        method: "POST",
-        body: formData,
-      });
+      );
       const response = await res.json();
       if (response.success) {
         setMobileValid("");
-        toast.success("New employee is added Successfully!", {
+        toast.success("client is updated Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
@@ -174,7 +189,7 @@ const AddAgent = () => {
           theme: "light",
         });
         setTimeout(() => {
-          navigate("/agents");
+          navigate("/clients");
         }, 1500);
       } else {
         setLoader(false);
@@ -184,7 +199,6 @@ const AddAgent = () => {
       console.log(err);
     }
   };
-
   const handleGoBack = () => {
     navigate(-1);
   };
@@ -210,13 +224,13 @@ const AddAgent = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Add Agent</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Edit Client</div>
         </div>
       </div>
       {loader ? (
         <div className="absolute w-[80%] h-[40%] flex justify-center items-center">
           <div
-            className=" flex justify-center h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+            className=" flex justify-center h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] "
             role="status"
           >
             <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
@@ -226,24 +240,43 @@ const AddAgent = () => {
         </div>
       ) : (
         <div className="w-[70%] m-auto my-10">
-          <form id="agentform">
+          <form id="clientform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div>
                 <label
-                  htmlFor="name"
+                  htmlFor="client_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Full Name<span className="text-red-900 text-lg ">&#x2a;</span>
+                  Client ID{" "}
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="name"
-                  value={data.name}
+                  readOnly
+                  name="client_id"
+                  value={data?.client_id}
                   onChange={handleChange}
                   type="text"
-                  id="name"
+                  id="client_id"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="John"
-                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="clientname"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Client Name{" "}
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="clientname"
+                  value={data.clientname}
+                  onChange={handleChange}
+                  type="text"
+                  id="clientname"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="John"
                 />
               </div>
 
@@ -256,14 +289,36 @@ const AddAgent = () => {
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="contact_number"
-                  value={data.contact_number}
+                  name="contactNumber"
+                  value={data.contactNumber}
                   onChange={handleChange}
                   type="text"
-                  id="contact"
+                  id="contactNumber"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="123-45-678"
-                  required
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  preferred Property Type
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="preferredPropertyType"
+                  value={data.preferredPropertyType}
+                  onChange={handleChange}
+                  type="text"
+                  id="preferredPropertyType"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Residential, Commercial, etc"
                 />
                 {mobileValid && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -272,24 +327,24 @@ const AddAgent = () => {
                 )}
               </div>
             </div>
+
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div className="">
                 <label
                   htmlFor="personal_email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Email address
+                  Email
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="personal_email"
-                  value={data.personal_email}
+                  name="email"
+                  value={data.email}
                   onChange={handleChange}
                   type="email"
-                  id="personal_email"
+                  id="email"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="john.doe@company.com"
-                  required
                 />
               </div>
               <div className="">
@@ -297,91 +352,85 @@ const AddAgent = () => {
                   htmlFor="company_email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Company Email address
+                  address
                 </label>
                 <input
-                  name="company_email"
-                  value={data.company_email}
+                  name="address"
+                  value={data.address}
                   onChange={handleChange}
-                  type="email"
-                  id="company_email"
+                  type="address"
+                  id="address"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="john.doe@company.com"
+                  placeholder="1234 Elm Street, Suite 567, Springfield, IL, 62704, USA"
                 />
               </div>
             </div>
+
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+             
               <div className="">
                 <label
                   htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Password<span className="text-red-900 text-lg ">&#x2a;</span>
+                  bookedProperties
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <select
+                  name="bookedProperties"
+                  value={data?.bookedProperties}
+                  onChange={handleChange}
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                >
+                  <option value="">Select a property name</option>
+                  {property.map((option) => {
+                    return (
+                      <option
+                        key={option._id}
+                        value={option._id}
+                        className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                      >
+                        {option.propertyname}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div className="">
+                <label
+                  htmlFor="budget"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Budget
                 </label>
                 <input
-                  name="password"
-                  value={data.password}
+                  name="budget"
+                  value={data.budget}
                   onChange={handleChange}
-                  type="password"
-                  id="password"
+                  type="Number"
+                  id="budget"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="•••••••••"
-                  required
+                  placeholder="$546"
                 />
               </div>
               <div className="">
                 <label
-                  htmlFor="photo"
+                  htmlFor="note"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Profile Picture
+                  Note
                 </label>
                 <input
-                  name="photo"
-                  type="file"
-                  id="photo"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="Enter the task completion time"
-                />
-              </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-              <div className="">
-                <label
-                  htmlFor="date_of_birth"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Date of Birth
-                </label>
-                <input
-                  name="date_of_birth"
-                  value={data?.date_of_birth}
-                  onChange={handleChange}
-                  type="date"
-                  id="date_of_birth"
-                  placeholder=""
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="nationality"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Nationality
-                </label>
-                <input
-                  name="nationality"
-                  value={data?.nationality}
+                  name="note"
+                  value={data.note}
                   onChange={handleChange}
                   type="text"
-                  id="nationality"
-                  placeholder="nationality"
+                  id="note"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="lorem ipsum ..."
                 />
               </div>
             </div>
-
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button
               type="submit"
@@ -397,4 +446,4 @@ const AddAgent = () => {
   );
 };
 
-export default AddAgent;
+export default EditClient;

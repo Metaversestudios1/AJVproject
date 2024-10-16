@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ImCross } from "react-icons/im";
 import { IoMdEye } from "react-icons/io";
+import { GoKebabHorizontal } from "react-icons/go";
+
 const Client = () => {
   const [clients, setClients] = useState([]);
   const [noData, setNoData] = useState(false);
@@ -14,6 +16,7 @@ const Client = () => {
   const [pageSize, setPageSize] = useState(5);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
+  const [activePropertyId, setActivePropertyId] = useState(null); // For kebab menu popup
 
   useEffect(() => {
     fetchData();
@@ -24,7 +27,7 @@ const Client = () => {
   const fetchData = async () => {
     setLoader(true);
     const res = await fetch(
-      `http://localhost:8000/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
     );
     const response = await res.json();
     console.log(response.result);
@@ -49,7 +52,7 @@ const Client = () => {
       if (count === 1) {
         clientOne = false;
       }
-      const res = await fetch(`http://localhost:8000/api/deleteemployee`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteClient`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -77,7 +80,10 @@ const Client = () => {
       }
     }
   };
-
+  const handleKebabClick = (propertyId) => {
+    // Toggle the kebab menu for the clicked row
+    setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "search") {
@@ -87,7 +93,6 @@ const Client = () => {
   };
 
   const startIndex = (page - 1) * pageSize;
-
   return (
     <div className="relative">
       <ToastContainer
@@ -209,13 +214,39 @@ const Client = () => {
                     {item?.preferredPropertyType }
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.budget ? parseInt(item.budget) : 'N/A'}
+                    {item?.budget || 'N/A'}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.notes}
+                    {item?.notes || 'N/A'}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.createdAt?.split("T")[0]}
+                  </td>
+                  <td className="px-6 py-4 border-2 border-gray-300 relative">
+                  <div className="flex justify-center">
+                  <GoKebabHorizontal
+                  className="text-lg transform rotate-90 cursor-pointer"
+                  onClick={() => handleKebabClick(item._id)}
+                  />
+                  </div>
+                    {activePropertyId === item._id && (
+                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
+                      <NavLink to={`/clients/editclient/${item._id}`}>
+                      <button
+                      onClick={() => console.log("Edit:", item._id)}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                      <CiEdit className="inline mr-2" /> Edit
+                      </button>
+                      </NavLink>
+                        <button
+                          onClick={(e) => handleDelete(e, item._id)}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        >
+                          <MdDelete className="inline mr-2" /> Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,26 +1,67 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
 
-const AddProperty = () => {
+const AddSite = () => {
   const [loader, setLoader] = useState(false);
-  const [mobileValid, setMobileValid] = useState("");
+  const [clients, setClients] = useState([]);
+  const [agents, setAgents] = useState([]);
+  const [propertyName, setPropertyName] = useState("");
   const [error, setError] = useState("");
+  const params = useParams();
+  const { id } = params;
   const navigate = useNavigate();
 
   const initialState = {
-    propertyname: "",
-    description: "",
-    address: "",
-    sites: "",
+    propertyId: "",
+    siteNumber: "",
+    agentId: "",
+    clientId: "",
   };
   const [data, setData] = useState(initialState);
+  useEffect(() => {
+    setLoader(true);
+    const fetchData = async () => {
+      try {
+        const [agentRes, clientRes, propertyRes] = await Promise.all([
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          }),
+        ]);
 
-  const validatepropertyform = () => {
+        const [agentData, clientData, propertyData] = await Promise.all([
+          agentRes.json(),
+          clientRes.json(),
+          propertyRes.json(),
+        ]);
+
+        if (agentData.success) setAgents([{agentname: "happy", _id:"670f5383cfcf0e7090ea312e"}]);
+        if (clientData.success) setClients([{name: "heera", _id:"670f5383cfcf0e7070ea312e"}]);
+        if (propertyData.success) {
+          setData((prevData) => ({
+            ...prevData,
+            propertyId: propertyData.result._id, // Store the ID in data
+          }));
+          setPropertyName(propertyData.result.propertyname); // Store the name separately
+        }
+        setLoader(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  const validatesiteform = () => {
     $.validator.addMethod(
       "validPhone",
       function (value, element) {
@@ -29,33 +70,33 @@ const AddProperty = () => {
       "Please enter a valid 10-digit phone number."
     );
     // Initialize jQuery validation
-    $("#propertyform").validate({
+    $("#siteform").validate({
       rules: {
-        propertyname: {
+        propertyId: {
           required: true,
         },
-        description: {
+        siteNumber: {
           required: true,
         },
-        address: {
+        agentId: {
           required: true,
         },
-        sites: {
+        clientId: {
           required: true,
         },
       },
       messages: {
-        propertyname: {
-          required: "Please enter prpperty name",
+        propertyId: {
+          required: "Please enter Property id",
         },
-        description: {
-          required: "Please enter description",
+        siteNumber: {
+          required: "Please enter site number",
         },
-        address: {
-          required: "Please enter address",
+        agentId: {
+          required: "Please enter agent id",
         },
-        sites: {
-          required: "Please enter Number of sites",
+        clientId: {
+          required: "Please enter client id",
         },
       },
       errorElement: "div",
@@ -72,7 +113,7 @@ const AddProperty = () => {
     });
 
     // Return validation status
-    return $("#propertyform").valid();
+    return $("#siteform").valid();
   };
 
   const handleChange = (e) => {
@@ -84,19 +125,20 @@ const AddProperty = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validatepropertyform()) {
+    if (!validatesiteform()) {
       return;
     }
     try {
       setLoader(true);
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertProperty`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertSite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       const response = await res.json();
+      console.log(response)
       if (response.success) {
-        toast.success("New Property is added Successfully!", {
+        toast.success("New Site is added Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
@@ -107,7 +149,7 @@ const AddProperty = () => {
           theme: "light",
         });
         setTimeout(() => {
-          navigate("/properties");
+          navigate("/sites");
         }, 1500);
       } else {
         setLoader(false);
@@ -121,6 +163,8 @@ const AddProperty = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
+  console.log(data)
+
   return (
     <>
       <div className="flex items-center ">
@@ -143,7 +187,7 @@ const AddProperty = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Add Property</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Add Sites</div>
         </div>
       </div>
       {loader ? (
@@ -159,83 +203,105 @@ const AddProperty = () => {
         </div>
       ) : (
         <div className="w-[50%] m-auto my-10">
-          <form id="propertyform">
+          <form id="siteform">
+          <div className="my-2">
+          <label
+            htmlFor="propertyId"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+          >
+            Property
+          </label>
+          <select
+            name="propertyId"
+            value={data.propertyId} // This keeps the property ID selected
+            onChange={handleChange} // This updates the ID in state when a new option is selected
+            className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+          >
+            <option value="">Select a property.</option>
+            <option
+              key={id} // Key should be unique
+              value={id} // This is the ID value passed
+              className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+            >
+              {propertyName} {/* This is where you display the name, not the ID */}
+            </option>
+          </select>
+        </div>
             <div className="my-2">
               <label
-                htmlFor="propertyname"
+                htmlFor="agentId"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Property Name
-                <span className="text-red-900 text-lg ">&#x2a;</span>
+                Agents
               </label>
-              <input
-                name="propertyname"
-                value={data.propertyname}
+              <select
+                name="agentId"
+                value={data?.agentId}
                 onChange={handleChange}
-                type="text"
-                id="propertyname"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter property name"
-                required
-              />
+              >
+                <option value="">Select an agent.</option>
+                {agents.map((option) => {
+                  return (
+                    <option
+                      key={option?._id}
+                      value={option?._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      {option?.agentname}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
             <div className="my-2">
               <label
-                htmlFor="sites"
+                htmlFor="clientId"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Sites
+                Clients
               </label>
-              <input
-                name="sites"
-                value={data.sites}
+              <select
+                name="clientId"
+                value={data?.clientId}
                 onChange={handleChange}
-                type="text"
-                id="sites"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter number of sites"
-              />
-            </div>
-            <div className="my-2">
-              <label
-                htmlFor="description"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Description
-                <span className="text-red-900 text-lg ">&#x2a;</span>
-              </label>
-              <textarea
-                name="description"
-                value={data.description}
-                onChange={handleChange}
-                type="text"
-                id="description"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter description"
-                required
-              />
+                <option value="">Select a client.</option>
+                {clients.map((option) => {
+                  return (
+                    <option
+                      key={option?._id}
+                      value={option?._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      {option?.name}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
 
             <div className="my-2">
               <label
-                htmlFor="address"
+                htmlFor="siteNumber"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Address
+                Site Number
                 <span className="text-red-900 text-lg ">&#x2a;</span>
               </label>
               <textarea
-                name="address"
-                value={data.address}
+                name="siteNumber"
+                value={data.siteNumber}
                 onChange={handleChange}
                 type="text"
-                id="address"
+                id="siteNumber"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter address"
+                placeholder="Enter site number"
                 required
               />
             </div>
-            
+
             <button
               type="submit"
               onClick={handleSubmit}
@@ -250,4 +316,4 @@ const AddProperty = () => {
   );
 };
 
-export default AddProperty;
+export default AddSite;

@@ -22,7 +22,7 @@ const updateSite = async (req, res) => {
   try {
     const result = await Site.updateOne(
       { _id: id },
-      { $set: updatedata.oldData }
+      { $set: updatedata.data }
     );
     if (!result) {
       res.status(404).json({ success: false, message: "Site not found" });

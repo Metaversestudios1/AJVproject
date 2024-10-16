@@ -297,7 +297,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   >
                     <div className="hs-accordion" id="users-accordion-sub-1">
                       <NavLink
-                        to="/sitelist"
+                        to="/sites"
                         className={({ isActive }) =>
                           isActive
                             ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "

@@ -27,7 +27,7 @@ const clientSchema = new mongoose.Schema({
  
   },
   budget: {
-    type: mongoose.Types.Decimal128, // Use Decimal128 for budget
+    type: String, // Use Decimal128 for budget
     default: null,
   },
   notes: {

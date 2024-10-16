@@ -3,7 +3,7 @@ import getUserFromToken from "./getUserFromToken";
 
 const fetchPermissionsSync = (id) => {
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:8000//api/getesinglepermission`, false); // `false` makes the request synchronous
+  xhr.open("POST", `${process.env.REACT_APP_BACKEND_URL}//api/getesinglepermission`, false); // `false` makes the request synchronous
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.send(JSON.stringify({ id }));
 
@@ -18,7 +18,7 @@ const fetchPermissionsSync = (id) => {
 
 const fetchRoleSync = (role_id) => {
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:8000//api/getSingleRole`, false); // `false` makes the request synchronous
+  xhr.open("POST", `${process.env.REACT_APP_BACKEND_URL}//api/getSingleRole`, false); // `false` makes the request synchronous
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.send(JSON.stringify({ id: role_id }));
 

@@ -17,7 +17,7 @@ const AddClient = () => {
     email: "",
     address: "",
     contactNumber: "",
-   // client_id:"",
+    client_id: "",
     bookedProperties: "",
     preferredPropertyType: "",
     notes: "",
@@ -37,8 +37,11 @@ console.log(property);
   const fetchclientID = async () => {
     const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getNextclientId`);
     const response = await res.json();
+    console.log(response)
       if (response.success) {
+        setData({...data, client_id:response.agent_id})
       setclientID(response.agent_id);
+
     }
   };
 
@@ -152,8 +155,7 @@ console.log(property);
 
     try {
       setLoader(true);
-      const formData = new FormData();
-      const res = await fetch(`http://localhost:8000/api/insertClient`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertClient`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -181,10 +183,6 @@ console.log(property);
     } catch (err) {
       console.log(err);
     }
-  };
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setData({ ...data, [e.target.name]: file });
   };
   const handleGoBack = () => {
     navigate(-1);

@@ -13,7 +13,7 @@ const Navbar = ({ toggleSideBar }) => {
     try {
       // Perform logout logic (e.g., API call to logout)
       const res = await fetch(
-        `http://localhost:8000/api//logout`,
+        `${process.env.REACT_APP_BACKEND_URL}/api//logout`,
         {
           method: "POST",
           credentials: "include", // Send cookies with the request

@@ -24,7 +24,7 @@ const Agent = () => {
   const fetchData = async () => {
     setLoader(true);
     // const res = await fetch(
-    //   `http://localhost:8000/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
+    //   `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
     // );
     // const response = await res.json();
     // if (response.success) {
@@ -48,7 +48,7 @@ const Agent = () => {
       if (count === 1) {
         agentOne = false;
       }
-      const res = await fetch(`http://localhost:8000/api/deleteemployee`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),

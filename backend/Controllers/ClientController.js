@@ -25,7 +25,7 @@ const updateClient = async (req, res) => {
 
     const result = await Client.updateOne(
       { _id: id },
-      { $set: updatedata.oldData }
+      { $set: updatedata.data }
     );
     if (!result) {
       res.status(404).json({ success: false, message: "Client not found" });
