@@ -57,7 +57,7 @@ const login = async (req, res) => {
 
     // Generate a JWT token
     const token = jwt.sign(
-      { id: admin._id, username: admin.username }, // Include role in the token payload if needed
+      { id: admin._id }, // Include role in the token payload if needed
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
