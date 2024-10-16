@@ -21,7 +21,7 @@ const SiteRoutes = require("./Routes/SiteRoutes");
 connectDB();
 const server = http.createServer(app);
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://aj-vproject-front.vercel.app",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   credentials: true,
