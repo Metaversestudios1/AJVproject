@@ -323,9 +323,10 @@ if (site.clientId) {
                   >
                     {item?.propertyName}
                   </th>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.ClientName}
-                  </td>
+                 <td className="px-6 py-4 border-2 border-gray-300">
+    {item?.ClientName}
+    <span style={{ display: 'none' }}>{item?.ClientId}</span>
+</td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.AgentName}
                   </td>
@@ -406,7 +407,7 @@ if (site.clientId) {
       </div>
       {noData && (
         <div className="text-center text-xl">
-          Currently! There are no clients in the storage.
+          Currently! There are no site in the storage.
         </div>
       )}
 
