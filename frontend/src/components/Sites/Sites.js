@@ -347,7 +347,7 @@ if (site.clientId) {
                       {item?.status === "Available" ? (
                         <div>
                           <button
-                            className="bg-green-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                             onClick={() =>
                               handleStatusChange(item._id, "Booked")
                             }
@@ -359,7 +359,7 @@ if (site.clientId) {
                       ) : (
                         <div>
                           <button
-                            className="bg-green-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                             //  onClick={() => handleStatusChange(item._id, 'approved')}
                           >
                             <NavLink to={`/addPropertyDetails/${item?._id}`}>
