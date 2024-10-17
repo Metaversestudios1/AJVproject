@@ -21,7 +21,10 @@ import EditSite from './components/Sites/EditSite';
 import Sites from './components/Sites/Sites';
 import AddPropertyDetails from './components/Sites/AddPropertyDetails';
 import EditClient from './components/Client/EditClient';
-
+import EditRank from './components/Rank/EditRank';
+import AddRank from './components/Rank/AddRank';
+import Ranks from './components/Rank/Ranks';
+import EditAgent from './components/Agent/EditAgent';
 
 
 
@@ -139,6 +142,20 @@ function App() {
       ),
     },
     {
+      path: "/agents/editagent/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <EditAgent/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
       path: "/properties",
       element: (
         <PrivateRoute>
@@ -234,6 +251,49 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <AddPropertyDetails/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/ranks",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Ranks/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "/ranks/addrank",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddRank/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/ranks/editrank/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <EditRank/>
           </div>
         </div>
         </PrivateRoute>

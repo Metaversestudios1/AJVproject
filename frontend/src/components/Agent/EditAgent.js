@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
 import { FaAngleDown } from "react-icons/fa6";
 
-const AddAgent = () => {
+const EditAgent = () => {
   const [loader, setLoader] = useState(false);
   const [agentID, setAgentID] = useState("");
   const [property, setProperty] = useState([]);
@@ -15,7 +15,8 @@ const AddAgent = () => {
   const [ranks, setRanks] = useState([]);
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
   const [propertyDropdownOpen, setPropertyDropdownOpen] = useState(false);
-
+  const params = useParams();
+  const { id } = params;
   const navigate = useNavigate();
 
   const initialState = {
@@ -26,15 +27,38 @@ const AddAgent = () => {
     clients: [],
     properties: [],
   };
-  const [data, setData] = useState(initialState);
+  const [oldData, setOldData] = useState(initialState);
 
   useEffect(() => {
-    fetchagentID();
+    fetchOldData();
     fetchproperty();
     fetchClients();
     fetchRank();
   }, []);
 
+  const fetchOldData = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const response = await res.json();
+    console.log(response)
+    if (response.success) {
+      setOldData({
+        ...oldData,
+        agentname: response.result.agentname,
+        agent_id: response.result.agent_id,
+        password: response.result.password,
+        rank: response.result.rank,
+        clients: response.result.clients,
+        properties: response.result.properties,
+      });
+    }
+  };
   const fetchRank = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getAllRank`
@@ -42,17 +66,6 @@ const AddAgent = () => {
     const response = await res.json();
     if (response.success) {
       setRanks(response.result);
-    }
-  };
-
-  const fetchagentID = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getNextagentId`
-    );
-    const response = await res.json();
-    if (response.success) {
-      setData({ ...data, agent_id: response.agent_id });
-      setAgentID(response.agent_id);
     }
   };
 
@@ -81,14 +94,14 @@ const AddAgent = () => {
     const { value, checked } = e.target;
 
     if (type === "clients") {
-      setData((prevState) => ({
+      setOldData((prevState) => ({
         ...prevState,
         clients: checked
           ? [...prevState.clients, value]
           : prevState.clients.filter((id) => id !== value),
       }));
     } else if (type === "properties") {
-      setData((prevState) => ({
+      setOldData((prevState) => ({
         ...prevState,
         properties: checked
           ? [...prevState.properties, value]
@@ -158,7 +171,7 @@ const AddAgent = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setData({ ...data, [name]: value });
+    setOldData({ ...oldData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -168,17 +181,18 @@ const AddAgent = () => {
     }
     try {
       setLoader(true);
+      const updatedata = { id, oldData };
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/insertAgent`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/updateAgent`,
         {
-          method: "POST",
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(updatedata),
         }
       );
       const response = await res.json();
       if (response.success) {
-        toast.success("New agent is added successfully!", {
+        toast.success("Agent is updated successfully!", {
           position: "top-right",
           autoClose: 1000,
         });
@@ -207,12 +221,15 @@ const AddAgent = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Add Agent</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Edit Agent</div>
         </div>
       </div>
       {loader ? (
         <div className="absolute w-[80%] h-[40%] flex justify-center items-center">
-          <div className="animate-spin h-8 w-8 border-4 border-current border-e-transparent rounded-full" role="status">
+          <div
+            className="animate-spin h-8 w-8 border-4 border-current border-e-transparent rounded-full"
+            role="status"
+          >
             <span className="sr-only">Loading...</span>
           </div>
         </div>
@@ -221,12 +238,15 @@ const AddAgent = () => {
           <form id="agentform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
               <div>
-                <label htmlFor="agent_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                <label
+                  htmlFor="agent_id"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
                   Agent id <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
                   name="agent_id"
-                  value={agentID}
+                  value={oldData?.agent_id}
                   type="text"
                   id="agent_id"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
@@ -234,12 +254,16 @@ const AddAgent = () => {
                 />
               </div>
               <div>
-                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                  Agent name <span className="text-red-900 text-lg ">&#x2a;</span>
+                <label
+                  htmlFor="agentname"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Agent name{" "}
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
                   name="agentname"
-                  value={data.agentname}
+                  value={oldData?.agentname}
                   onChange={handleChange}
                   type="text"
                   id="agentname"
@@ -249,50 +273,33 @@ const AddAgent = () => {
               </div>
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-
-            <div className="">
-            <label
-              htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-            >
-              Password
-              <span className="text-red-900 text-lg ">&#x2a;</span>
-            </label>
-            <input
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              type="password"
-              id="password"
-              className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              placeholder="Enter a password"
-            />
-          </div>
-            {/* Rank Dropdown */}
-            <div className="">
-              <label htmlFor="rank" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Rank
-              </label>
-              <select
-                name="rank"
-                value={data.rank}
-                onChange={handleChange}
-                className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
+          
+              <div className="">
+                <label
+                  htmlFor="rank"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Rank
+                </label>
+                <select
+                  name="rank"
+                  value={oldData?.rank}
+                  onChange={handleChange}
+                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
+                >
+                  <option value="">Select a rank.</option>
+                  {ranks.map((option) => (
+                    <option key={option._id} value={option._id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="">
+              <label
+                htmlFor="clients"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                <option value="">Select a rank.</option>
-                {ranks.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-
-            {/* Clients Dropdown */}
-            <div className="">
-              <label htmlFor="clients" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
                 Clients
               </label>
               <div className="relative">
@@ -307,56 +314,75 @@ const AddAgent = () => {
                 {clientDropdownOpen && (
                   <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
                     {clients.map((item) => (
-                      <div key={item._id} className="p-2 bg-gray-200 text-gray-900 text-sm">
+                      <div
+                        key={item._id}
+                        className="p-2 bg-gray-200 text-gray-900 text-sm"
+                      >
                         <input
                           type="checkbox"
                           id={`client-${item._id}`}
                           value={item._id}
-                          checked={data.clients.includes(item._id)}
+                          checked={oldData?.clients.includes(item._id)}
                           onChange={(e) => handleCheckboxChange(e, "clients")}
                           className="mr-2"
                         />
-                        <label htmlFor={`client-${item._id}`}>{item.clientname}</label>
+                        <label htmlFor={`client-${item._id}`}>
+                          {item.clientname}
+                        </label>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
+            </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+            
 
-            {/* Properties Dropdown */}
-            <div className="">
-              <label htmlFor="properties" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Properties
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setPropertyDropdownOpen(!propertyDropdownOpen)}
-                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
+              <div className="">
+                <label
+                  htmlFor="properties"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Select properties
-                  <FaAngleDown className="text-end" />
-                </button>
-                {propertyDropdownOpen && (
-                  <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
-                    {property.map((item) => (
-                      <div key={item._id} className="p-2 bg-gray-200 text-gray-900 text-sm">
-                        <input
-                          type="checkbox"
-                          id={`property-${item._id}`}
-                          value={item._id}
-                          checked={data.properties.includes(item._id)}
-                          onChange={(e) => handleCheckboxChange(e, "properties")}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`property-${item._id}`}>{item.propertyname}</label>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  Properties
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPropertyDropdownOpen(!propertyDropdownOpen)
+                    }
+                    className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
+                  >
+                    Select properties
+                    <FaAngleDown className="text-end" />
+                  </button>
+                  {propertyDropdownOpen && (
+                    <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
+                      {property.map((item) => (
+                        <div
+                          key={item._id}
+                          className="p-2 bg-gray-200 text-gray-900 text-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            id={`property-${item._id}`}
+                            value={item._id}
+                            checked={oldData?.properties.includes(item._id)}
+                            onChange={(e) =>
+                              handleCheckboxChange(e, "properties")
+                            }
+                            className="mr-2"
+                          />
+                          <label htmlFor={`property-${item._id}`}>
+                            {item.propertyname}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
             </div>
 
             <button
@@ -373,4 +399,4 @@ const AddAgent = () => {
   );
 };
 
-export default AddAgent;
+export default EditAgent;

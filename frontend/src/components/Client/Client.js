@@ -26,21 +26,50 @@ const Client = () => {
 
   const fetchData = async () => {
     setLoader(true);
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
-    );
-    const response = await res.json();
-    console.log(response.result);
-    if (response.success) {
-      setNoData(false);
-      if (response.result.length === 0) {
-        setNoData(true);
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
+      );
+      const response = await res.json();
+  
+      if (response.success) {
+        const clientsData = response.result;
+  
+        // Fetch the booked property name for each client
+        const updatedClients = await Promise.all(
+          clientsData.map(async (client) => {
+            if (client.bookedProperties) {
+              // Fetch the property details using the property ID
+              const propertyRes = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,{
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id : client.bookedProperties }),
+                }
+              );
+              const propertyData = await propertyRes.json();
+              console.log(propertyData)
+              // Add the property name to the client object
+              if (propertyData.success) {
+                client.bookedProperties = propertyData.result.propertyname
+                ; // Assuming the API returns propertyName
+              }
+            }
+            return client;
+          })
+        );
+  console.log(updatedClients)
+        setClients(updatedClients);
+        setCount(response.count);
+        setNoData(updatedClients.length === 0);
       }
-      setClients(response.result);
-      setCount(5);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    } finally {
       setLoader(false);
-     }
+    }
   };
+  
 
   const handleDelete = async (e, id) => {
     e.preventDefault();

@@ -65,7 +65,6 @@ const EditClient = () => {
       setproperty(response.result);
     }
   };
-
   const validateclientform = () => {
     $.validator.addMethod(
       "validPhone",
@@ -91,13 +90,10 @@ const EditClient = () => {
           required: true,
           validPhone: true,
         },
-        bookedProperties: {
-          required: true,
-        },
         preferredPropertyType: {
           required: true,
         },
-
+    
         password: {
           required: true, // Apply custom experience validation
         },
@@ -119,9 +115,6 @@ const EditClient = () => {
         contactNumber: {
           required: "Please enter phone number",
           validPhone: "Phone number must be exactly 10 digits", // Custom error message
-        },
-        bookedProperties: {
-          required: "Please enter booked properties details",
         },
         preferredPropertyType: {
           required: "Please enter preferred Property Type",
@@ -152,10 +145,19 @@ const EditClient = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if the name includes nested object properties
-    setData({ ...data, [name]: value });
+    if (name === "contactNumber") {
+      // Allow empty input (for deletion) or validate if it's a number
+      if (value === "" || !isNaN(value)) {
+        setData({ ...data, [name]: value });
+      } else {
+        console.log("Contact number must be a valid number");
+      }
+    } else {
+      // Update state for other fields
+      setData({ ...data, [name]: value });
+    }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

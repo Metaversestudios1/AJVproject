@@ -70,7 +70,7 @@ const getSingleClient = async (req, res) => {
   try {
     const result = await Client.findOne({ _id: id });
     if (!result) {
-      res.status(404).json({ success: false, message: "Client not found" });
+      return res.status(404).json({ success: false, message: "Client not found" });
     }
     res.status(201).json({ success: true, result: result });
   } catch (error) {
@@ -155,15 +155,15 @@ const clientlogin = async (req, res) => {
   
 const getNextclientId = async (req,res) => {
     try {
-      const lastclient = await Client.findOne().sort({ client_id: -1 }).exec();  
+      const lastclient = await Client.findOne({ deleted_at:null }).sort({ client_id: -1}).exec();  
       if (!lastclient) {
           return res
-          .status(404)
-          .json({ success: true,agent_id:200001 });
+          .status(201)
+          .json({ success: true,client_id:200001 });
       }
       return res
-      .status(404)
-      .json({ success: true,client_id:lastclient.client_id + 1});
+      .status(201)
+      .json({ success: true,client_id:parseInt(lastclient.client_id) + 1});
      
     } catch (err) {
       // Handle any potential errors

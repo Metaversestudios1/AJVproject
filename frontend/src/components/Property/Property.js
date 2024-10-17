@@ -32,7 +32,7 @@ const Property = () => {
         setNoData(true);
       }
       setProperties(response.result);
-      setCount(5);
+      setCount(response.count);
       setLoader(false);
     }
   };
