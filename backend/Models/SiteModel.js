@@ -4,35 +4,34 @@ const siteSchema = new mongoose.Schema(
   {
     propertyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Property", // Reference to the Property model
-      required: true,
-    },
+      ref: "property", // Reference to the Property model
+     },
     siteNumber: {
-      type: String,
-      required: true, // Site number for differentiation
+      type:String
     },
     status: {
       type: String,
       enum: ["Booked", "Available"], // Enum for site booking status
-      default: "Available",
     },
     agentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin", // Reference to the Agent model
+      type:String
+    },
+    description:{
+      type: String,
     },
     clientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Client", // Reference to the Client model
+      ref: "client", // Reference to the Client model
     },
     propertyDetails: {
       totalValue: {
-        type: mongoose.Types.Decimal128, // Decimal valu e for the total site value
+        type:Number, // Decimal valu e for the total site value
       },
       amountPaid: {
-        type: mongoose.Types.Decimal128, // Decimal value for amount paid by the client
+        type: Number, // Decimal value for amount paid by the client
       },
       balanceRemaining: {
-        type: mongoose.Types.Decimal128, // Decimal value for the balance remaining
+        type:Number, // Decimal value for the balance remaining
       },
     },
     saleDeedDetails: {
@@ -48,14 +47,12 @@ const siteSchema = new mongoose.Schema(
       seller: {
         type: String,
       },
-      propertyDescription: {
-        type: String,
-      },
+     
       saleAmount: {
-        type: mongoose.Types.Decimal128,
+        type: Number,
       },
       witnesses: {
-        type: [String], // Array of witness names
+        type: String, // Array of witness names
       },
       registrationDate: {
         type: Date,

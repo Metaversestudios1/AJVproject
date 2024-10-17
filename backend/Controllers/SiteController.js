@@ -65,6 +65,7 @@ const getAllSite = async (req, res) => {
   }
 };
 const getSingleSite = async (req, res) => {
+  console.log(req.body);
   const { id } = req.body;
   try {
     const result = await Site.findOne({ _id: id });
@@ -102,10 +103,27 @@ const deleteSite = async (req, res) => {
       .json({ success: false, message: "error fetching Site" });
   }
 };
+const updatesitestatus = async (req, res) => {
+  try {
+    console.log(res.body);
+      const { id } = req.params
+      const status = req.body.status;
+      const Sitenew = await Site.findById(id);
+      Sitenew.status = status;
+      await Sitenew.save();
+      res.status(200).json({ success: true });
+
+  } catch (err) {
+      res.status(500).json({ success: false, message: "error fetching transaction", error: err.message });
+
+  }
+
+}
 module.exports = {
   insertSite,
   updateSite,
   getAllSite,
   getSingleSite,
   deleteSite,
+  updatesitestatus
 };

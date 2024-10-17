@@ -8,10 +8,11 @@ import "jquery-validation";
 
 const EditSite = () => {
   const [loader, setLoader] = useState(true);
-  const [clients, setClients] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [properties, setProperties] = useState([]);
+  const [description, setDescription] = useState([]);
+  const [SiteStatus, setStatus] = useState([]);
   const [propertyName, setPropertyName] = useState("");
+  const [properties, setProperties] = useState([]); 
+  const [error, setError] = useState("");
   const params = useParams();
   const { id } = params;
   const navigate = useNavigate();
@@ -31,10 +32,8 @@ const EditSite = () => {
     setLoader(true);
     const fetchData = async () => {
       try {
-        const [agentRes, clientRes, allPropertyRes, propertyRes] =
+        const [ allPropertyRes, propertyRes] =
           await Promise.all([
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
             fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`),
             fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`, {
               method: "POST",
@@ -43,17 +42,12 @@ const EditSite = () => {
             }),
           ]);
 
-        const [agentData, clientData, propertyData, allPropertyData] =
+        const [ propertyData, allPropertyData] =
           await Promise.all([
-            agentRes.json(),
-            clientRes.json(),
             propertyRes.json(),
             allPropertyRes.json(),
           ]);
-        if (agentData.success)
-          setAgents([{ agentname: "happy", _id: "670f5383cfcf0e7090ea312e" }]);
-        if (clientData.success)
-          setClients([{ name: "heera", _id: "670f5383cfcf0e7070ea312e" }]);
+      
         if (allPropertyData.success) setProperties(allPropertyData.result);
         if (propertyData.success) {
           setOldData((prevData) => ({
@@ -87,6 +81,8 @@ const EditSite = () => {
         siteNumber: response?.result?.siteNumber,
         agentId: response?.result?.agentId,
         clientId: response?.result?.clientId,
+        status: response?.result?.status,
+        description: response?.result?.description,
       });
     }
   };
@@ -108,12 +104,10 @@ const EditSite = () => {
         siteNumber: {
           required: true,
         },
-        agentId: {
+        status: {
           required: true,
         },
-        clientId: {
-          required: true,
-        },
+       
       },
       messages: {
         propertyId: {
@@ -122,8 +116,8 @@ const EditSite = () => {
         siteNumber: {
           required: "Please enter site number",
         },
-        agentId: {
-          required: "Please enter agent id",
+        status: {
+          required: "Please select site status",
         },
         clientId: {
           required: "Please enter client id",
@@ -245,7 +239,8 @@ const EditSite = () => {
               <select
                 name="propertyId"
                 value={oldData?.propertyId} // This keeps the property ID selected
-                onChange={handleChange} // This updates the ID in state when a new option is selected
+                onChange={handleChange} 
+                disabled// This updates the ID in state when a new option is selected
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
               >
                 <option value="">Select a property.</option>
@@ -262,61 +257,6 @@ const EditSite = () => {
                 })}
               </select>
             </div>
-            <div className="my-2">
-              <label
-                htmlFor="agentId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Agents
-              </label>
-              <select
-                name="agentId"
-                value={oldData?.agentId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select an agent.</option>
-                {agents.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                    >
-                      {option?.agentname}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="my-2">
-              <label
-                htmlFor="clientId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Clients
-              </label>
-              <select
-                name="clientId"
-                value={oldData?.clientId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select a client.</option>
-                {clients.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                    >
-                      {option?.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-
             <div className="my-2">
               <label
                 htmlFor="siteNumber"
@@ -337,6 +277,64 @@ const EditSite = () => {
               />
             </div>
 
+            <div className="my-2">
+              <label
+                htmlFor="status"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Site Status
+              </label>
+              <select
+                name="status"
+                id="status"
+                value={oldData?.status}
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+              >
+                <option value="">Select Status for site.</option>
+               
+                    <option
+                      key="Booked"
+                      value="Booked"
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                      selected={oldData.status === 'Booked'}
+            
+                 >
+                      Booked
+                    </option>
+                  
+                    <option
+                      key="Available"
+                      value="Available"
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                      selected={oldData.status === 'Available'}
+            
+                  >
+                      Available
+                    </option>
+
+              </select>
+            </div>
+            <div className="my-2">
+              <label
+                htmlFor="clientId"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Site Description 
+              </label>
+              <textarea
+                name="description"
+                value={oldData.description}
+                onChange={handleChange}
+                type="text"
+                id="description"
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                placeholder="Enter site number"
+                required
+              />
+              
+            </div>
+            
             <button
               type="submit"
               onClick={handleSubmit}

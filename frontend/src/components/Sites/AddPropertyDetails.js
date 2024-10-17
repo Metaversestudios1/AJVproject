@@ -10,6 +10,7 @@ const AddPropertyDetails = () => {
   const [loader, setLoader] = useState(false);
   const [clients, setClients] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [siteid, setsiteid] = useState([]);
   const [propertyName, setPropertyName] = useState("");
   const [error, setError] = useState("");
   const params = useParams();
@@ -17,11 +18,14 @@ const AddPropertyDetails = () => {
   const navigate = useNavigate();
 
   const initialState = {
+    agentId: "",
+    clientId: "",
     propertyDetails: {
       totalValue: "",
       amountPaid: "",
       balanceRemaining: "",
     },
+    
     saleDeedDetails: {
       deedNumber: "",
       executionDate: "",
@@ -34,69 +38,88 @@ const AddPropertyDetails = () => {
     },
   };
   const [data, setData] = useState(initialState);
-  //   useEffect(() => {
-  //     setLoader(true);
-  //     const fetchData = async () => {
-  //       try {
-  //         const [agentRes, clientRes, propertyRes] = await Promise.all([
-  //           fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
-  //           fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
-  //           fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`, {
-  //             method: "POST",
-  //             headers: { "Content-Type": "application/json" },
-  //             body: JSON.stringify({ id }),
-  //           }),
-  //         ]);
-
-  //         const [agentData, clientData, propertyData] = await Promise.all([
-  //           agentRes.json(),
-  //           clientRes.json(),
-  //           propertyRes.json(),
-  //         ]);
-
-  //         if (agentData.success)
-  //           setAgents([{ agentname: "happy", _id: "670f5383cfcf0e7090ea312e" }]);
-  //         if (clientData.success)
-  //           setClients([{ name: "heera", _id: "670f5383cfcf0e7070ea312e" }]);
-  //         if (propertyData.success) {
-  //           setData((prevData) => ({
-  //             ...prevData,
-  //             propertyId: propertyData.result._id, // Store the ID in data
-  //           }));
-  //           setPropertyName(propertyData.result.propertyname); // Store the name separately
-  //         }
-  //         setLoader(false);
-  //       } catch (error) {
-  //         console.error("Error fetching data:", error);
-  //       }
-  //     };
-
-  //     fetchData();
-  //   }, [id]);
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const [agentRes, clientRes] = await Promise.all([
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
+          ]);
+  
+          const [agentData, clientData] = await Promise.all([
+            agentRes.json(),
+            clientRes.json(),
+          ]);
+  console.log(clientData);
+          if (agentData.success) setAgents(agentData.result);
+          if (clientData.success) setClients(clientData.result);
+          setLoader(false);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+  
+      fetchData();
+      fetchOldData();
+    }, [id]);
 
   const validatesiteform = () => {
     $("#siteform").validate({
       rules: {
         totalValue: {
           required: true,
+          number: true, // Ensures that only numbers (including decimals) are allowed
+    
         },
+        clientId: {
+          required: true,
+        
+        },
+        // agentId: {
+        //   required: true,
+        
+        // },
         amountPaid: {
           required: true,
+          number: true, 
         },
         balanceRemaining: {
           required: true,
+          number: true, 
+        },
+        
+        saleAmount: {
+      number: true, 
         },
       },
       messages: {
         totalValue: {
           required: "Please enter total value",
+          number: "Please enter a valid number", // Custom message for number validation
+   
         },
         amountPaid: {
           required: "Please enter amount paid",
+          number: "Please enter a valid number", // Custom message for number validation
+   
         },
         balanceRemaining: {
           required: "Please enter Balance remaining",
+          number: "Please enter a valid number", // Custom message for number validation
+   
         },
+        saleAmount: {
+           number: "Please enter a valid number", // Custom message for number validation
+   
+        },
+        agentId: {
+          required: "Please select client",
+         
+       },
+       clientId: {
+        required: "Please select client",
+         
+     },
       },
       errorElement: "div",
       errorPlacement: function (error, element) {
@@ -141,6 +164,55 @@ const AddPropertyDetails = () => {
       setData({ ...data, [name]: value });
     }
   };
+  const fetchOldData = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleSite`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
+      const result = await response.json();
+      if (result.success) {        
+        const formatDate = (dateString) => {
+          if (dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().split("T")[0]; // Convert to yyyy-mm-dd format
+          }
+          return ""; // Return empty if dateString is null/undefined
+        };
+        const propertyDetails = result.result?.propertyDetails || {};
+        const saleDeedDetails = result.result?.saleDeedDetails || {};
+        console.log(result.result?.clientId);
+        setData({
+          clientId:
+          result.result?.clientId,      
+          agentId:result.result?.agentId,         
+          propertyDetails: {
+            totalValue: propertyDetails.totalValue || "",
+            amountPaid: propertyDetails.amountPaid || "",
+            balanceRemaining: propertyDetails.balanceRemaining || "",
+            
+          },
+          saleDeedDetails: {
+            deedNumber: saleDeedDetails.deedNumber || "",
+            executionDate: formatDate(saleDeedDetails.executionDate),
+            registrationDate: formatDate(saleDeedDetails.registrationDate),
+            seller: saleDeedDetails.seller || "",
+            saleAmount: saleDeedDetails.saleAmount || "",
+            witnesses: saleDeedDetails.witnesses || "",
+            buyer: saleDeedDetails.buyer || "",
+          },
+        });
+      } else {
+        console.error("No data found for the given parameter.");
+      }
+    } catch (error) {
+      console.error("Failed to fetch old data:", error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -156,7 +228,6 @@ const AddPropertyDetails = () => {
         body: JSON.stringify(updatedata),
       });
       const response = await res.json();
-      console.log(response);
       if (response.success) {
         toast.success("Property details updated Successfully for the site!", {
           position: "top-right",
@@ -183,9 +254,7 @@ const AddPropertyDetails = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
-  console.log(data);
-
-  return (
+   return (
     <>
       <div className="flex items-center ">
         <ToastContainer
@@ -224,9 +293,73 @@ const AddPropertyDetails = () => {
           </div>
         </div>
       ) : (
-        <div className="w-[50%] m-auto my-10">
+        <div className="w-[70%] m-auto my-10">
           <form id="siteform">
+          <label><b>Property Details</b></label>
+          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+           
+          <div className="my-2">
+              <label
+                htmlFor="clientId"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Clients
+              </label>
+              <select
+                name="clientId"
+                value={data?.clientId}
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+              >
+                <option value="">Select a client.</option>
+                {clients.map((option) => {
+                  return (
+                    <option
+                      key={option?._id}
+                      value={option?._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                      selected={option._id === data?.clientId}
+                    >
+                      {option?.clientname}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
             <div className="my-2">
+              <label
+                htmlFor="agentId"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Agents
+              </label>
+              <select
+                name="agentId"
+                value={data?.agentId}
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+              >
+                <option value="">Select an agent.</option>
+                {agents.map((option) => {
+                  return (
+                    <option
+                      key={option?._id}
+                      value={option?._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                      selected={option._id === data.agentId}
+                   
+                   >
+                      {option?.agentname}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            </div>
+
+          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+           
+          <div>
               <label
                 htmlFor="totalValue"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -241,11 +374,11 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="totalValue"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter total value"
+                placeholder="Eg.1234.."
                 required
               />
-            </div>
-            <div className="my-2">
+           </div>
+           <div>
               <label
                 htmlFor="amountPaid"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -260,11 +393,14 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="amountPaid"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter amount paid"
+                placeholder="Eg.1200.."
                 required
               />
             </div>
-            <div className="my-2">
+            </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+       
+            <div >
               <label
                 htmlFor="balanceRemaining"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -279,11 +415,18 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="balanceRemaining"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter balance remaining"
+                placeholder="Eg.100.."
                 required
               />
             </div>
-            <div className="my-2">
+            </div>
+            <label><b>Sales Deed Details</b></label>&ensp;
+            &ensp;
+            <br></br>
+          
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+       
+            <div >
               <label
                 htmlFor="deedNumber"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -297,10 +440,13 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="deedNumber"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter deed number"
+                placeholder="Eg.ABCD"
               />
             </div>
-            <div className="my-2">
+            </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+           
+            <div >
               <label
                 htmlFor="executionDate"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -317,7 +463,7 @@ const AddPropertyDetails = () => {
                 placeholder="Enter execution date"
               />
             </div>
-            <div className="my-2">
+            <div >
               <label
                 htmlFor="buyer"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -326,49 +472,19 @@ const AddPropertyDetails = () => {
               </label>
               <input
                 name="buyer"
-                value={data.propertyDetails.buyer}
+                value={data.saleDeedDetails.buyer}
                 onChange={handleChange}
                 type="text"
                 id="buyer"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter buyer name"
+                placeholder="Eg.MR.John"
               />
             </div>
-            <div className="my-2">
-              <label
-                htmlFor="seller"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Seller
-              </label>
-              <input
-                name="seller"
-                value={data.saleDeedDetails.seller}
-                onChange={handleChange}
-                type="text"
-                id="seller"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter seller name"
-              />
             </div>
-            <div className="my-2">
-              <label
-                htmlFor="propertyDescription"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Property Description
-              </label>
-              <input
-                name="propertyDescription"
-                value={data.saleDeedDetails.propertyDescription}
-                onChange={handleChange}
-                type="text"
-                id="propertyDescription"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter property description"
-              />
-            </div>
-            <div className="my-2">
+            
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+       
+            <div >
               <label
                 htmlFor="saleAmount"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -382,10 +498,10 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="saleAmount"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter Sale Amount"
+                placeholder="Eg.200"
               />
             </div>
-            <div className="my-2">
+            <div>
               <label
                 htmlFor="witnesses"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -399,9 +515,31 @@ const AddPropertyDetails = () => {
                 type="text"
                 id="witnesses"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter witnesses"
+                placeholder="Jane Smith"
               />
             </div>
+            </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+       
+       <div >
+       <label
+         htmlFor="seller"
+         className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+       >
+       Seller
+       </label>
+       <input
+         name="seller"
+         value={data.saleDeedDetails.seller}
+         onChange={handleChange}
+         type="text"
+         id="seller"
+         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+         placeholder="MR.John"
+       />
+     </div>
+     
+     </div>
             <button
               type="submit"
               onClick={handleSubmit}

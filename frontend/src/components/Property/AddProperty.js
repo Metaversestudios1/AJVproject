@@ -17,6 +17,7 @@ const AddProperty = () => {
     description: "",
     address: "",
     sites: "",
+    photo: null,
   };
   const [data, setData] = useState(initialState);
 
@@ -46,7 +47,7 @@ const AddProperty = () => {
       },
       messages: {
         propertyname: {
-          required: "Please enter prpperty name",
+          required: "Please enter property name",
         },
         description: {
           required: "Please enter description",
@@ -77,9 +78,13 @@ const AddProperty = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if the name includes nested object properties
     setData({ ...data, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    setData({ ...data, photo: file });
   };
 
   const handleSubmit = async (e) => {
@@ -87,13 +92,19 @@ const AddProperty = () => {
     if (!validatepropertyform()) {
       return;
     }
+    console.log(data);
     try {
-      setLoader(true);
+  setLoader(true);
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        formData.append(key, data[key]);
+      });
       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertProperty`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: formData,
       });
+    
+     
       const response = await res.json();
       if (response.success) {
         toast.success("New Property is added Successfully!", {
@@ -107,7 +118,7 @@ const AddProperty = () => {
           theme: "light",
         });
         setTimeout(() => {
-          navigate("/properties");
+         navigate("/properties");
         }, 1500);
       } else {
         setLoader(false);
@@ -117,7 +128,7 @@ const AddProperty = () => {
       console.log(err);
     }
   };
-
+ 
   const handleGoBack = () => {
     navigate(-1);
   };
@@ -175,7 +186,7 @@ const AddProperty = () => {
                 type="text"
                 id="propertyname"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter property name"
+                placeholder="eg.ABC View Heights"
                 required
               />
             </div>
@@ -190,10 +201,10 @@ const AddProperty = () => {
                 name="sites"
                 value={data.sites}
                 onChange={handleChange}
-                type="text"
+                type="number"
                 id="sites"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter number of sites"
+                placeholder="Enter total sites (e.g., 25)"
               />
             </div>
             <div className="my-2">
@@ -211,7 +222,7 @@ const AddProperty = () => {
                 type="text"
                 id="description"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter description"
+                placeholder="lorem ipsum..."
                 required
               />
             </div>
@@ -231,11 +242,29 @@ const AddProperty = () => {
                 type="text"
                 id="address"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter address"
+                placeholder="1234 Elm Street, xyz land"
                 required
               />
             </div>
             
+            <div className="my-2">
+              <label
+                htmlFor="address"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Property Image
+              </label>
+              <input
+                name="photo"
+                value={data.photp}
+                onChange={handleFileChange}
+                type="file"
+                id="photo"
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                placeholder="1234 Elm Street, xyz land"
+                
+              />
+            </div>
             <button
               type="submit"
               onClick={handleSubmit}

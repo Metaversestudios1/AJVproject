@@ -197,6 +197,21 @@ function App() {
       ),
     },
     {
+      path: "/sites/addSite",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddSite/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+
       path: "/sites/editsite/:id",
       element: (
         <PrivateRoute>

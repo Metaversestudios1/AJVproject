@@ -8,9 +8,10 @@ import "jquery-validation";
 
 const AddSite = () => {
   const [loader, setLoader] = useState(false);
-  const [clients, setClients] = useState([]);
-  const [agents, setAgents] = useState([]);
+  const [description, setDescription] = useState([]);
+  const [SiteStatus, setStatus] = useState([]);
   const [propertyName, setPropertyName] = useState("");
+  const [properties, setProperties] = useState([]); 
   const [error, setError] = useState("");
   const params = useParams();
   const { id } = params;
@@ -19,48 +20,59 @@ const AddSite = () => {
   const initialState = {
     propertyId: "",
     siteNumber: "",
-    agentId: "",
-    clientId: "",
+    description: "",
+    status: "",
   };
   const [data, setData] = useState(initialState);
   useEffect(() => {
-    setLoader(true);
-    const fetchData = async () => {
-      try {
-        const [agentRes, clientRes, propertyRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
-          }),
-        ]);
-
-        const [agentData, clientData, propertyData] = await Promise.all([
-          agentRes.json(),
-          clientRes.json(),
-          propertyRes.json(),
-        ]);
-
-        if (agentData.success) setAgents([{agentname: "happy", _id:"670f5383cfcf0e7090ea312e"}]);
-        if (clientData.success) setClients([{name: "heera", _id:"670f5383cfcf0e7070ea312e"}]);
-        if (propertyData.success) {
-          setData((prevData) => ({
-            ...prevData,
-            propertyId: propertyData.result._id, // Store the ID in data
-          }));
-          setPropertyName(propertyData.result.propertyname); // Store the name separately
-        }
-        setLoader(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+     fetchData();
   }, [id]);
-
+  const fetchData = async () => {
+    try {
+      let feturl;
+  
+      if (id) {
+        // If the ID is present in the URL, fetch data for that specific user
+        feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getsinglePropertyID?id=${id}`;
+      } else {
+        // If no ID in URL, fetch all properties
+        feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`;
+      }
+  
+      const propertyRes = await fetch(feturl, {
+        method: "get",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const propertyData = await propertyRes.json();
+  
+      if (propertyData.success) {
+        setProperties(propertyData.result);
+        // Check if ID is present and set the selected property accordingly
+        if (id) {   
+          const firstProperty = propertyData.result[0]; // Assuming the response contains the properties in an array
+        setPropertyName(firstProperty._id);
+        setData((prevData) => ({
+          ...prevData,
+          propertyId: firstProperty._id, // Set the propertyId here
+        }));
+          // Store the name separately
+        } else {
+          // If no ID, reset the selected property
+          // setData((prevData) => ({
+          //   ...prevData,
+          //   propertyId: null, // or any default value you want to set
+          // }));
+          setProperties(propertyData.result);
+          setPropertyName(""); // Reset the property name
+        }
+      }
+      setLoader(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  
   const validatesiteform = () => {
     $.validator.addMethod(
       "validPhone",
@@ -78,26 +90,22 @@ const AddSite = () => {
         siteNumber: {
           required: true,
         },
-        agentId: {
+        status: {
           required: true,
         },
-        clientId: {
-          required: true,
-        },
+        
       },
       messages: {
         propertyId: {
-          required: "Please enter Property id",
+          required: "Please enter Property",
         },
         siteNumber: {
           required: "Please enter site number",
         },
-        agentId: {
-          required: "Please enter agent id",
+        status: {
+          required: "Please select site status",
         },
-        clientId: {
-          required: "Please enter client id",
-        },
+       
       },
       errorElement: "div",
       errorPlacement: function (error, element) {
@@ -118,8 +126,7 @@ const AddSite = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if the name includes nested object properties
+       // Check if the name includes nested object properties
     setData({ ...data, [name]: value });
   };
 
@@ -136,7 +143,6 @@ const AddSite = () => {
         body: JSON.stringify(data),
       });
       const response = await res.json();
-      console.log(response)
       if (response.success) {
         toast.success("New Site is added Successfully!", {
           position: "top-right",
@@ -163,7 +169,6 @@ const AddSite = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
-  console.log(data)
 
   return (
     <>
@@ -212,77 +217,28 @@ const AddSite = () => {
             Property
           </label>
           <select
-            name="propertyId"
-            value={data.propertyId} // This keeps the property ID selected
-            onChange={handleChange} // This updates the ID in state when a new option is selected
-            className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-          >
-            <option value="">Select a property.</option>
-            <option
-              key={id} // Key should be unique
-              value={id} // This is the ID value passed
-              className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-            >
-              {propertyName} {/* This is where you display the name, not the ID */}
-            </option>
-          </select>
+                name="propertyId"
+                id="propertyId"               
+                onChange={handleChange} // This updates the ID in state when a new option is selected
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+              >
+                 { !id && <option value="">Select a property.</option> }
+                {/* Map through properties to create dropdown options */}
+                {properties.map((property) => (
+                  <option
+                   key={property._id} // Assuming each property has a unique ID
+                   value={property._id} // The ID of the property
+                   disabled={property._id === setPropertyName} // Disable the option if it is selected
+                   selected={property._id === setPropertyName} // Check if this option should be selected
+              
+                    className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                  >
+                    {property.propertyname} {/* Display the name of the property */}
+                  </option>
+                ))}
+              </select>
         </div>
-            <div className="my-2">
-              <label
-                htmlFor="agentId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Agents
-              </label>
-              <select
-                name="agentId"
-                value={data?.agentId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select an agent.</option>
-                {agents.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                    >
-                      {option?.agentname}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="my-2">
-              <label
-                htmlFor="clientId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Clients
-              </label>
-              <select
-                name="clientId"
-                value={data?.clientId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select a client.</option>
-                {clients.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                    >
-                      {option?.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <div className="my-2">
+        <div className="my-2">
               <label
                 htmlFor="siteNumber"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -290,17 +246,71 @@ const AddSite = () => {
                 Site Number
                 <span className="text-red-900 text-lg ">&#x2a;</span>
               </label>
-              <textarea
+              <input
                 name="siteNumber"
                 value={data.siteNumber}
                 onChange={handleChange}
                 type="text"
                 id="siteNumber"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                placeholder="Eg A-904"
+                required
+              />
+            </div>
+            <div className="my-2">
+              <label
+                htmlFor="status"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Site Status
+              </label>
+              <select
+                name="status"
+                value={data?.status}
+                id="status"
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+              >
+                <option value="">Select Status for site.</option>
+               
+                    <option
+                      key="Booked"
+                      value="Booked"
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      Booked
+                    </option>
+                  
+                    <option
+                      key="Available"
+                      value="Available"
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      Available
+                    </option>
+
+              </select>
+            </div>
+            <div className="my-2">
+              <label
+                htmlFor="clientId"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+              >
+                Site Description 
+              </label>
+              <textarea
+                name="description"
+                value={data.description}
+                onChange={handleChange}
+                type="text"
+                id="description"
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                 placeholder="Enter site number"
                 required
               />
             </div>
+
+          
 
             <button
               type="submit"
