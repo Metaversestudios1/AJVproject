@@ -145,12 +145,7 @@ const getAllProperty = async (req, res) => {
       deleted_at: null,
     };
     if (search) {
-      query.$or = [
-          { propertyname: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-          { address: { $regex: search, $options: "i" } },
-          { sites: { $regex: search, $options: "i" } }
-      ];
+      query.propertyname = { $regex: search, $options: "i" };
   }
 
     const result = await Property.find(query)
