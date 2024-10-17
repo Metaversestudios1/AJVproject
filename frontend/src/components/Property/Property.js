@@ -189,13 +189,15 @@ const Property = () => {
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
   {item?.photo?.url && (
     <>
+      <a href={item.photo.url} target="_blank" rel="noopener noreferrer">
       <img
         src={item.photo.url}
         alt="Profile"
+
         className="w-12 h-12 rounded-full object-cover aspect-square"
         style={{ width: "50px", height: "50px" }} // Set width and height to 50px
       />
-     
+     </a>
     </>
   )}
 </td>
