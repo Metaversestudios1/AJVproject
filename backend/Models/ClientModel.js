@@ -38,6 +38,10 @@ const clientSchema = new mongoose.Schema({
     type: Date,
     default: Date.now, // Automatically sets the updatedAt field to the current date/time
   },
+  deleted_at: {
+      type: Date,
+      default: null,
+    },
 } ,{ timestamps: true, collection: "client" });
 
 module.exports= mongoose.model("Client",clientSchema);

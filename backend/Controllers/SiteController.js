@@ -1,3 +1,4 @@
+const PropertyModel = require("../Models/PropertyModel");
 const Site = require("../Models/SiteModel");
 const bcrypt = require("bcrypt");
 const insertSite = async (req, res) => {
@@ -41,35 +42,47 @@ const updateSite = async (req, res) => {
 
 const getAllSite = async (req, res) => {
   try {
-    const pageSize = parseInt(req.query.limit);
-    const page = parseInt(req.query.page);
+    const pageSize = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
     const search = req.query.search;
 
+    // Build query to match sites
     const query = {
-      deleted_at: null,
+      deleted_at: null, // Ensure we only match non-deleted sites
     };
-    if (search) {
-      query.$or = [
-          { propertyname: { $regex: search, $options: "i" } },
-          { clientID: { $regex: search, $options: "i" } },
-          { address: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-          { siteNumber: { $regex: search, $options: "i" } }
-      ];
-  }
 
+    // If search string is provided, we search within the related property name
+    if (search) {
+      const properties = await PropertyModel.find({
+        propertyname: { $regex: search, $options: "i" },
+      }).select("_id"); // Only select property IDs
+
+      // If properties are found, use their IDs in the query
+      if (properties.length > 0) {
+        const propertyIds = properties.map(property => property._id);
+        query.propertyId = { $in: propertyIds };
+      } else {
+        // If no matching properties found, return empty result
+        return res.status(200).json({ success: true, result: [], count: 0 });
+      }
+    }
+
+    // Perform the site query with pagination
     const result = await Site.find(query)
+      .populate('propertyId', 'propertyname') // Populate the propertyname
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
+
     const count = await Site.find(query).countDocuments();
+
     res.status(200).json({ success: true, result, count });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "error inserting Site" });
+    console.error("Error fetching Sites:", error);  // Log the actual error
+    res.status(500).json({ success: false, message: `Error fetching Sites: ${error.message}` });
   }
 };
+
 const getSingleSite = async (req, res) => {
   console.log(req.body);
   const { id } = req.body;

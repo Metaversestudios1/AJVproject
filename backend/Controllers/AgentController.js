@@ -51,7 +51,7 @@ const getAllAgent = async (req, res) => {
       deleted_at: null,
     };
     if (search) {
-      query.name = { $regex: search, $options: "i" };
+      query.agentname = { $regex: search, $options: "i" };
     }
 
     const result = await Agent.find(query)
@@ -69,7 +69,7 @@ const getSingleAgent = async (req, res) => {
   try {
     const result = await Agent.findOne({ _id: id });
     if (!result) {
-      res.status(404).json({ success: false, message: "Agent not found" });
+      return res.status(404).json({ success: false, message: "Agent not found" });
     }
     res.status(201).json({ success: true, result: result });
   } catch (error) {

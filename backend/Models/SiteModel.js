@@ -4,7 +4,7 @@ const siteSchema = new mongoose.Schema(
   {
     propertyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "property", // Reference to the Property model
+      ref: "Property", // Reference to the Property model
      },
     siteNumber: {
       type:String

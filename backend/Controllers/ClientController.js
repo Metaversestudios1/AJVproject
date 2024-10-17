@@ -52,7 +52,7 @@ const getAllClient = async (req, res) => {
       deleted_at: null,
     };
     if (search) {
-      query.name = { $regex: search, $options: "i" };
+      query.clientname = { $regex: search, $options: "i" };
     }
 
     const result = await Client.find(query)

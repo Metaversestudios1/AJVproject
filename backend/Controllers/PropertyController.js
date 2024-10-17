@@ -170,7 +170,7 @@ const getSingleProperty = async (req, res) => {
   try {
     const result = await Property.findOne({ _id: id });
     if (!result) {
-      res.status(404).json({ success: false, message: "Property not found" });
+      return res.status(404).json({ success: false, message: "Property not found" });
     }
     res.status(201).json({ success: true, result: result });
   } catch (error) {

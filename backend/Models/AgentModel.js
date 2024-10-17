@@ -37,7 +37,11 @@ const AgentSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now, 
-  }// Automatically set to the current date
+  },// Automatically set to the current date
+  deleted_at: {
+      type: Date,
+      default: null,
+    },
 } ,{ timestamps: true, collection: "Agent" });
 
 module.exports= mongoose.model("Agent",AgentSchema);
