@@ -145,8 +145,13 @@ const getAllProperty = async (req, res) => {
       deleted_at: null,
     };
     if (search) {
-      query.name = { $regex: search, $options: "i" };
-    }
+      query.$or = [
+          { propertyname: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { address: { $regex: search, $options: "i" } },
+          { sites: { $regex: search, $options: "i" } }
+      ];
+  }
 
     const result = await Property.find(query)
       .sort({ createdAt: -1 })

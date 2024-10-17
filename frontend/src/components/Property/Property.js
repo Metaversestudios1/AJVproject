@@ -251,7 +251,7 @@ const Property = () => {
       </div>
       {noData && (
         <div className="text-center text-xl">
-          Currently! There are no clients in the storage.
+          Currently! There are no property in the storage.
         </div>
       )}
 
