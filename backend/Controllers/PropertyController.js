@@ -144,24 +144,25 @@ const getAllProperty = async (req, res) => {
     const query = {
       deleted_at: null,
     };
+
     if (search) {
       query.$or = [
-          { propertyname: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-          { address: { $regex: search, $options: "i" } },
-          { sites: { $regex: search, $options: "i" } }
+        { propertyname: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { address: { $regex: search, $options: "i" } },
       ];
-  }
-    const result = await Property.find(query)
+    }
+
+    const result = await PropertyModel.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
-    const count = await Property.find(query).countDocuments();
+    const count = await PropertyModel.find(query).countDocuments();
+
     res.status(200).json({ success: true, result, count });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "error inserting Property" });
+    console.error("Error fetching properties:", error);  // Log the actual error
+    res.status(500).json({ success: false, message: "error fetching Property", error: error.message });
   }
 };
 const getSingleProperty = async (req, res) => {
