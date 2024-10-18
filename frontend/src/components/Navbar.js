@@ -57,7 +57,7 @@ const Navbar = ({ toggleSideBar }) => {
         theme="light"
       />
       <nav
-        className="relative w-full bg-white border border-gray-200  px-4 flex items-center justify-between py-3"
+        className="relative w-full bg-[#2a9adb]  border border-gray-200  px-4 flex items-center justify-between py-5"
         aria-label="Global"
       >
         <div className="flex items-center ">
