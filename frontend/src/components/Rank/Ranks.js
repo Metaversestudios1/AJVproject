@@ -150,6 +150,9 @@ const Ranks = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  rank id
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -180,6 +183,9 @@ const Ranks = () => {
                   >
                     {startIndex + index + 1}
                   </th>
+                  <td className="px-6 py-4 border-2 border-gray-300">
+                    {item?.rank_id}
+                  </td>
                   <th
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"

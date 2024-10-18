@@ -228,9 +228,6 @@ const [activePropertyId, setActivePropertyId] = useState(null);
                   rank
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  clients
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   properties
                 </th>
 
@@ -265,10 +262,7 @@ const [activePropertyId, setActivePropertyId] = useState(null);
                     {item?.rank}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.clients.join(", ")}
-                  </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.properties.join(", ")}
+                    {item?.properties.join(", ") || "N/A"}
                   </td>
 
                   <td className="px-6 py-4 border-2 border-gray-300">
@@ -283,6 +277,13 @@ const [activePropertyId, setActivePropertyId] = useState(null);
                   </div>
                     {activePropertyId === item._id && (
                       <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
+                      <NavLink to={`/assignproperties/${item._id}`}>
+                      <button
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                      <CiEdit className="inline mr-2" /> Assign Properties
+                      </button>
+                      </NavLink>
                       <NavLink to={`/agents/editagent/${item._id}`}>
                       <button
                       className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

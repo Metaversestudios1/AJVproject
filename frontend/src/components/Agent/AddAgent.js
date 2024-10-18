@@ -23,15 +23,11 @@ const AddAgent = () => {
     agent_id: "",
     password: "",
     rank: "",
-    clients: [],
-    properties: [],
   };
   const [data, setData] = useState(initialState);
+  const [rankId, setRankId] = useState(""); // Track the selected rank_id
 
   useEffect(() => {
-    fetchagentID();
-    fetchproperty();
-    fetchClients();
     fetchRank();
   }, []);
 
@@ -45,37 +41,8 @@ const AddAgent = () => {
     }
   };
 
-  const fetchagentID = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getNextagentId`
-    );
-    const response = await res.json();
-    if (response.success) {
-      setData({ ...data, agent_id: response.agent_id });
-      setAgentID(response.agent_id);
-    }
-  };
 
-  const fetchproperty = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`
-    );
-    const response = await res.json();
-    if (response.success) {
-      setProperty(response.result);
-    }
-  };
-
-  const fetchClients = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`
-    );
-    const response = await res.json();
-    if (response.success) {
-      setClients(response.result);
-    }
-  };
-
+ 
   // Handle clients and properties separately
   const handleCheckboxChange = (e, type) => {
     const { value, checked } = e.target;
@@ -104,9 +71,6 @@ const AddAgent = () => {
         agentname: {
           required: true,
         },
-        agent_id: {
-          required: true,
-        },
         password: {
           required: true,
         },
@@ -123,9 +87,6 @@ const AddAgent = () => {
       messages: {
         agentname: {
           required: "Please enter agent name",
-        },
-        agent_id: {
-          required: "Please enter agent id",
         },
         password: {
           required: "Please enter password",
@@ -155,7 +116,15 @@ const AddAgent = () => {
 
     return $("#agentform").valid();
   };
-
+  const handleRankChange = (e) => {
+    const selectedRankId = e.target.value; // This will be the MongoDB _id
+    const selectedRank = ranks.find(rank => rank._id === selectedRankId); // Find the rank object from the ranks array
+  
+    if (selectedRank) {
+      setData({ ...data, rank: selectedRank._id, agent_id: selectedRank.rank_id}); // Set the rank collection ID (_id)
+      
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
@@ -168,20 +137,16 @@ const AddAgent = () => {
     }
     try {
       setLoader(true);
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/insertAgent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+     
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertAgent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
       const response = await res.json();
+      console.log(response)
       if (response.success) {
-        toast.success("New agent is added successfully!", {
-          position: "top-right",
-          autoClose: 1000,
-        });
+        toast.success("New agent is added successfully!", { position: "top-right", autoClose: 1000 });
         setTimeout(() => {
           navigate("/agents");
         }, 1500);
@@ -192,10 +157,11 @@ const AddAgent = () => {
       console.log(err);
     }
   };
-
+  
   const handleGoBack = () => {
     navigate(-1);
   };
+  console.log(data)
   return (
     <>
       <div className="flex items-center ">
@@ -226,7 +192,7 @@ const AddAgent = () => {
                 </label>
                 <input
                   name="agent_id"
-                  value={agentID}
+                  value={data.agent_id}
                   type="text"
                   id="agent_id"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
@@ -276,7 +242,7 @@ const AddAgent = () => {
               <select
                 name="rank"
                 value={data.rank}
-                onChange={handleChange}
+                onChange={(e) => handleRankChange(e)}
                 className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
               >
                 <option value="">Select a rank.</option>
@@ -291,72 +257,7 @@ const AddAgent = () => {
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
 
             {/* Clients Dropdown */}
-            <div className="">
-              <label htmlFor="clients" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Clients
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setClientDropdownOpen(!clientDropdownOpen)}
-                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
-                >
-                  Select clients
-                  <FaAngleDown className="text-end" />
-                </button>
-                {clientDropdownOpen && (
-                  <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
-                    {clients.map((item) => (
-                      <div key={item._id} className="p-2 bg-gray-200 text-gray-900 text-sm">
-                        <input
-                          type="checkbox"
-                          id={`client-${item._id}`}
-                          value={item._id}
-                          checked={data.clients.includes(item._id)}
-                          onChange={(e) => handleCheckboxChange(e, "clients")}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`client-${item._id}`}>{item.clientname}</label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Properties Dropdown */}
-            <div className="">
-              <label htmlFor="properties" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Properties
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setPropertyDropdownOpen(!propertyDropdownOpen)}
-                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
-                >
-                  Select properties
-                  <FaAngleDown className="text-end" />
-                </button>
-                {propertyDropdownOpen && (
-                  <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
-                    {property.map((item) => (
-                      <div key={item._id} className="p-2 bg-gray-200 text-gray-900 text-sm">
-                        <input
-                          type="checkbox"
-                          id={`property-${item._id}`}
-                          value={item._id}
-                          checked={data.properties.includes(item._id)}
-                          onChange={(e) => handleCheckboxChange(e, "properties")}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`property-${item._id}`}>{item.propertyname}</label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+           
             </div>
 
             <button

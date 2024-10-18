@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const RankModel = require("../Models/RankModel");
 const insertRank = async (req, res) => {
-  const { name, commissionRate, description, level } = req.body;
+  const { name, commissionRate, description, level, rank_id } = req.body;
   if (!name || !commissionRate || !level) {
     return res
       .status(400)
@@ -9,9 +9,17 @@ const insertRank = async (req, res) => {
   }
 
   try {
-    const newRank = new RankModel({ name, commissionRate, description, level });
+    const newRank = new RankModel({
+      name,
+      commissionRate,
+      description,
+      level,
+      rank_id,
+    });
     await newRank.save();
-    res.status(200).json({ success: true, message: "Rank added successfully!" });
+    res
+      .status(200)
+      .json({ success: true, message: "Rank added successfully!" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -37,7 +45,21 @@ const updateRank = async (req, res) => {
     });
   }
 };
+const getNextRankId = async (req, res) => {
+  try {
+    const lastRank = await RankModel.findOne().sort({ rank_id: -1 }).exec();
 
+    if (!lastRank) {
+      return res.status(404).json({ success: true, rank_id: 100001 });
+    }
+    return res
+      .status(404)
+      .json({ success: true, rank_id: parseInt(lastRank.rank_id) + 1 });
+  } catch (err) {
+    console.error("Error retrieving last rank id:", err);
+    throw new Error("Could not retrieve rank id.");
+  }
+};
 const getAllRank = async (req, res) => {
   try {
     const pageSize = parseInt(req.query.limit);
@@ -66,9 +88,9 @@ const getSingleRank = async (req, res) => {
   try {
     const result = await RankModel.findOne({ _id: id });
     if (!result) {
-      res.status(404).json({ success: false, message: "Rank not found" });
+      return res.status(404).json({ success: false, message: "Rank not found" });
     }
-    res.status(201).json({ success: true, result });
+    return res.status(201).json({ success: true, result });
   } catch (error) {
     res.status(500).json({ success: false, message: "error fetching Rank" });
   }
@@ -101,4 +123,5 @@ module.exports = {
   getAllRank,
   getSingleRank,
   deleteRank,
+  getNextRankId,
 };

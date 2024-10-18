@@ -1,45 +1,82 @@
 const Agent = require("../Models/AgentModel");
 const bcrypt = require("bcrypt");
+
 const insertAgent = async (req, res) => {
   try {
-    const newAgent = new Agent(req.body);
+    const { password, ...data } = req.body;
+
+    // Check if an agent with the same agent_id already exists
+    const existingAgent = await Agent.findOne({ agent_id: data.agent_id });
+    if (existingAgent) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Agent with this ID already exists" });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new agent
+    const newAgent = new Agent({ ...data, password: hashedPassword });
     await newAgent.save();
-    res.status(201).json({ success: true });
+
+    res.status(201).json({ success: true, message: "Agent inserted successfully" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error inserting Agent",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error inserting Agent",
+      error: err.message,
+    });
   }
 };
+
 
 const updateAgent = async (req, res) => {
-  const updatedata = req.body;
-  const id = updatedata.id;
   try {
-    // console.log(updatedata.oldData)
+    const { id, propertyIds, oldData } = req.body;
 
-    const result = await Agent.updateOne(
-      { _id: id },
-      { $set: updatedata.oldData }
-    );
-    if (!result) {
-      res.status(404).json({ success: false, message: "Agent not found" });
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Agent ID is required" });
     }
-    res.status(201).json({ success: true, result: result });
+
+    // If propertyIds are present, it indicates the user is assigning properties
+    if (propertyIds && Array.isArray(propertyIds)) {
+      const result = await Agent.updateOne(
+        { _id: id },
+        { $set: { properties: propertyIds } }
+      );
+
+      if (!result.matchedCount) {
+        return res.status(404).json({ success: false, message: "Agent not found" });
+      }
+
+      return res.status(200).json({ success: true, message: "Properties assigned successfully", result });
+    }
+
+    // Otherwise, it is a general agent data update
+    if (oldData) {
+      const result = await Agent.updateOne(
+        { _id: id },
+        { $set: oldData }
+      );
+
+      if (!result.matchedCount) {
+        return res.status(404).json({ success: false, message: "Agent not found" });
+      }
+
+      return res.status(200).json({ success: true, message: "Agent updated successfully", result });
+    }
+
+    return res.status(400).json({ success: false, message: "Invalid request" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "error in updating the Agent",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error updating the agent",
+      error: err.message,
+    });
   }
 };
+
 
 const getAllAgent = async (req, res) => {
   try {
@@ -157,27 +194,7 @@ const agentlogin = async (req, res) => {
     res.clearCookie("token"); // Name of the session ID cookie
     res.status(200).json({ status: true, message: "Successfully logged out" });
   };
-  const getNextAgentId = async (req,res) => {
-  try {
-    // Fetch the agent with the highest agent_id
-    const lastAgent = await Agent.findOne().sort({ agent_id: -1 }).exec();
 
-    // If no agent exists, return the first agent_id as 100001
-    if (!lastAgent) {
-        return res
-        .status(404)
-        .json({ success: true,agent_id:100001 });
-    }
-    return res
-    .status(404)
-    .json({ success: true,agent_id:lastAgent.agent_id + 1});
-    // If agent exists, increment the last agent_id by 1
-  } catch (err) {
-    // Handle any potential errors
-    console.error("Error retrieving last agent_id:", err);
-    throw new Error("Could not retrieve agent ID.");
-  }
-};
 
 // Usage within another function (like insertAgent
 
@@ -187,6 +204,5 @@ module.exports = {
   getAllAgent,
   getSingleAgent,
   deleteAgent,
-  getNextAgentId,
   agentlogin
 };

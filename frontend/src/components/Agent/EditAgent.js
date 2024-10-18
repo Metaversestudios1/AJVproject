@@ -46,7 +46,6 @@ const EditAgent = () => {
       }
     );
     const response = await res.json();
-    console.log(response)
     if (response.success) {
       setOldData({
         ...oldData,
@@ -54,11 +53,12 @@ const EditAgent = () => {
         agent_id: response.result.agent_id,
         password: response.result.password,
         rank: response.result.rank,
-        clients: response.result.clients,
-        properties: response.result.properties,
+        clients: response.result.clients || [], // Ensure clients is an array
+        properties: response.result.properties || [], // Ensure properties is an array
       });
     }
   };
+  
   const fetchRank = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getAllRank`
@@ -322,7 +322,7 @@ const EditAgent = () => {
                           type="checkbox"
                           id={`client-${item._id}`}
                           value={item._id}
-                          checked={oldData?.clients.includes(item._id)}
+                          checked={oldData?.clients?.includes(item._id) ?? false}
                           onChange={(e) => handleCheckboxChange(e, "clients")}
                           className="mr-2"
                         />
@@ -368,7 +368,7 @@ const EditAgent = () => {
                             type="checkbox"
                             id={`property-${item._id}`}
                             value={item._id}
-                            checked={oldData?.properties.includes(item._id)}
+                            checked={oldData?.properties?.includes(item._id) ?? false}
                             onChange={(e) =>
                               handleCheckboxChange(e, "properties")
                             }
