@@ -262,7 +262,7 @@ const EditSite = () => {
                 htmlFor="siteNumber"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Site Number
+                Flat Number
                 <span className="text-red-900 text-lg ">&#x2a;</span>
               </label>
               <textarea

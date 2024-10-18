@@ -267,11 +267,11 @@ if (site.clientId) {
         <div className="text-2xl font-bold mx-2 my-8 px-4">Sites List</div>
       </div>
       <div className="flex justify-between">
-        <NavLink to="/sites/addSite/">
+        {/* <NavLink to="/sites/addSite/">
           <button className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
             Add New
           </button>
-        </NavLink>
+        </NavLink> */}
 
         <div className={`flex items-center`}>
           <input
@@ -314,9 +314,9 @@ if (site.clientId) {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Agent Name
                 </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Number
-                </th>
+                </th> */}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Description
                 </th>
@@ -354,9 +354,9 @@ if (site.clientId) {
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.AgentName}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
+                  {/* <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.siteNumber}
-                  </td>
+                  </td> */}
 
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.description}
@@ -372,17 +372,42 @@ if (site.clientId) {
                     &ensp;
                     <div className="flex justify-between">
                       {item?.status === "Available" ? (
+                      <div>
+                      {item?.propertyDetailsstatus === '0' ? (
+                        // Show "Add Payment Details" button when propertyDetailsstatus is 0
+                        <button
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        >
+                          <NavLink to={`/addPropertyDetails/${item?._id}`}>
+                            <span className="block w-full text-left px-4 py-2 text-sm ">
+                              Add Payment Details
+                            </span>
+                          </NavLink>
+                        </button>
+                      ) : item?.propertyDetailsstatus === '1' ? (
                         <div>
+                          {/* Show "Click to Book" button when propertyDetailsstatus is 1 */}
                           <button
                             className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            onClick={() =>
-                              handleStatusChange(item._id, "Booked")
-                            }
+                            onClick={() => handleStatusChange(item._id, "Booked")}
                           >
-                            Click to book
+                            Click to Book
                           </button>
-                          
+                    
+                          {/* Show "Update Payment Details" button when propertyDetailsstatus is 1 */}
+                          <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
+                          >
+                            <NavLink to={`/addPropertyDetails/${item?._id}`}>
+                              <span className="block w-full text-left px-4 py-2 text-sm ">
+                                Update Payment Details
+                              </span>
+                            </NavLink>
+                          </button>
                         </div>
+                      ) : null}
+                    </div>
+                    
                       ) : item?.status === "Booked" ? (
                         <div>
                           <button
@@ -399,7 +424,7 @@ if (site.clientId) {
                           >
                             <NavLink to={`/addPropertyDetails/${item?._id}`}>
                               <button className="block w-full text-left px-4 py-2 text-sm ">
-                              Add Payment Details{" "}
+                              update Payment Details{" "}
                               </button>
                             </NavLink>
                           </button>
@@ -426,7 +451,7 @@ if (site.clientId) {
         <MdEdit className="inline mr-2" /> Edit
       </button>
     </NavLink>
-    {(item?.status === "Booked" || item?.status === "Completed") && (
+    {(item?.propertyDetailsstatus === "1") && (
   <NavLink to={`/viewsite/${item?._id}`}>
     <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
       <MdEdit className="inline mr-2" /> View Property Details

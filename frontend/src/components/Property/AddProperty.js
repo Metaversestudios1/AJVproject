@@ -195,12 +195,17 @@ const AddProperty = () => {
                 htmlFor="sites"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
               >
-                Sites
+                Number of Sites
               </label>
               <input
                 name="sites"
                 value={data.sites}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (value >= 1 || e.target.value === "") {
+                    handleChange(e); // Proceed with updating the state if value is 2 or more
+                  }
+                }}
                 type="number"
                 id="sites"
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "

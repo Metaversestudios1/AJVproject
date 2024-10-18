@@ -223,13 +223,6 @@ const Property = () => {
                   </div>
                     {activePropertyId === item._id && (
                       <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                      <NavLink to={`/sites/addSite/${item?._id}`}>
-                      <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Add Sites
-                        </button>
-                        </NavLink>
                         <NavLink to={`/sites/${item?._id}`}>
                       <button
                           className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

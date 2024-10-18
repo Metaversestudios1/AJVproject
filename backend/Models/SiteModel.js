@@ -12,6 +12,7 @@ const siteSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Booked", "Available","Completed"], // Enum for site booking status
+      default:"Available"
     },
     agentId: {
       type:String
@@ -33,6 +34,11 @@ const siteSchema = new mongoose.Schema(
       balanceRemaining: {
         type:Number, // Decimal value for the balance remaining
       },
+    },
+    propertyDetailsstatus:{
+      type: String,
+      enum: ['1','0'], // Enum for site booking status
+      default:"0"
     },
     saleDeedDetails: {
       deedNumber: {

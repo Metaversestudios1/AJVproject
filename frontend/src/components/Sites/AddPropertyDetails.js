@@ -20,6 +20,7 @@ const AddPropertyDetails = () => {
   const initialState = {
     agentId: "",
     clientId: "",
+    propertyDetailsstatus:"1",
     propertyDetails: {
       totalValue: "",
       amountPaid: "",
@@ -189,7 +190,8 @@ const AddPropertyDetails = () => {
         setData({
           clientId:
           result.result?.clientId,      
-          agentId:result.result?.agentId,         
+          agentId:result.result?.agentId, 
+          propertyDetailsstatus:'1',        
           propertyDetails: {
             totalValue: propertyDetails.totalValue || "",
             amountPaid: propertyDetails.amountPaid || "",
@@ -277,7 +279,7 @@ const AddPropertyDetails = () => {
         </div>
         <div className="flex items-center">
           <div className="text-2xl font-bold mx-2 my-8 px-4">
-            Add Property details
+            Add Payment details
           </div>
         </div>
       </div>
@@ -367,6 +369,14 @@ const AddPropertyDetails = () => {
                 Total value
                 <span className="text-red-900 text-lg ">&#x2a;</span>
               </label>
+              <input
+                name="propertyDetailsstatus"
+                value={data.propertyDetailsstatus}
+                onChange={handleChange}
+                type="hidden"
+                id="propertyDetailsstatus"
+
+              />
               <input
                 name="totalValue"
                 value={data.propertyDetails.totalValue}

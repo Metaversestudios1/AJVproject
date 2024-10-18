@@ -1,4 +1,6 @@
 const Property = require("../Models/PropertyModel");
+const Site = require("../Models/SiteModel");
+
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const fs = require("fs");
@@ -52,6 +54,9 @@ const uploadImage = (buffer, originalname, mimetype) => {
 };
 
 const insertProperty = async (req, res) => {
+  console.log(req.body);
+  const { sites } = req.body;  // Extract site numbers from request body
+  let siteInsertions = [];
   if (req.file) {
     console.log("req.file is present");
     const { originalname, buffer, mimetype } = req.file;
@@ -80,6 +85,15 @@ const insertProperty = async (req, res) => {
       });
 
       await newProperty.save();
+      if (sites) {
+       
+        for (let i = 0; i < sites; i++) {
+           const newSite = new Site({
+            propertyId: newProperty._id,  // Link site with the newly created property
+          });
+          await newSite.save();
+        }
+      }
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property:", error.message);
@@ -100,6 +114,15 @@ const insertProperty = async (req, res) => {
       });
 
       await newProperty.save();
+      if (sites) {
+       
+        for (let i = 0; i < sites; i++) {
+          const newSite = new Site({
+            propertyId: newProperty._id,  // Link site with the newly created property
+          });
+          await newSite.save();
+        }
+      }
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property without file:", error.message);
