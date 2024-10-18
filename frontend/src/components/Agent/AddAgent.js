@@ -186,6 +186,24 @@ const AddAgent = () => {
         <div className="w-[70%] m-auto my-10">
           <form id="agentform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+            <div className="">
+              <label htmlFor="rank" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                Rank
+              </label>
+              <select
+                name="rank"
+                value={data.rank}
+                onChange={(e) => handleRankChange(e)}
+                className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
+              >
+                <option value="">Select a rank.</option>
+                {ranks.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
               <div>
                 <label htmlFor="agent_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
                   Agent id <span className="text-red-900 text-lg ">&#x2a;</span>
@@ -199,20 +217,7 @@ const AddAgent = () => {
                   readOnly
                 />
               </div>
-              <div>
-                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                  Agent name <span className="text-red-900 text-lg ">&#x2a;</span>
-                </label>
-                <input
-                  name="agentname"
-                  value={data.agentname}
-                  onChange={handleChange}
-                  type="text"
-                  id="agentname"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
-                  placeholder="Enter Agent name"
-                />
-              </div>
+             
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
 
@@ -234,25 +239,22 @@ const AddAgent = () => {
               placeholder="Enter a password"
             />
           </div>
+          <div>
+                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                  Agent name <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="agentname"
+                  value={data.agentname}
+                  onChange={handleChange}
+                  type="text"
+                  id="agentname"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                  placeholder="Enter Agent name"
+                />
+              </div>
             {/* Rank Dropdown */}
-            <div className="">
-              <label htmlFor="rank" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Rank
-              </label>
-              <select
-                name="rank"
-                value={data.rank}
-                onChange={(e) => handleRankChange(e)}
-                className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
-              >
-                <option value="">Select a rank.</option>
-                {ranks.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
 
