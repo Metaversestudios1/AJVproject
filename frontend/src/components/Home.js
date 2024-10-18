@@ -107,8 +107,8 @@ const fetchtotalrank = async () =>{
         </div>
       ) : (
         <div className="flex flex-col md:flex-row p-3 mb-6 w-full ">
-              <div className="flex flex-col flex-1 my-1">
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  ">
+              <div className="flex flex-col flex-1 my-1 mr-4">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  ">
                   <NavLink to="/properties">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -126,10 +126,10 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white text-white font-bold leading-none text-gray-900 sm:text-3xl">
                           {totalPropertys}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white text-white font-normal text-gray-500">
                           Total Property
                         </h3>
                       </div>
@@ -137,7 +137,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
                 <br></br>
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 my-2 ">
                   <NavLink to="/clients">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -155,17 +155,17 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                           {totalClient}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Total Client
                         </h3>
                       </div>
                     </div>
                   </NavLink>
                 </div>
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
                   <NavLink to="/agents">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -183,17 +183,17 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                         {totalAgent}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Total Agent
                         </h3>
                       </div>
                     </div>
                   </NavLink>
                 </div>
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
                   <NavLink to="/ranks">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -211,10 +211,10 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                           {availableRanks}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Total Ranks 
                         </h3>
                       </div>
@@ -222,8 +222,8 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
               </div>
-              <div className="flex flex-col flex-1 my-1">
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 ">
+              <div className="flex flex-col flex-1 my-1 mr-4">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4">
                   <NavLink to="/sites">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -241,10 +241,10 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                           {totalsites}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Total Sites
                         </h3>
                       </div>
@@ -252,7 +252,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div><br></br>
                 <div className="flex flex-col flex-1 my-1">
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 my-2">
                   <NavLink to="/sites">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -270,10 +270,10 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                               {totalbookedproperty}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Booked Site
                         </h3>
                       </div>
@@ -281,14 +281,14 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
               </div>  
-                <div className="rounded-2xl shadow-lg shadow-gray-200 p-3 mx-1 py-5">
+                {/* <div className="rounded-2xl shadow-lg shadow-gray-200 p-3 mx-1 py-5">
       <div className="flex justify-between items-center">
         <div className="font-bold flex items-center">
           <span className="inline-block mr-2 h-5 w-5 rounded-full bg-[#1E88E5]"></span>
           Ranks And There CommisionRates
         </div>
         <div>
-          <IoIosArrowRoundForward className="text-2xl" />
+          <IoIosArrowRoundForward className="text-2xl text-white" />
         </div>
       </div>
 
@@ -303,11 +303,11 @@ const fetchtotalrank = async () =>{
           </div>
         ))}
       </div>
-    </div>
+    </div> */}
 
             </div>
               <div className="flex flex-col flex-1 my-1">
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 ">
                   <NavLink to="/sites">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -325,10 +325,10 @@ const fetchtotalrank = async () =>{
                         </svg>
                       </div>
                       <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        <span className="text-2xl text-white font-bold leading-none text-gray-900 sm:text-3xl">
                           {totalavailableproperty}
                         </span>
-                        <h3 className="text-base font-normal text-gray-500">
+                        <h3 className="text-base text-white font-normal text-gray-500">
                           Total Available Site
                         </h3>
                       </div>
