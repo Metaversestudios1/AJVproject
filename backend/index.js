@@ -16,6 +16,7 @@ const ProjectRoutes = require("./Routes/ProjectRoutes");
 const CommisionRoutes = require("./Routes/CommisionRoutes");
 const SiteRoutes = require("./Routes/SiteRoutes");
 const RankRoutes = require("./Routes/RankRoutes");
+const DashboardRoutes = require("./Routes/DashboardRoutes");
 
 // Connect to the database
 connectDB();
@@ -43,6 +44,7 @@ app.use("/api", ClientRoutes);
 app.use("/api", CommisionRoutes);
 app.use("/api", SiteRoutes);
 app.use("/api", RankRoutes);
+app.use("/api", DashboardRoutes);
 
 // Root route
 app.get("/", (req, res) => {
