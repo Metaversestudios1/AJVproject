@@ -7,10 +7,19 @@ const insertAgent = async (req, res) => {
 
     // Check if an agent with the same agent_id already exists
     const existingAgent = await Agent.findOne({ agent_id: data.agent_id });
+
     if (existingAgent) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Agent with this ID already exists" });
+      // Compare the provided password with the existing agent's password
+      const match = await bcrypt.compare(password, existingAgent.password);
+
+      if (match) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Password already taken for this agent ID.",
+          });
+      }
     }
 
     // Hash the password before saving
@@ -20,7 +29,9 @@ const insertAgent = async (req, res) => {
     const newAgent = new Agent({ ...data, password: hashedPassword });
     await newAgent.save();
 
-    res.status(201).json({ success: true, message: "Agent inserted successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "Agent inserted successfully" });
   } catch (err) {
     res.status(500).json({
       success: false,
