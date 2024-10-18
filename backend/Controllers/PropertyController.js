@@ -153,11 +153,11 @@ const getAllProperty = async (req, res) => {
       ];
     }
 
-    const result = await PropertyModel.find(query)
+    const result = await Property.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
-    const count = await PropertyModel.find(query).countDocuments();
+    const count = await Property.find(query).countDocuments();
 
     res.status(200).json({ success: true, result, count });
   } catch (error) {
