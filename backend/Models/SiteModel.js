@@ -11,7 +11,7 @@ const siteSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Booked", "Available"], // Enum for site booking status
+      enum: ["Booked", "Available","Completed"], // Enum for site booking status
     },
     agentId: {
       type:String

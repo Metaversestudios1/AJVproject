@@ -20,6 +20,7 @@ import AddSite from './components/Sites/AddSite';
 import EditSite from './components/Sites/EditSite';
 import Sites from './components/Sites/Sites';
 import AddPropertyDetails from './components/Sites/AddPropertyDetails';
+import ViewSites from './components/Sites/ViewSites';
 import EditClient from './components/Client/EditClient';
 import EditRank from './components/Rank/EditRank';
 import AddRank from './components/Rank/AddRank';
@@ -243,6 +244,21 @@ function App() {
       ),
     },
     {
+
+      path: "/sites/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Sites/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
       path: "/addPropertyDetails/:id",
       element: (
         <PrivateRoute>
@@ -251,6 +267,20 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <AddPropertyDetails/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/viewsite/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <ViewSites/>
           </div>
         </div>
         </PrivateRoute>

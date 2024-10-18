@@ -230,6 +230,13 @@ const Property = () => {
                           Add Sites
                         </button>
                         </NavLink>
+                        <NavLink to={`/sites/${item?._id}`}>
+                      <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          Check Sites
+                        </button>
+                        </NavLink>
                         {/*<button
                           onClick={() => console.log("Edit:", item._id)}
                           className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

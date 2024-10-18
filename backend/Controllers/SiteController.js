@@ -45,12 +45,16 @@ const getAllSite = async (req, res) => {
     const pageSize = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search;
+    const id = req.query.id;
 
     // Build query to match sites
     const query = {
       deleted_at: null, // Ensure we only match non-deleted sites
     };
-
+    console.log
+    if (id) {
+      query.propertyId = id;
+    }
     // If search string is provided, we search within the related property name
     if (search) {
       const properties = await PropertyModel.find({
