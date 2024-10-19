@@ -48,7 +48,6 @@ const Client = () => {
                 }
               );
               const propertyData = await propertyRes.json();
-              console.log(propertyData)
               // Add the property name to the client object
               if (propertyData.success) {
                 client.bookedProperties = propertyData.result.propertyname
@@ -58,7 +57,6 @@ const Client = () => {
             return client;
           })
         );
-  console.log(updatedClients)
         setClients(updatedClients);
         setCount(response.count);
         setNoData(updatedClients.length === 0);
@@ -171,7 +169,7 @@ const Client = () => {
           </div>
         </div>
       )}
-      <div className="relative overflow-x-auto m-5 mb-0">
+      <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
         {clients.length > 0 && (
           <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
             <thead className="text-xs uppercase bg-gray-200">
@@ -252,30 +250,30 @@ const Client = () => {
                     {item?.createdAt?.split("T")[0]}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center">
+                  <div className="flex justify-center relative">
                   <GoKebabHorizontal
                   className="text-lg transform rotate-90 cursor-pointer"
                   onClick={() => handleKebabClick(item._id)}
                   />
-                  </div>
-                    {activePropertyId === item._id && (
-                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                      <NavLink to={`/clients/editclient/${item._id}`}>
+                  {activePropertyId === item._id && (
+                    <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
+                    <NavLink to={`/clients/editclient/${item._id}`}>
+                    <button
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                    >
+                    <CiEdit className="inline mr-2" /> Edit
+                    </button>
+                    </NavLink>
                       <button
-                      onClick={() => console.log("Edit:", item._id)}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        onClick={(e) => handleDelete(e, item._id)}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
-                      <CiEdit className="inline mr-2" /> Edit
+                        <MdDelete className="inline mr-2" /> Delete
                       </button>
-                      </NavLink>
-                        <button
-                          onClick={(e) => handleDelete(e, item._id)}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        >
-                          <MdDelete className="inline mr-2" /> Delete
-                        </button>
-                      </div>
-                    )}
+                    </div>
+                  )}
+                  </div>
+                  
                   </td>
                 </tr>
               ))}
