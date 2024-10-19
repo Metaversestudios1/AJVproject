@@ -1,17 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import { CgLogOut } from "react-icons/cg";
-import { PiLineVerticalThin } from "react-icons/pi";
+import { IoMdSettings } from "react-icons/io";
+import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import { AuthContext } from "../context/AuthContext";
+import getUserFromToken from "./utils/getUserFromToken";
+
 const Navbar = ({ toggleSideBar }) => {
   const { setAuth } = useContext(AuthContext);
+  const [settingDropdown, setSettingDropdown] = useState(false);
   const navigate = useNavigate();
+  const userInfo = getUserFromToken();
+
   const handleLogout = async () => {
     try {
-      // Perform logout logic (e.g., API call to logout)
       const res = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/logout`,
         {
@@ -41,10 +45,10 @@ const Navbar = ({ toggleSideBar }) => {
       console.error("Logout failed:", error);
     }
   };
+
   return (
-    
-    <header className="flex flex-wrap justify-start  z-50 w-full text-sm shadow-lg">
-       <ToastContainer
+    <header className="flex flex-wrap justify-start z-50 w-full text-sm shadow-lg">
+      <ToastContainer
         position="top-right"
         autoClose={2000}
         hideProgressBar={false}
@@ -57,7 +61,7 @@ const Navbar = ({ toggleSideBar }) => {
         theme="light"
       />
       <nav
-        className="relative w-full bg-[#2a9adb]  border border-gray-200  px-4 flex items-center justify-between py-5"
+        className="relative w-full bg-white border border-gray-200 px-4 flex items-center justify-between py-3"
         aria-label="Global"
       >
         <div className="flex items-center ">
@@ -106,18 +110,36 @@ const Navbar = ({ toggleSideBar }) => {
         </div>
 
         <div
-          id="navbar-collapse-with-animation"
-          className="hs-collapse  overflow-hidden transition-all duration-300 "
+          className="relative"
+          onMouseEnter={() => setSettingDropdown(true)}
+          onMouseLeave={() => setSettingDropdown(false)}
         >
-         
-        </div>
-        <button
+          <div className="flex items-center justify-center text-xl font-semibold cursor-pointer">
+            <IoMdSettings className="text- pr-1  mt-[2px]  text-black" />
+            <div className="text-lg">Setting</div>
+            {settingDropdown ? (
+              <FaAngleDown className="text-end text-sm mt-1 mx-4" />
+            ) : (
+              <FaAngleRight className="text-end text-sm mt-1 mx-4" />
+            )}
+          </div>
+          {settingDropdown && (
+            <div className="absolute text-white flex items-center shadow-lg bg-gradient-to-r from-[#4c4f6a] to-[#767ca3]  rounded-md border-[1px] right-3 p-4 min-w-80">
+              <div className="w-2/3 mx-2">
+                <div className="py-1 text-sm font-semibold">Username: Admin</div>
+                <div className="py-1 text-sm font-semibold">Email: {userInfo.email}</div>
+              </div>
+              <div className="w-1/3  ml-5">
+                <button
                   onClick={handleLogout}
-                  className="flex items-center text-[16px]  font-medium text-black hover:text-blue-900 "
+                  className="flex items-center text-[16px] px-4 py-2 font-medium text-white bg-gray-800 rounded-full hover:scale-110 transform transition-transform duration-200"
                 >
-                  <CgLogOut className="text-lg mx-2" />
                   Logout
                 </button>
+              </div>
+            </div>
+          )}
+        </div>
       </nav>
     </header>
   );

@@ -407,24 +407,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               )}
 
              
-              <li className="hs-accordion " id="users-accordion ">
-                <button
-                  onClick={() => toggleSubMenu("setting")}
-                  type="button"
-                  className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
-                >
-                  <div className="flex items-center">
-                    <IoMdSettings className="text-lg mr-3" />
-                    Setting
-                  </div>
-                  {openSubMenu.setting ? (
-                    <FaAngleDown className="text-end" />
-                  ) : (
-                    <FaAngleRight className="text-end" />
-                  )}
-                </button>
-              </li>
-              {openSubMenu.setting && <ul></ul>}
+           
             </ul>
           </nav>
         </div>
