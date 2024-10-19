@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { NavLink ,useParams} from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { GoKebabHorizontal } from "react-icons/go";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,17 +33,13 @@ const Sites = () => {
     );
     const propertyName = await nameRes.json();
     console.log(propertyName.result.propertyname);
-    if (
-      propertyName &&
-      propertyName.success &&
-      propertyName.result
-    ) {
+    if (propertyName && propertyName.success && propertyName.result) {
       return propertyName.result.propertyname;
     } else {
       return "-"; // Return "Unknown" if data is not present
     }
   };
-  
+
   const fetchClientName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
@@ -55,17 +51,13 @@ const Sites = () => {
     );
     const clientname = await nameRes.json();
     console.log(clientname.result.clientname);
-    if (
-      clientname &&
-      clientname.success &&
-      clientname.result
-    ) {
+    if (clientname && clientname.success && clientname.result) {
       return clientname.result.clientname;
     } else {
       return "-"; // Return "Unknown" if data is not present
     }
   };
-    
+
   const fetchAgentName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
@@ -77,11 +69,7 @@ const Sites = () => {
     );
     const agentname = await nameRes.json();
     console.log(agentname.result.agentname);
-    if (
-      agentname &&
-      agentname.success &&
-      agentname.result
-    ) {
+    if (agentname && agentname.success && agentname.result) {
       return agentname.result.agentname;
     } else {
       return "-"; // Return "Unknown" if data is not present
@@ -89,9 +77,9 @@ const Sites = () => {
   };
   const fetchData = async () => {
     setLoader(true);
-   
+
     let feturl;
-  
+
     if (id) {
       // If the ID is present in the URL, fetch data for that specific user
       feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}&id=${id}`;
@@ -110,20 +98,20 @@ const Sites = () => {
         response.result.map(async (site) => {
           let propertyName, agentName, clientName;
 
-// Check if propertyId exists before fetching property name
-if (site.propertyId) {
-    propertyName = await fetchPropertyName(site.propertyId);
-}
+          // Check if propertyId exists before fetching property name
+          if (site.propertyId) {
+            propertyName = await fetchPropertyName(site.propertyId);
+          }
 
-// Check if agentId exists before fetching agent name
-if (site.agentId) {
-    agentName = await fetchAgentName(site.agentId);
-}
+          // Check if agentId exists before fetching agent name
+          if (site.agentId) {
+            agentName = await fetchAgentName(site.agentId);
+          }
 
-// Check if clientId exists before fetching client name
-if (site.clientId) {
-    clientName = await fetchClientName(site.clientId);
-}
+          // Check if clientId exists before fetching client name
+          if (site.clientId) {
+            clientName = await fetchClientName(site.clientId);
+          }
           return {
             ...site,
             propertyName: propertyName,
@@ -134,49 +122,8 @@ if (site.clientId) {
       );
       console.log(sitesWithPropertyNames); // Log to verify
       setSites(sitesWithPropertyNames);
-      setCount(response.totalCount || sitesWithPropertyNames.length); // Set based on actual count
+      setCount(response.count || sitesWithPropertyNames.length); // Set based on actual count
       setLoader(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const permissionOfDelete = window.confirm(
-      "Are you sure, you want to delete the user?"
-    );
-    if (permissionOfDelete) {
-      let siteOne = sites.length === 1;
-      if (count === 1) {
-        siteOne = false;
-      }
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        }
-      );
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const response = await res.json();
-      if (response.success) {
-        toast.success("Employee is deleted Successfully!", {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        if (siteOne) {
-          setPage(page - 1);
-        } else {
-          fetchData();
-        }
-      }
     }
   };
 
@@ -215,15 +162,12 @@ if (site.clientId) {
         );
         const response = await res.json();
         if (response.success) {
-          if(newStatus==='Completed'){
-            toast.success(
-              `Site Completed Successfully!`,
-              {
-                position: "top-right",
-                autoClose: 3000,
-              }
-            );
-          }else{
+          if (newStatus === "Completed") {
+            toast.success(`Site Completed Successfully!`, {
+              position: "top-right",
+              autoClose: 3000,
+            });
+          } else {
             toast.success(
               `Property booked Successfully! Now you can Add your Payment Details`,
               {
@@ -232,7 +176,7 @@ if (site.clientId) {
               }
             );
           }
-        
+
           if (projectOne) {
             setPage((prevPage) => Math.max(prevPage - 1, 1));
           } else {
@@ -347,10 +291,10 @@ if (site.clientId) {
                   >
                     {item?.propertyName}
                   </th>
-                 <td className="px-6 py-4 border-2 border-gray-300">
-    {item?.ClientName}
-    <span style={{ display: 'none' }}>{item?.ClientId}</span>
-</td>
+                  <td className="px-6 py-4 border-2 border-gray-300">
+                    {item?.ClientName}
+                    <span style={{ display: "none" }}>{item?.ClientId}</span>
+                  </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.AgentName}
                   </td>
@@ -362,57 +306,57 @@ if (site.clientId) {
                     {item?.description}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                  <button className="bg-green-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
+                    <button className="bg-green-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
                       {item?.status}
                     </button>
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                   
                     <br></br>
                     &ensp;
                     <div className="flex justify-between">
                       {item?.status === "Available" ? (
-                      <div>
-                      {item?.propertyDetailsstatus === '0' ? (
-                        // Show "Add Payment Details" button when propertyDetailsstatus is 0
-                        <button
-                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                        >
-                          <NavLink to={`/addPropertyDetails/${item?._id}`}>
-                            <span className="block w-full text-left px-4 py-2 text-sm ">
-                              Add Payment Details
-                            </span>
-                          </NavLink>
-                        </button>
-                      ) : item?.propertyDetailsstatus === '1' ? (
                         <div>
-                          {/* Show "Click to Book" button when propertyDetailsstatus is 1 */}
-                          <button
-                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            onClick={() => handleStatusChange(item._id, "Booked")}
-                          >
-                            Click to Book
-                          </button>
-                    
-                          {/* Show "Update Payment Details" button when propertyDetailsstatus is 1 */}
-                          <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
-                          >
-                            <NavLink to={`/addPropertyDetails/${item?._id}`}>
-                              <span className="block w-full text-left px-4 py-2 text-sm ">
-                                Update Payment Details
-                              </span>
-                            </NavLink>
-                          </button>
+                          {item?.propertyDetailsstatus === "0" ? (
+                            // Show "Add Payment Details" button when propertyDetailsstatus is 0
+                            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                              <NavLink to={`/addPropertyDetails/${item?._id}`}>
+                                <span className="block w-full text-left px-4 py-2 text-sm ">
+                                  Add Payment Details
+                                </span>
+                              </NavLink>
+                            </button>
+                          ) : item?.propertyDetailsstatus === "1" ? (
+                            <div>
+                              {/* Show "Click to Book" button when propertyDetailsstatus is 1 */}
+                              <button
+                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                                onClick={() =>
+                                  handleStatusChange(item._id, "Booked")
+                                }
+                              >
+                                Click to Book
+                              </button>
+
+                              {/* Show "Update Payment Details" button when propertyDetailsstatus is 1 */}
+                              <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">
+                                <NavLink
+                                  to={`/addPropertyDetails/${item?._id}`}
+                                >
+                                  <span className="block w-full text-left px-4 py-2 text-sm ">
+                                    Update Payment Details
+                                  </span>
+                                </NavLink>
+                              </button>
+                            </div>
+                          ) : null}
                         </div>
-                      ) : null}
-                    </div>
-                    
                       ) : item?.status === "Booked" ? (
                         <div>
                           <button
                             className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            onClick={() => handleStatusChange(item._id, "Completed")}
+                            onClick={() =>
+                              handleStatusChange(item._id, "Completed")
+                            }
                           >
                             Click to Complete the Site
                           </button>
@@ -424,15 +368,13 @@ if (site.clientId) {
                           >
                             <NavLink to={`/addPropertyDetails/${item?._id}`}>
                               <button className="block w-full text-left px-4 py-2 text-sm ">
-                              update Payment Details{" "}
+                                update Payment Details{" "}
                               </button>
                             </NavLink>
                           </button>
                         </div>
                       ) : (
-                        <div>
-                         -
-                        </div>
+                        <div>-</div>
                       )}
                     </div>
                   </td>
@@ -445,22 +387,23 @@ if (site.clientId) {
                       />
                     </div>
                     {activePropertyId === item._id && (
-  <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-    <NavLink to={`/sites/editsite/${item?._id}`}>
-      <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-        <MdEdit className="inline mr-2" /> Edit
-      </button>
-    </NavLink>
-    {(item?.propertyDetailsstatus === "1") && (
-  <NavLink to={`/viewsite/${item?._id}`}>
-    <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-      <MdEdit className="inline mr-2" /> View Property Details
-    </button>
-  </NavLink>
-)}
+                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
+                        <NavLink to={`/sites/editsite/${item?._id}`}>
+                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                            <MdEdit className="inline mr-2" /> Edit
+                          </button>
+                        </NavLink>
+                        {item?.propertyDetailsstatus === "1" && (
+                          <NavLink to={`/viewsite/${item?._id}`}>
+                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                              <MdEdit className="inline mr-2" /> View Property
+                              Details
+                            </button>
+                          </NavLink>
+                        )}
 
-    {/* Uncomment this block if you want to add a delete button */}
-    {/* 
+                        {/* Uncomment this block if you want to add a delete button */}
+                        {/* 
     <button
       onClick={() => handleDelete(item._id)}
       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -468,9 +411,8 @@ if (site.clientId) {
       <MdDelete className="inline mr-2" /> Delete
     </button>
     */}
-  </div>
-)}
-
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
