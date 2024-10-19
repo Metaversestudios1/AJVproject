@@ -108,7 +108,7 @@ const fetchtotalrank = async () =>{
       ) : (
         <div className="flex flex-col md:flex-row p-3 mb-6 w-full ">
               <div className="flex flex-col flex-1 my-1 mr-4">
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2 ">
                   <NavLink to="/properties">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -137,7 +137,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
                 <br></br>
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 my-2 ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2my-2 ">
                   <NavLink to="/clients">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -165,7 +165,7 @@ const fetchtotalrank = async () =>{
                     </div>
                   </NavLink>
                 </div>
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2 my-2">
                   <NavLink to="/agents">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -193,7 +193,7 @@ const fetchtotalrank = async () =>{
                     </div>
                   </NavLink>
                 </div>
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2 my-2">
                   <NavLink to="/ranks">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -252,7 +252,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div><br></br>
                 <div className="flex flex-col flex-1 my-1">
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 my-2">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2my-2">
                   <NavLink to="/sites">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
@@ -307,7 +307,7 @@ const fetchtotalrank = async () =>{
 
             </div>
               <div className="flex flex-col flex-1 my-1">
-                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-4 ">
+                <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2">
                   <NavLink to="/sites">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
