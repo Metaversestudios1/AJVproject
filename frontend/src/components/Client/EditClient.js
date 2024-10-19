@@ -93,7 +93,7 @@ const EditClient = () => {
         preferredPropertyType: {
           required: true,
         },
-    
+
         password: {
           required: true, // Apply custom experience validation
         },
@@ -158,7 +158,6 @@ const EditClient = () => {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateclientform()) {
@@ -168,7 +167,7 @@ const EditClient = () => {
 
     try {
       setLoader(true);
-      const updatedata = {id, data}
+      const updatedata = { id, data };
       const res = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/updateClient`,
         {
@@ -282,7 +281,7 @@ const EditClient = () => {
                 />
               </div>
 
-              <div>
+              {/*   <div>
                 <label
                   htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -431,7 +430,7 @@ const EditClient = () => {
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="lorem ipsum ..."
                 />
-              </div>
+              </div>*/}
             </div>
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button

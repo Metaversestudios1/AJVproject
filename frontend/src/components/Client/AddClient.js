@@ -11,7 +11,7 @@ const AddClient = () => {
   const [mobileValid, setMobileValid] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
- 
+
   const initialState = {
     clientname: "",
     email: "",
@@ -24,37 +24,38 @@ const AddClient = () => {
     budget: "",
   };
   const [data, setData] = useState(initialState);
-  const[client_id,setclientID]=useState('');
-  const[property,setproperty]=useState([]);
-  
-console.log(property);
- 
+  const [client_id, setclientID] = useState("");
+  const [property, setproperty] = useState([]);
+
+  console.log(property);
+
   useEffect(() => {
     fetchclientID();
     fetchproperty();
   }, []);
 
   const fetchclientID = async () => {
-    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getNextclientId`);
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getNextclientId`
+    );
     const response = await res.json();
-    console.log(response)
-      if (response.success) {
-        setData({...data, client_id:response.client_id})
+    console.log(response);
+    if (response.success) {
+      setData({ ...data, client_id: response.client_id });
       setclientID(response.client_id);
-
     }
   };
 
   const fetchproperty = async () => {
-    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`);
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllProperty`
+    );
     const response = await res.json();
-      if (response.success) {
+    if (response.success) {
       setproperty(response.result);
     }
   };
 
- 
- 
   const validateclientform = () => {
     $.validator.addMethod(
       "validPhone",
@@ -83,7 +84,7 @@ console.log(property);
         preferredPropertyType: {
           required: true,
         },
-    
+
         password: {
           required: true, // Apply custom experience validation
         },
@@ -157,11 +158,14 @@ console.log(property);
 
     try {
       setLoader(true);
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertClient`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/insertClient`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       const response = await res.json();
       if (response.success) {
         setMobileValid("");
@@ -229,15 +233,16 @@ console.log(property);
         <div className="w-[70%] m-auto my-10">
           <form id="clientform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-            <div>
+              <div>
                 <label
                   htmlFor="client_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Client ID <span className="text-red-900 text-lg ">&#x2a;</span>
+                  Client ID{" "}
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                readOnly
+                  readOnly
                   name="client_id"
                   value={client_id}
                   onChange={handleChange}
@@ -245,7 +250,6 @@ console.log(property);
                   id="client_id"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="John"
-                  
                 />
               </div>
               <div>
@@ -253,7 +257,8 @@ console.log(property);
                   htmlFor="clientname"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Client Name <span className="text-red-900 text-lg ">&#x2a;</span>
+                  Client Name{" "}
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
                   name="clientname"
@@ -263,11 +268,29 @@ console.log(property);
                   id="clientname"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="John"
-                  
                 />
               </div>
+            </div>
 
-              <div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+              <div className="">
+                <label
+                  htmlFor="password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Password<span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="password"
+                  value={data.password}
+                  onChange={handleChange}
+                  type="password"
+                  id="password"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="•••••••••"
+                />
+              </div>
+              {/*<div>
                 <label
                   htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -354,27 +377,6 @@ console.log(property);
                   placeholder="1234 Elm Street, Suite 567, Springfield, IL, 62704, USA"
                 />
               </div>
-            </div>
-            
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-              <div className="">
-                <label
-                  htmlFor="password"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Password<span className="text-red-900 text-lg ">&#x2a;</span>
-                </label>
-                <input
-                  name="password"
-                  value={data.password}
-                  onChange={handleChange}
-                  type="password"
-                  id="password"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="•••••••••"
-                  
-                />
-              </div>
               <div className="">
                 <label
                   htmlFor="password"
@@ -440,7 +442,7 @@ console.log(property);
                 />
               </div>
               
-              
+              */}
             </div>
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button
