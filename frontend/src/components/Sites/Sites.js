@@ -77,6 +77,8 @@ const Sites = () => {
   };
   const fetchData = async (newPage) => {
     setLoader(true);
+    setSites([])
+
     let feturl;
   
     if (id) {
