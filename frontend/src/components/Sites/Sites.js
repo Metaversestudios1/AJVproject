@@ -11,7 +11,6 @@ const Sites = () => {
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
@@ -20,8 +19,9 @@ const Sites = () => {
   const { id } = params;
 
   useEffect(() => {
-    fetchData(nextPage);
-  }, [nextPage, search]);
+    fetchData();
+  }, [page, search]);
+
   const fetchPropertyName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
@@ -32,7 +32,6 @@ const Sites = () => {
       }
     );
     const propertyName = await nameRes.json();
-    console.log(propertyName.result.propertyname);
     if (propertyName && propertyName.success && propertyName.result) {
       return propertyName.result.propertyname;
     } else {
@@ -50,7 +49,6 @@ const Sites = () => {
       }
     );
     const clientname = await nameRes.json();
-    console.log(clientname.result.clientname);
     if (clientname && clientname.success && clientname.result) {
       return clientname.result.clientname;
     } else {
@@ -68,17 +66,15 @@ const Sites = () => {
       }
     );
     const agentname = await nameRes.json();
-    console.log(agentname.result.agentname);
     if (agentname && agentname.success && agentname.result) {
       return agentname.result.agentname;
     } else {
       return "-"; // Return "Unknown" if data is not present
     }
   };
-  const fetchData = async (newPage) => {
+  const fetchData = async () => {
     setLoader(true);
     setSites([])
-
     let feturl;
   
     if (id) {
@@ -128,7 +124,6 @@ const Sites = () => {
   
         setSites(sitesWithPropertyNames);
         setCount(response.count || sitesWithPropertyNames.length);
-        setPage(newPage);  
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -198,9 +193,6 @@ const Sites = () => {
         alert("Error updating status");
       }
     }
-  };
-  const handlePageChange = (newPage) => {
-    setNextPage(newPage);  // Update the temporary page, but don't change the actual `page` yet
   };
 
   const startIndex = (page - 1) * pageSize;
@@ -452,14 +444,14 @@ const Sites = () => {
           </span>
          <div className="inline-flex mt-2 xs:mt-0">
       <button
-        onClick={() => handlePageChange(page - 1)}
+        onClick={() => setPage(page - 1)}
         disabled={page === 1 || loader}  // Disable if loader is true
         className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900"
       >
         Prev
       </button>
       <button
-        onClick={() => handlePageChange(page + 1)}
+        onClick={() => setPage(page + 1)}
         disabled={loader || sites.length < pageSize || startIndex + pageSize >= count}
         className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900"
       >
