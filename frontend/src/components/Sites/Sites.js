@@ -77,9 +77,8 @@ const Sites = () => {
   };
   const fetchData = async () => {
     setLoader(true);
-
     let feturl;
-
+  
     if (id) {
       // If the ID is present in the URL, fetch data for that specific user
       feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}&id=${id}`;
@@ -87,43 +86,51 @@ const Sites = () => {
       // If no ID in URL, fetch all properties
       feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}`;
     }
-    const res = await fetch(feturl);
-    const response = await res.json();
-    if (response.success) {
-      setNoData(false);
-      if (response.result.length === 0) {
-        setNoData(true);
+    
+    try {
+      const res = await fetch(feturl);
+      const response = await res.json();
+  
+      if (response.success) {
+        setNoData(false);
+  
+        // If no data is returned
+        if (response.result.length === 0) {
+          setNoData(true);
+        }
+  
+        const sitesWithPropertyNames = await Promise.all(
+          response.result.map(async (site) => {
+            let propertyName, agentName, clientName;
+  
+            if (site.propertyId) {
+              propertyName = await fetchPropertyName(site.propertyId);
+            }
+  
+            if (site.agentId) {
+              agentName = await fetchAgentName(site.agentId);
+            }
+  
+            if (site.clientId) {
+              clientName = await fetchClientName(site.clientId);
+            }
+  
+            return {
+              ...site,
+              propertyName: propertyName,
+              ClientName: clientName,
+              AgentName: agentName,
+            };
+          })
+        );
+  
+        setSites(sitesWithPropertyNames);
+        setCount(response.count || sitesWithPropertyNames.length);
       }
-      const sitesWithPropertyNames = await Promise.all(
-        response.result.map(async (site) => {
-          let propertyName, agentName, clientName;
-
-          // Check if propertyId exists before fetching property name
-          if (site.propertyId) {
-            propertyName = await fetchPropertyName(site.propertyId);
-          }
-
-          // Check if agentId exists before fetching agent name
-          if (site.agentId) {
-            agentName = await fetchAgentName(site.agentId);
-          }
-
-          // Check if clientId exists before fetching client name
-          if (site.clientId) {
-            clientName = await fetchClientName(site.clientId);
-          }
-          return {
-            ...site,
-            propertyName: propertyName,
-            ClientName: clientName,
-            AgentName: agentName,
-          };
-        })
-      );
-      console.log(sitesWithPropertyNames); // Log to verify
-      setSites(sitesWithPropertyNames);
-      setCount(response.count || sitesWithPropertyNames.length); // Set based on actual count
-      setLoader(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoader(false); // Ensure the loader is stopped even if fetch fails
     }
   };
 
