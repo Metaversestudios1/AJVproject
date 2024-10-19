@@ -11,6 +11,7 @@ const Sites = () => {
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
+  const [nextPage, setNextPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
@@ -19,9 +20,8 @@ const Sites = () => {
   const { id } = params;
 
   useEffect(() => {
-    fetchData();
-  }, [page, search]);
-
+    fetchData(nextPage);
+  }, [nextPage, search]);
   const fetchPropertyName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
@@ -75,7 +75,7 @@ const Sites = () => {
       return "-"; // Return "Unknown" if data is not present
     }
   };
-  const fetchData = async () => {
+  const fetchData = async (newPage) => {
     setLoader(true);
     let feturl;
   
@@ -126,6 +126,7 @@ const Sites = () => {
   
         setSites(sitesWithPropertyNames);
         setCount(response.count || sitesWithPropertyNames.length);
+        setPage(newPage);  
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -195,6 +196,9 @@ const Sites = () => {
         alert("Error updating status");
       }
     }
+  };
+  const handlePageChange = (newPage) => {
+    setNextPage(newPage);  // Update the temporary page, but don't change the actual `page` yet
   };
 
   const startIndex = (page - 1) * pageSize;
@@ -444,16 +448,16 @@ const Sites = () => {
             </span>{" "}
             of <span className="font-semibold text-black">{count}</span> Entries
           </span>
-          <div className="inline-flex mt-2 xs:mt-0">
+         <div className="inline-flex mt-2 xs:mt-0">
       <button
-        onClick={() => setPage(page - 1)}
+        onClick={() => handlePageChange(page - 1)}
         disabled={page === 1 || loader}  // Disable if loader is true
         className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900"
       >
         Prev
       </button>
       <button
-        onClick={() => setPage(page + 1)}
+        onClick={() => handlePageChange(page + 1)}
         disabled={loader || sites.length < pageSize || startIndex + pageSize >= count}
         className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900"
       >
