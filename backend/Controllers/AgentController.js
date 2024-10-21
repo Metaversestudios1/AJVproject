@@ -1,34 +1,28 @@
 const Agent = require("../Models/AgentModel");
 const Site = require("../Models/SiteModel");
 const bcrypt = require("bcrypt");
-
+const getNextAgentId = async (req, res) => {
+  try {
+    const lastAgent = await Agent.findOne().sort({ agent_id: -1 }).exec();
+    console.log(lastAgent)
+    if (!lastAgent) {
+      return res.status(404).json({ success: true, agent_id: 100001 });
+    }
+    return res
+      .status(404)
+      .json({ success: true, agent_id: parseInt(lastAgent.agent_id) + 1 });
+  } catch (err) {
+    console.error("Error retrieving last agent id:", err);
+    throw new Error("Could not retrieve agent id.");
+  }
+};
 
 const insertAgent = async (req, res) => {
   try {
-    const { password, ...data } = req.body;
-
-    // Check if an agent with the same agent_id already exists
-    const existingAgent = await Agent.findOne({ agent_id: data.agent_id });
-
-    if (existingAgent) {
-      // Compare the provided password with the existing agent's password
-      const match = await bcrypt.compare(password, existingAgent.password);
-
-      if (match) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Password already taken for this agent ID.",
-          });
-      }
-    }
-
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
+   
 
     // Create new agent
-    const newAgent = new Agent({ ...data, password: hashedPassword });
+    const newAgent = new Agent(req.body);
     await newAgent.save();
 
     res
@@ -259,4 +253,5 @@ module.exports = {
   deleteAgent,
   agentlogin,
   getAllAgentproperty,
+  getNextAgentId
 };

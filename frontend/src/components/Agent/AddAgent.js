@@ -23,14 +23,25 @@ const AddAgent = () => {
     agent_id: "",
     password: "",
     rank: "",
+    agent_id:""
   };
   const [data, setData] = useState(initialState);
-  const [rankId, setRankId] = useState(""); // Track the selected rank_id
 
   useEffect(() => {
     fetchRank();
+    fetchRankId();
   }, []);
 
+  const fetchRankId = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getNextAgentId`
+    ); 
+    const response = await res.json();
+    console.log(response)
+    if (response.success) {
+      setData({ ...data, agent_id: response.agent_id });
+    }
+  };
   const fetchRank = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getAllRank`
@@ -116,15 +127,7 @@ const AddAgent = () => {
 
     return $("#agentform").valid();
   };
-  const handleRankChange = (e) => {
-    const selectedRankId = e.target.value; // This will be the MongoDB _id
-    const selectedRank = ranks.find(rank => rank._id === selectedRankId); // Find the rank object from the ranks array
-  
-    if (selectedRank) {
-      setData({ ...data, rank: selectedRank._id, agent_id: selectedRank.rank_id}); // Set the rank collection ID (_id)
-      
-    }
-  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
@@ -193,7 +196,7 @@ const AddAgent = () => {
               <select
                 name="rank"
                 value={data.rank}
-                onChange={(e) => handleRankChange(e)}
+                onChange={handleChange}
                 className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
               >
                 <option value="">Select a rank.</option>
@@ -221,6 +224,22 @@ const AddAgent = () => {
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
 
+           
+          <div>
+                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                  Agent name <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="agentname"
+                  value={data.agentname}
+                  onChange={handleChange}
+                  type="text"
+                  id="agentname"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                  placeholder="Enter Agent name"
+                />
+              </div>
+            {/* Rank Dropdown */}
             <div className="">
             <label
               htmlFor="password"
@@ -239,28 +258,8 @@ const AddAgent = () => {
               placeholder="Enter a password"
             />
           </div>
-          <div>
-                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                  Agent name <span className="text-red-900 text-lg ">&#x2a;</span>
-                </label>
-                <input
-                  name="agentname"
-                  value={data.agentname}
-                  onChange={handleChange}
-                  type="text"
-                  id="agentname"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
-                  placeholder="Enter Agent name"
-                />
-              </div>
-            {/* Rank Dropdown */}
-            
             </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
 
-            {/* Clients Dropdown */}
-           
-            </div>
 
             <button
               type="submit"
