@@ -149,7 +149,7 @@ const AddProperty = () => {
      
       const response = await res.json();
       if (response.success) {
-        toast.success("New Property is added Successfully!", {
+        toast.success("Property updated Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
