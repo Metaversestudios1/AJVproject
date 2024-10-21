@@ -379,7 +379,16 @@ const Sites = () => {
                           </button>
                         </div>
                       ) : (
-                        <div>-</div>
+                        <div> <button
+                        className="bg-blue-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                        //  onClick={() => handleStatusChange(item._id, 'approved')}
+                      >
+                        <NavLink to={`/addPropertyDetails/${item?._id}`}>
+                          <button className="block w-full text-left px-4 py-2 text-sm ">
+                            update Payment Details{" "}
+                          </button>
+                        </NavLink>
+                      </button></div>
                       )}
                     </div>
                   </td>

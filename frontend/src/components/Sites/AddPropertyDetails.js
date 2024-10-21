@@ -135,30 +135,34 @@ const AddPropertyDetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if the name corresponds to a nested property
-    if (name in data.propertyDetails) {
-      setData((prevData) => ({
-        ...prevData,
-        propertyDetails: {
-          ...prevData.propertyDetails,
-          [name]: value, // Update only the specific property
-        },
-        ...prevData.saleDeedDetails,
-      }));
-    } else if (name in data.saleDeedDetails) {
-      setData((prevData) => ({
-        ...prevData,
-        ...prevData.propertyDetails,
-        saleDeedDetails: {
-          ...prevData.saleDeedDetails,
-          [name]: value, // Update only the specific property
-        },
-      }));
+  
+    const updatedData = { ...data };
+  
+    // Check if the name corresponds to propertyDetails
+    if (name in updatedData.propertyDetails) {
+      updatedData.propertyDetails = {
+        ...updatedData.propertyDetails,
+        [name]: value, // Update the specific property first
+      };
+  
+      // After updating, recalculate balanceRemaining
+      const totalValue = parseFloat(updatedData.propertyDetails.totalValue) || 0;
+      const amountPaid = parseFloat(updatedData.propertyDetails.amountPaid) || 0;
+      updatedData.propertyDetails.balanceRemaining = totalValue - amountPaid;
+  
+    } else if (name in updatedData.saleDeedDetails) {
+      updatedData.saleDeedDetails = {
+        ...updatedData.saleDeedDetails,
+        [name]: value, // Update only the specific property
+      };
     } else {
-      setData({ ...data, [name]: value });
+      updatedData[name] = value; // Update top-level property
     }
+  
+    // Update the state with the modified data
+    setData(updatedData);
   };
+  
   const fetchOldData = async () => {
     try {
       const response = await fetch(
@@ -226,7 +230,7 @@ const AddPropertyDetails = () => {
       );
       const response = await res.json();
       if (response.success) {
-        toast.success("Property details updated Successfully for the site!", {
+        toast.success("Payment details updated Successfully for the site!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,

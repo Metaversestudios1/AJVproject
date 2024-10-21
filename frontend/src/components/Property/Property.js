@@ -46,14 +46,11 @@ const Property = () => {
       if (count === 1) {
         propertyOne = false;
       }
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        }
-      );
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
@@ -90,25 +87,22 @@ const Property = () => {
       setPage(1);
     }
   };
-  const handleDeleteImage = async (propertyId, photoIndex) => {
+  const handleDeleteImage =async(propertyId, photoIndex)=>{
     // e.preventDefault();
     const permissionOfDelete = window.confirm(
       "Are you sure, you want to delete the property photo"
     );
-
+  
     if (permissionOfDelete) {
       let userOne = properties.length === 1;
       if (count === 1) {
         userOne = false;
       }
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ propertyId, photoIndex }),
-        }
-      );
+       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId, photoIndex }),
+      });
       const response = await res.json();
       if (response.success) {
         toast.success("Property photo is deleted Successfully!", {
@@ -128,7 +122,8 @@ const Property = () => {
         }
       }
     }
-  };
+
+  }
 
   const startIndex = (page - 1) * pageSize;
 
@@ -196,7 +191,7 @@ const Property = () => {
                   property Image
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  description
+                  description 
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   address
@@ -229,38 +224,30 @@ const Property = () => {
                     {item?.propertyname}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                    {item?.photos?.length > 0 && (
-                      <div className="flex space-x-2">
-                        {" "}
-                        {/* Flex container for images */}
-                        {item.photos.map((photo, index) => (
-                          <div key={index} className="relative">
-                            {" "}
-                            {/* Wrapper div for positioning */}
-                            <a
-                              href={photo.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <img
-                                src={photo.url}
-                                alt={`Profile ${index + 1}`} // Alternate text for accessibility
-                                className="w-12 h-12 rounded-full object-cover aspect-square"
-                                style={{ width: "50px", height: "50px" }} // Set width and height to 50px
-                              />
-                            </a>
-                            <button
-                              onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
-                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
-                              style={{ cursor: "pointer" }}
-                            >
-                              &times; {/* Cross icon for delete */}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </td>
+  {item?.photos?.length > 0 && (
+    <div className="flex space-x-2"> {/* Flex container for images */}
+      {item.photos.map((photo, index) => (
+        <div key={index} className="relative"> {/* Wrapper div for positioning */}
+          <a href={photo.url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={photo.url}
+              alt={`Profile ${index + 1}`} // Alternate text for accessibility
+              className="w-12 h-12 rounded-full object-cover aspect-square"
+              style={{ width: "50px", height: "50px" }} // Set width and height to 50px
+            />
+          </a>
+          <button 
+            onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
+            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
+            style={{ cursor: "pointer" }}
+          >
+            &times; {/* Cross icon for delete */}
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+</td>
 
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.description}
@@ -275,25 +262,30 @@ const Property = () => {
                     {item?.createdAt?.split("T")[0]}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                    <div className="flex justify-center">
-                      <GoKebabHorizontal
-                        className="text-lg transform rotate-90 cursor-pointer"
-                        onClick={() => handleKebabClick(item._id)}
-                      />
-                    </div>
+                  <div className="flex justify-center">
+                  <GoKebabHorizontal
+                  className="text-lg transform rotate-90 cursor-pointer"
+                  onClick={() => handleKebabClick(item._id)}
+                  />
+                  </div>
                     {activePropertyId === item._id && (
                       <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
                         <NavLink to={`/sites/${item?._id}`}>
-                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                            Check Sites
-                          </button>
+                      <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          Check Sites
+                        </button>
                         </NavLink>
-                       {/* <NavLink to={`/editproperty/${item?._id}`}>
-                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                            Edit
-                          </button>
-                        </NavLink>*/}
-
+                        <NavLink to={`/editproperty/${item?._id}`}>
+                      <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          Edit
+                        </button>
+                        </NavLink>
+                        
+                       
                         {/* <button
                           onClick={() => handleDelete(item._id)}
                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

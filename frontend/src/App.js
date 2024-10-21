@@ -27,6 +27,7 @@ import AddRank from './components/Rank/AddRank';
 import Ranks from './components/Rank/Ranks';
 import EditAgent from './components/Agent/EditAgent';
 import AssignProperties from './components/Agent/AssignProperties';
+import EditProperty from './components/Property/editproperty';
 
 
 
@@ -181,6 +182,20 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <AddProperty/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/EditProperty/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <EditProperty/>
           </div>
         </div>
         </PrivateRoute>

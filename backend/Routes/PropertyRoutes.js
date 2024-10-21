@@ -24,7 +24,7 @@ const upload = multer({
 }).array('photos', 10);
 
 router.post("/insertProperty", upload, insertProperty);
-router.put("/updateProperty", updateProperty);
+router.put("/updateProperty",upload, updateProperty);
 router.get("/getAllProperty", getAllProperty);
 router.post("/getSingleProperty", getSingleProperty);
 router.delete("/deleteProperty", deleteProperty);

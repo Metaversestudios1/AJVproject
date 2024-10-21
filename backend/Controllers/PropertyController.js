@@ -233,29 +233,98 @@ const insertProperty = async (req, res) => {
 //     }
 //   }
 // };
-
 const updateProperty = async (req, res) => {
-  const updatedata = req.body;
-  const id = updatedata.id;
+  const { id } = req.body; // Form fields will be in req.body
+  const oldData = req.body;
+  console.log('ok');
+  console.log(oldData);
+
   try {
+    // Initialize an array to hold uploaded photo details
+    const photos = [];
+
+    // Check if new files are being uploaded
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const { originalname, buffer, mimetype } = file;
+
+        if (!mimetype || typeof mimetype !== "string") {
+          return res.status(400).json({ success: false, message: "Invalid MIME type" });
+        }
+
+        // Upload the image (assuming you have a function `uploadImage` for this)
+        const uploadResult = await uploadImage(buffer, originalname, mimetype);
+
+        if (!uploadResult) {
+          return res.status(500).json({ success: false, message: "File upload error" });
+        }
+
+        // Push the uploaded image details to the photos array
+        photos.push({
+          publicId: uploadResult.public_id,
+          url: uploadResult.secure_url,
+          originalname: originalname,
+          mimetype: mimetype,
+        });
+      }
+    }
+console.log(id);
+    // If `photos` exist in the old data, merge it with new uploads
+    const existingProperty = await Property.findById(id);
+    if (!existingProperty) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    const updatedPhotos = [
+      ...(existingProperty.photos || []), // Existing photos (if any)
+      ...photos, // Newly uploaded photos
+    ];
+
+    // Update the property with new/old data and merged photos
     const result = await Property.updateOne(
       { _id: id },
-      { $set: updatedata.oldData }
+      {
+        $set: {
+          ...oldData, // Update with the rest of the fields from oldData
+          photos: updatedPhotos, // Set updated photos
+        },
+      }
     );
-    if (!result) {
-      res.status(404).json({ success: false, message: "Property not found" });
-    }
-    res.status(201).json({ success: true, result: result });
+
+    res.status(200).json({ success: true, result });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "error in updating the Property",
-        error: err.message,
-      });
+    console.error("Error updating Property with multiple files:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Error updating Property",
+      error: err.message,
+    });
   }
 };
+
+
+// const updateProperty = async (req, res) => {
+//   const updatedata = req.body;
+//   const id = updatedata.id;
+//   try {
+//     const result = await Property.updateOne(
+//       { _id: id },
+//       { $set: updatedata.oldData }
+//     );
+//     if (!result) {
+//       res.status(404).json({ success: false, message: "Property not found" });
+//     }
+//     res.status(201).json({ success: true, result: result });
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({
+//         success: false,
+//         message: "error in updating the Property",
+//         error: err.message,
+//       });
+//   }
+// };
 
 const getAllProperty = async (req, res) => {
   try {
