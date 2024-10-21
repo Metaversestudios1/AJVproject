@@ -168,7 +168,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                     onClick={toggleSideBar}
                   >
                     <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
+                     {/* <NavLink
                         to="/sites/addSite/"
                         className={({ isActive }) =>
                           isActive
@@ -177,7 +177,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                         }
                       >
                         Add Site
-                      </NavLink>
+                      </NavLink>*/}
                     </div>
                   </li>
                 </ul>

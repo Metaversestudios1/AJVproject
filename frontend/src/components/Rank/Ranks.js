@@ -220,12 +220,12 @@ const Ranks = () => {
                       <CiEdit className="inline mr-2" /> Edit
                       </button>
                       </NavLink>
-                        <button
+                       {/* <button
                           onClick={(e) => handleDelete(e, item._id)}
                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                         >
                           <MdDelete className="inline mr-2" /> Delete
-                        </button>
+                        </button>*/}
                       </div>
                     )}
                   </td>
