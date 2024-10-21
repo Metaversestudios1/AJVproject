@@ -3,9 +3,7 @@ const mongoose = require("mongoose");
 const rankSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true }, // Name of the rank (e.g., Junior Agent, Senior Agent)
-    rank_id:{
-      type: String,
-    },
+
     commissionRate: { type: String, required: true }, // Commission rate associated with this rank
     description: { type: String }, // Optional description for the rank
     level: { type: Number, required: true },  // Rank level (e.g., 1 for Junior Agent, 2 for Senior Agent)

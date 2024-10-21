@@ -14,22 +14,9 @@ const AddRank = () => {
     commissionRate: "",
     description: "",
     level: "",
-    rank_id:""
   };
   const [data, setData] = useState(initialState);
-  useEffect(() => {
-    fetchRankId();
-  }, []);
-  const fetchRankId = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getNextRankId`
-    ); 
-    const response = await res.json();
-    console.log(response)
-    if (response.success) {
-      setData({ ...data, rank_id: response.rank_id });
-    }
-  };
+
   const validaterankform = () => {
     $.validator.addMethod(
       "validPhone",
@@ -102,7 +89,6 @@ const AddRank = () => {
         }
       );
       const response = await res.json();
-      console.log(response);
       if (response.success) {
         toast.success("Rank is added Successfully!", {
           position: "top-right",
@@ -167,22 +153,7 @@ const AddRank = () => {
       ) : (
         <div className="w-[50%] m-auto my-10">
           <form id="rankform">
-            <div>
-              <label
-                htmlFor="rank_id"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-            Rank id <span className="text-red-900 text-lg ">&#x2a;</span>
-              </label>
-              <input
-                name="rank_id"
-                value={data.rank_id}
-                type="text"
-                id="rank_id"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter rank id"
-              />
-            </div>
+        
             <div>
               <label
                 htmlFor="name"

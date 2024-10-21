@@ -41,44 +41,6 @@ const Ranks = () => {
      }
   };
 
-  const handleDelete = async (e, id) => {
-    e.preventDefault();
-    const permissionOfDelete = window.confirm(
-      "Are you sure, you want to delete the user"
-    );
-    if (permissionOfDelete) {
-      let rankOne = ranks.length === 1;
-      if (count === 1) {
-        rankOne = false;
-      }
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteRank`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const response = await res.json();
-      if (response.success) {
-        toast.success("Rank is deleted Successfully!", {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        if (rankOne) {
-          setPage(page - 1);
-        } else {
-          fetchData();
-        }
-      }
-    }
-  };
   const handleKebabClick = (propertyId) => {
     // Toggle the kebab menu for the clicked row
     setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
@@ -150,9 +112,6 @@ const Ranks = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  rank id
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -183,9 +142,6 @@ const Ranks = () => {
                   >
                     {startIndex + index + 1}
                   </th>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.rank_id}
-                  </td>
                   <th
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"

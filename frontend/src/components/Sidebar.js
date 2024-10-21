@@ -255,6 +255,42 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                       </NavLink>
                     </div>
                   </li>
+                  <li
+                  id="users-accordion"
+                  className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                  onClick={toggleSideBar}
+                >
+                  <div className="hs-accordion" id="users-accordion-sub-1">
+                    <NavLink
+                      to="/ranks"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                          : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                      }
+                    >
+                      Ranks List
+                    </NavLink>
+                  </div>
+                </li>
+                <li
+                  id="users-accordion"
+                  className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                  onClick={toggleSideBar}
+                >
+                  <div className="hs-accordion" id="users-accordion-sub-1">
+                    <NavLink
+                      to="/ranks/addrank"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                          : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                      }
+                    >
+                      Add rank
+                    </NavLink>
+                  </div>
+                </li>
                 </ul>
               )}
                <li className="hs-accordion " id="users-accordion ">
@@ -331,81 +367,8 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   </li>
                 </ul>
               )}
-              <li className="hs-accordion " id="users-accordion ">
-                <button
-                  onClick={() => toggleSubMenu("rank")}
-                  type="button"
-                  className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
-                >
-                  <div className="flex items-center">
-                    <svg
-                      className="size-4 mr-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    Rank
-                  </div>
-                  {openSubMenu.rank ? (
-                    <FaAngleDown className="text-end" />
-                  ) : (
-                    <FaAngleRight className="text-end" />
-                  )}
-                </button>
-              </li>
-
-              {openSubMenu.rank && (
-                <ul>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/ranks"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Ranks List
-                      </NavLink>
-                    </div>
-                  </li>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/ranks/addrank"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Add rank
-                      </NavLink>
-                    </div>
-                  </li>
-                </ul>
-              )}
-
+             
+          
              
            
             </ul>

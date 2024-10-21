@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const RankModel = require("../Models/RankModel");
 const insertRank = async (req, res) => {
-  const { name, commissionRate, description, level, rank_id } = req.body;
+  const { name, commissionRate, description, level } = req.body;
   if (!name || !commissionRate || !level) {
     return res
       .status(400)
@@ -14,7 +14,6 @@ const insertRank = async (req, res) => {
       commissionRate,
       description,
       level,
-      rank_id,
     });
     await newRank.save();
     res
@@ -45,21 +44,7 @@ const updateRank = async (req, res) => {
     });
   }
 };
-const getNextRankId = async (req, res) => {
-  try {
-    const lastRank = await RankModel.findOne().sort({ rank_id: -1 }).exec();
 
-    if (!lastRank) {
-      return res.status(404).json({ success: true, rank_id: 100001 });
-    }
-    return res
-      .status(404)
-      .json({ success: true, rank_id: parseInt(lastRank.rank_id) + 1 });
-  } catch (err) {
-    console.error("Error retrieving last rank id:", err);
-    throw new Error("Could not retrieve rank id.");
-  }
-};
 const getAllRank = async (req, res) => {
   try {
     const pageSize = parseInt(req.query.limit);
@@ -123,5 +108,4 @@ module.exports = {
   getAllRank,
   getSingleRank,
   deleteRank,
-  getNextRankId,
 };
