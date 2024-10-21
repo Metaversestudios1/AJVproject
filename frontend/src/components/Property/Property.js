@@ -87,6 +87,43 @@ const Property = () => {
       setPage(1);
     }
   };
+  const handleDeleteImage =async(propertyId, photoIndex)=>{
+    // e.preventDefault();
+    const permissionOfDelete = window.confirm(
+      "Are you sure, you want to delete the property photo"
+    );
+  
+    if (permissionOfDelete) {
+      let userOne = properties.length === 1;
+      if (count === 1) {
+        userOne = false;
+      }
+       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId, photoIndex }),
+      });
+      const response = await res.json();
+      if (response.success) {
+        toast.success("Property photo is deleted Successfully!", {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        if (userOne) {
+          setPage(page - 1);
+        } else {
+          fetchData();
+        }
+      }
+    }
+
+  }
 
   const startIndex = (page - 1) * pageSize;
 
@@ -187,18 +224,28 @@ const Property = () => {
                     {item?.propertyname}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-  {item?.photo?.url && (
-    <>
-      <a href={item.photo.url} target="_blank" rel="noopener noreferrer">
-      <img
-        src={item.photo.url}
-        alt="Profile"
-
-        className="w-12 h-12 rounded-full object-cover aspect-square"
-        style={{ width: "50px", height: "50px" }} // Set width and height to 50px
-      />
-     </a>
-    </>
+  {item?.photos?.length > 0 && (
+    <div className="flex space-x-2"> {/* Flex container for images */}
+      {item.photos.map((photo, index) => (
+        <div key={index} className="relative"> {/* Wrapper div for positioning */}
+          <a href={photo.url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={photo.url}
+              alt={`Profile ${index + 1}`} // Alternate text for accessibility
+              className="w-12 h-12 rounded-full object-cover aspect-square"
+              style={{ width: "50px", height: "50px" }} // Set width and height to 50px
+            />
+          </a>
+          <button 
+            onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
+            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
+            style={{ cursor: "pointer" }}
+          >
+            &times; {/* Cross icon for delete */}
+          </button>
+        </div>
+      ))}
+    </div>
   )}
 </td>
 
@@ -230,18 +277,21 @@ const Property = () => {
                           Check Sites
                         </button>
                         </NavLink>
-                        {/*<button
-                          onClick={() => console.log("Edit:", item._id)}
+                        <NavLink to={`/editproperty/${item?._id}`}>
+                      <button
                           className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                         >
-                          <CiEdit className="inline mr-2" /> Edit
+                          Edit
                         </button>
-                        <button
+                        </NavLink>
+                        
+                       
+                        {/* <button
                           onClick={() => handleDelete(item._id)}
                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                         >
                           <MdDelete className="inline mr-2" /> Delete
-                        </button>*/}
+                        </button> */}
                       </div>
                     )}
                   </td>

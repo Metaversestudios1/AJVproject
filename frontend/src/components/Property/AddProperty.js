@@ -17,7 +17,7 @@ const AddProperty = () => {
     description: "",
     address: "",
     sites: "",
-    photo: null,
+    photos: [],  
   };
   const [data, setData] = useState(initialState);
 
@@ -82,9 +82,14 @@ const AddProperty = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files); // Handle multiple files
+    if (files.length > 10) {
+      alert("You can only upload a maximum of 10 images.");
+      e.target.value = ""; // Reset the input
+      return;
+    }
+    setData({ ...data, photos: files });
 
-    setData({ ...data, photo: file });
   };
 
   const handleSubmit = async (e) => {
@@ -97,7 +102,11 @@ const AddProperty = () => {
   setLoader(true);
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
-        formData.append(key, data[key]);
+        if (key === "photos") {
+          data.photos.forEach((file) => formData.append("photos", file)); // Append all selected files
+        } else {
+          formData.append(key, data[key]);
+        }
       });
       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/insertProperty`, {
         method: "POST",
@@ -260,11 +269,13 @@ const AddProperty = () => {
                 Property Image
               </label>
               <input
-                name="photo"
+                name="photos"
                 value={data.photp}
                 onChange={handleFileChange}
                 type="file"
-                id="photo"
+                id="photos"
+                accept="image/*" 
+                multiple
                 className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                 placeholder="1234 Elm Street, xyz land"
                 

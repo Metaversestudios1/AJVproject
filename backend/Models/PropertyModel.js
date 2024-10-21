@@ -19,13 +19,14 @@ const propertySchema = new mongoose.Schema({
     sites: {
         type: Number,
     },
-    photo: {
-        publicId: { type: String},
-        url: { type: String},
-        originalname: { type: String },
-        mimetype: { type: String },
-      },
-    
+    photos: [
+        {
+          publicId: { type: String },
+          url: { type: String },
+          originalname: { type: String },
+          mimetype: { type: String },
+        },
+      ],
     updatedAt: {
         type: Date,
         default: Date.now, 
