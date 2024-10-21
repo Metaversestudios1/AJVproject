@@ -5,6 +5,7 @@ const {
   getSingleAgent,
   deleteAgent,
   agentlogin,
+  getAllAgentproperty
 } = require("../Controllers/AgentController");
 const express = require("express");
 const router = express.Router();
@@ -15,5 +16,8 @@ router.get("/getAllAgent", getAllAgent);
 router.post("/getSingleAgent", getSingleAgent);
 router.delete("/deleteAgent", deleteAgent);
 router.post("/agentlogin", agentlogin);
+router.get("/getAllAgentproperty", getAllAgentproperty);
+
+
 
 module.exports = router;

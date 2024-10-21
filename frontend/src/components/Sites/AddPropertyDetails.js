@@ -20,13 +20,13 @@ const AddPropertyDetails = () => {
   const initialState = {
     agentId: "",
     clientId: "",
-    propertyDetailsstatus:"1",
+    propertyDetailsstatus: "1",
     propertyDetails: {
       totalValue: "",
       amountPaid: "",
       balanceRemaining: "",
     },
-    
+
     saleDeedDetails: {
       deedNumber: "",
       executionDate: "",
@@ -39,30 +39,32 @@ const AddPropertyDetails = () => {
     },
   };
   const [data, setData] = useState(initialState);
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const [agentRes, clientRes] = await Promise.all([
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`),
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
-          ]);
-  
-          const [agentData, clientData] = await Promise.all([
-            agentRes.json(),
-            clientRes.json(),
-          ]);
-  console.log(clientData);
-          if (agentData.success) setAgents(agentData.result);
-          if (clientData.success) setClients(clientData.result);
-          setLoader(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-  
-      fetchData();
-      fetchOldData();
-    }, [id]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [agentRes, clientRes] = await Promise.all([
+          fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgentproperty?sid=${id}`
+          ),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
+        ]);
+
+        const [agentData, clientData] = await Promise.all([
+          agentRes.json(),
+          clientRes.json(),
+        ]);
+        console.log(clientData);
+        if (agentData.success) setAgents(agentData.result);
+        if (clientData.success) setClients(clientData.result);
+        setLoader(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+    fetchOldData();
+  }, [id]);
 
   const validatesiteform = () => {
     $("#siteform").validate({
@@ -70,57 +72,49 @@ const AddPropertyDetails = () => {
         totalValue: {
           required: true,
           number: true, // Ensures that only numbers (including decimals) are allowed
-    
         },
         clientId: {
           required: true,
-        
         },
         // agentId: {
         //   required: true,
-        
+
         // },
         amountPaid: {
           required: true,
-          number: true, 
+          number: true,
         },
         balanceRemaining: {
           required: true,
-          number: true, 
+          number: true,
         },
-        
+
         saleAmount: {
-      number: true, 
+          number: true,
         },
       },
       messages: {
         totalValue: {
           required: "Please enter total value",
           number: "Please enter a valid number", // Custom message for number validation
-   
         },
         amountPaid: {
           required: "Please enter amount paid",
           number: "Please enter a valid number", // Custom message for number validation
-   
         },
         balanceRemaining: {
           required: "Please enter Balance remaining",
           number: "Please enter a valid number", // Custom message for number validation
-   
         },
         saleAmount: {
-           number: "Please enter a valid number", // Custom message for number validation
-   
+          number: "Please enter a valid number", // Custom message for number validation
         },
         agentId: {
           required: "Please select client",
-         
-       },
-       clientId: {
-        required: "Please select client",
-         
-     },
+        },
+        clientId: {
+          required: "Please select client",
+        },
       },
       errorElement: "div",
       errorPlacement: function (error, element) {
@@ -150,7 +144,7 @@ const AddPropertyDetails = () => {
           ...prevData.propertyDetails,
           [name]: value, // Update only the specific property
         },
-        ...prevData.saleDeedDetails
+        ...prevData.saleDeedDetails,
       }));
     } else if (name in data.saleDeedDetails) {
       setData((prevData) => ({
@@ -176,7 +170,7 @@ const AddPropertyDetails = () => {
         }
       );
       const result = await response.json();
-      if (result.success) {        
+      if (result.success) {
         const formatDate = (dateString) => {
           if (dateString) {
             const date = new Date(dateString);
@@ -188,15 +182,13 @@ const AddPropertyDetails = () => {
         const saleDeedDetails = result.result?.saleDeedDetails || {};
         console.log(result.result?.clientId);
         setData({
-          clientId:
-          result.result?.clientId,      
-          agentId:result.result?.agentId, 
-          propertyDetailsstatus:'1',        
+          clientId: result.result?.clientId,
+          agentId: result.result?.agentId,
+          propertyDetailsstatus: "1",
           propertyDetails: {
             totalValue: propertyDetails.totalValue || "",
             amountPaid: propertyDetails.amountPaid || "",
             balanceRemaining: propertyDetails.balanceRemaining || "",
-            
           },
           saleDeedDetails: {
             deedNumber: saleDeedDetails.deedNumber || "",
@@ -224,11 +216,14 @@ const AddPropertyDetails = () => {
     try {
       setLoader(true);
       const updatedata = { id, data };
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/updateSite`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedata),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/updateSite`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedata),
+        }
+      );
       const response = await res.json();
       if (response.success) {
         toast.success("Property details updated Successfully for the site!", {
@@ -256,7 +251,7 @@ const AddPropertyDetails = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
-   return (
+  return (
     <>
       <div className="flex items-center ">
         <ToastContainer
@@ -297,259 +292,254 @@ const AddPropertyDetails = () => {
       ) : (
         <div className="w-[70%] m-auto my-10">
           <form id="siteform">
-          <label><b>Property Details</b></label>
-          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-          <div className="my-2">
-              <label
-                htmlFor="clientId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Clients
-              </label>
-              <select
-                name="clientId"
-                value={data?.clientId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select a client.</option>
-                {clients.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                      selected={option._id === data?.clientId}
-                    >
-                      {option?.clientname}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="my-2">
-              <label
-                htmlFor="agentId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Agents
-              </label>
-              <select
-                name="agentId"
-                value={data?.agentId}
-                onChange={handleChange}
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-              >
-                <option value="">Select an agent.</option>
-                {agents.map((option) => {
-                  return (
-                    <option
-                      key={option?._id}
-                      value={option?._id}
-                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                      selected={option._id === data.agentId}
-                   
-                   >
-                      {option?.agentname}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            </div>
-
-          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-          <div>
-              <label
-                htmlFor="totalValue"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Total value
-                <span className="text-red-900 text-lg ">&#x2a;</span>
-              </label>
-              <input
-                name="propertyDetailsstatus"
-                value={data.propertyDetailsstatus}
-                onChange={handleChange}
-                type="hidden"
-                id="propertyDetailsstatus"
-
-              />
-              <input
-                name="totalValue"
-                value={data.propertyDetails.totalValue}
-                onChange={handleChange}
-                type="text"
-                id="totalValue"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.1234.."
-                required
-              />
-           </div>
-           <div>
-              <label
-                htmlFor="amountPaid"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Amount Paid
-                <span className="text-red-900 text-lg ">&#x2a;</span>
-              </label>
-              <input
-                name="amountPaid"
-                value={data.propertyDetails.amountPaid}
-                onChange={handleChange}
-                type="text"
-                id="amountPaid"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.1200.."
-                required
-              />
-            </div>
+            <label>
+              <b>Property Details</b>
+            </label>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+              <div className="my-2">
+                <label
+                  htmlFor="clientId"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Clients
+                </label>
+                <select
+                  name="clientId"
+                  value={data?.clientId}
+                  onChange={handleChange}
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                >
+                  <option value="">Select a client.</option>
+                  {clients.map((option) => {
+                    return (
+                      <option
+                        key={option?._id}
+                        value={option?._id}
+                        className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                        selected={option._id === data?.clientId}
+                      >
+                        {option?.clientname}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div className="my-2">
+                <label
+                  htmlFor="agentId"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Agents
+                </label>
+                <select
+                  name="agentId"
+                  value={data?.agentId}
+                  onChange={handleChange}
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                >
+                  {agents.length === 0 ? (
+                    <option value="">Assign property to agent first</option> // Show this option when no agents are available
+                  ) : (
+                    <>
+                      <option value="">Select an agent.</option>
+                      {agents.map((option) => (
+                        <option
+                          key={option?._id}
+                          value={option?._id}
+                          className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                          selected={option._id === data.agentId}
+                        >
+                          {option?.agentname}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
+              </div>
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="balanceRemaining"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Balance Remaining
-                <span className="text-red-900 text-lg ">&#x2a;</span>
-              </label>
-              <input
-                name="balanceRemaining"
-                value={data.propertyDetails.balanceRemaining}
-                onChange={handleChange}
-                type="text"
-                id="balanceRemaining"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.100.."
-                required
-              />
+              <div>
+                <label
+                  htmlFor="totalValue"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Total value
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="propertyDetailsstatus"
+                  value={data.propertyDetailsstatus}
+                  onChange={handleChange}
+                  type="hidden"
+                  id="propertyDetailsstatus"
+                />
+                <input
+                  name="totalValue"
+                  value={data.propertyDetails.totalValue}
+                  onChange={handleChange}
+                  type="text"
+                  id="totalValue"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.1234.."
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="amountPaid"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Amount Paid
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="amountPaid"
+                  value={data.propertyDetails.amountPaid}
+                  onChange={handleChange}
+                  type="text"
+                  id="amountPaid"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.1200.."
+                  required
+                />
+              </div>
             </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+              <div>
+                <label
+                  htmlFor="balanceRemaining"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Balance Remaining
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="balanceRemaining"
+                  value={data.propertyDetails.balanceRemaining}
+                  onChange={handleChange}
+                  type="text"
+                  id="balanceRemaining"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.100.."
+                  required
+                />
+              </div>
             </div>
-            <label><b>Sales Deed Details</b></label>&ensp;
-            &ensp;
+            <label>
+              <b>Sales Deed Details</b>
+            </label>
+            &ensp; &ensp;
             <br></br>
-          
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="deedNumber"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Deed Number
-              </label>
-              <input
-                name="deedNumber"
-                value={data.saleDeedDetails.deedNumber}
-                onChange={handleChange}
-                type="text"
-                id="deedNumber"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.ABCD"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="deedNumber"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Deed Number
+                </label>
+                <input
+                  name="deedNumber"
+                  value={data.saleDeedDetails.deedNumber}
+                  onChange={handleChange}
+                  type="text"
+                  id="deedNumber"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.ABCD"
+                />
+              </div>
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-            <div >
-              <label
-                htmlFor="executionDate"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Execution Date
-              </label>
-              <input
-                name="executionDate"
-                value={data.saleDeedDetails.executionDate}
-                onChange={handleChange}
-                type="date"
-                id="executionDate"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Enter execution date"
-              />
-            </div>
-            <div >
-              <label
-                htmlFor="buyer"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Buyer
-              </label>
-              <input
-                name="buyer"
-                value={data.saleDeedDetails.buyer}
-                onChange={handleChange}
-                type="text"
-                id="buyer"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.MR.John"
-              />
-            </div>
-            </div>
-            
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="saleAmount"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Sale Amount
-              </label>
-              <input
-                name="saleAmount"
-                value={data.saleDeedDetails.saleAmount}
-                onChange={handleChange}
-                type="text"
-                id="saleAmount"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Eg.200"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="witnesses"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Witnesses
-              </label>
-              <input
-                name="witnesses"
-                value={data.saleDeedDetails.witnesses}
-                onChange={handleChange}
-                type="text"
-                id="witnesses"
-                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                placeholder="Jane Smith"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="executionDate"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Execution Date
+                </label>
+                <input
+                  name="executionDate"
+                  value={data.saleDeedDetails.executionDate}
+                  onChange={handleChange}
+                  type="date"
+                  id="executionDate"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Enter execution date"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="buyer"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Buyer
+                </label>
+                <input
+                  name="buyer"
+                  value={data.saleDeedDetails.buyer}
+                  onChange={handleChange}
+                  type="text"
+                  id="buyer"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.MR.John"
+                />
+              </div>
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-       <div >
-       <label
-         htmlFor="seller"
-         className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-       >
-       Seller
-       </label>
-       <input
-         name="seller"
-         value={data.saleDeedDetails.seller}
-         onChange={handleChange}
-         type="text"
-         id="seller"
-         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-         placeholder="MR.John"
-       />
-     </div>
-     
-     </div>
+              <div>
+                <label
+                  htmlFor="saleAmount"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Sale Amount
+                </label>
+                <input
+                  name="saleAmount"
+                  value={data.saleDeedDetails.saleAmount}
+                  onChange={handleChange}
+                  type="text"
+                  id="saleAmount"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Eg.200"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="witnesses"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Witnesses
+                </label>
+                <input
+                  name="witnesses"
+                  value={data.saleDeedDetails.witnesses}
+                  onChange={handleChange}
+                  type="text"
+                  id="witnesses"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Jane Smith"
+                />
+              </div>
+            </div>
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+              <div>
+                <label
+                  htmlFor="seller"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Seller
+                </label>
+                <input
+                  name="seller"
+                  value={data.saleDeedDetails.seller}
+                  onChange={handleChange}
+                  type="text"
+                  id="seller"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="MR.John"
+                />
+              </div>
+            </div>
             <button
               type="submit"
               onClick={handleSubmit}
