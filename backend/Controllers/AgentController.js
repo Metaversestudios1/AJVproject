@@ -1,10 +1,9 @@
 const Agent = require("../Models/AgentModel");
-const Site = require("../Models/SiteModel");
 const bcrypt = require("bcrypt");
 const getNextAgentId = async (req, res) => {
   try {
-    const lastAgent = await Agent.findOne().sort({ agent_id: -1 }).exec();
-    console.log(lastAgent)
+    const lastAgent = await Agent.findOne({deleted_at: null}).sort({ agent_id: -1 }).exec();
+
     if (!lastAgent) {
       return res.status(404).json({ success: true, agent_id: 100001 });
     }
@@ -13,16 +12,17 @@ const getNextAgentId = async (req, res) => {
       .json({ success: true, agent_id: parseInt(lastAgent.agent_id) + 1 });
   } catch (err) {
     console.error("Error retrieving last agent id:", err);
-    throw new Error("Could not retrieve agent id.");
+    throw new Error("Could not retrieve rank id.");
   }
 };
-
 const insertAgent = async (req, res) => {
   try {
-   
+    const { password, ...data } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new agent
-    const newAgent = new Agent(req.body);
+    const newAgent = new Agent({ ...data, password: hashedPassword });
     await newAgent.save();
 
     res
@@ -145,6 +145,7 @@ const deleteAgent = async (req, res) => {
 
 const agentlogin = async (req, res) => {
     const { agent_id, password } = req.body; // Include role in the destructuring
+    console.log(agent_id, password)
     try {
       // Check if all fields are provided
       if (!agent_id || !password) {
@@ -163,6 +164,7 @@ const agentlogin = async (req, res) => {
   
       // Compare the provided password with the stored hashed password
       const match = await bcrypt.compare(password, agent.password);
+      console.log(match)
       if (!match) {
         return res
           .status(401)
@@ -202,47 +204,7 @@ const agentlogin = async (req, res) => {
     res.status(200).json({ status: true, message: "Successfully logged out" });
   };
 
-  const getAllAgentproperty = async (req, res) => {
-    try {
-      console.log(req.query.sid);
-      const siteId = req.query.sid; // Property ID from the query parameter
-  
-      // Validate the site ID
-      if (!siteId) {
-        return res.status(400).json({ success: false, message: "Site ID is required." });
-      }
-  
-       const site = await Site.findById(siteId);    
-      
-       if (!site) {
-        return res.status(404).json({ success: false, message: "Site not found." });
-      }  
-      const propertyId = site.propertyId; // Assuming the property ID is stored as propertyId in SITE collection
-      const query = {
-        deleted_at: null,
-        properties: { $in: [propertyId] } // Check if the properties array contains the specified property ID
-      };
-  
-      // Fetch agents matching the query
-      const result = await Agent.find(query);
-      console.log(result);
-      // Get the count of documents matching the query
-      const count = await Agent.countDocuments(query);
-      if (!result || result.length === 0) {
-        return res.status(404).json({ success: false,count, message: "No agents found for the given property ID." });
-      }
-  
-      
-  
-      // Send the response
-      res.status(200).json({ success: true, result, count });
-    } catch (error) {
-      console.error(error); // Log the error for debugging
-      res.status(500).json({ success: false, message: "Error retrieving agents" });
-    }
-  };
-  
-  
+
 // Usage within another function (like insertAgent
 
 module.exports = {
@@ -252,6 +214,5 @@ module.exports = {
   getSingleAgent,
   deleteAgent,
   agentlogin,
-  getAllAgentproperty,
   getNextAgentId
 };
