@@ -46,11 +46,24 @@ const getAllSite = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search;
     const id = req.query.id;
+    const filter = req.query.filter;
 
     // Build query to match sites
     const query = {
       deleted_at: null, // Ensure we only match non-deleted sites
     };
+    let sortCondition = { createdAt: -1 };
+    if (filter === 'recent') {
+      sortCondition = { createdAt: -1 }; // Descending order (newest first)
+    } else if (filter === 'oldest') {
+      sortCondition = { createdAt: 1 };  // Ascending order (oldest first)
+    } else if (filter === 'Available') {
+      query.status = 'Available'; // Filter by status 1
+    } else if (filter === 'Booked') {
+      query.status = 'Booked'; // Filter by status 0
+    } else if (filter === 'Completed') {
+      query.status = 'Completed'; // Filter by status 0
+    }
     console.log
     if (id) {
       query.propertyId = id;
@@ -74,7 +87,7 @@ const getAllSite = async (req, res) => {
     // Perform the site query with pagination
     const result = await Site.find(query)
       .populate('propertyId', 'propertyname') // Populate the propertyname
-      .sort({ createdAt: -1 })
+      .sort(sortCondition)
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 
