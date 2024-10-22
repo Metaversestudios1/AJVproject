@@ -19,37 +19,7 @@ const getNextAgentId = async (req, res) => {
 
 const insertAgent = async (req, res) => {
   try {
-
-
-      if (match) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Password already taken for this agent ID.",
-          });
-      }
-    }
-
-    // Hash the password before saving
-=======
->>>>>>> 7db8f8b04495c12d0470cca6603fe8a136ec0e05
-    const hashedPassword = await bcrypt.hash(password, 10);
    
-      if (match) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Password already taken for this agent ID.",
-          });
-      }
-    }
-
-    // Hash the password before saving
-=======
->>>>>>> 7db8f8b04495c12d0470cca6603fe8a136ec0e05
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new agent
     const newAgent = new Agent(req.body);

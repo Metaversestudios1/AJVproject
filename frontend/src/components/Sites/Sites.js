@@ -6,6 +6,8 @@ import { GoKebabHorizontal } from "react-icons/go";
 import "react-toastify/dist/ReactToastify.css";
 import { GoBookmarkFill } from "react-icons/go";
 import { MdEdit } from "react-icons/md";
+import html2pdf from 'html2pdf.js';
+
 const Sites = () => {
   const [sites, setSites] = useState([]);
   const [noData, setNoData] = useState(false);
@@ -16,11 +18,12 @@ const Sites = () => {
   const [search, setSearch] = useState("");
   const [activePropertyId, setActivePropertyId] = useState(null); // For kebab menu popup
   const params = useParams();
+  const [filter, setfilter] = useState("");
   const { id } = params;
 
   useEffect(() => {
     fetchData();
-  }, [page, search]);
+  }, [page, search,filter,pageSize]);
 
   const fetchPropertyName = async (id) => {
     const nameRes = await fetch(
@@ -79,10 +82,10 @@ const Sites = () => {
   
     if (id) {
       // If the ID is present in the URL, fetch data for that specific user
-      feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}&id=${id}`;
+      feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}&id=${id}&filter=${filter}`;
     } else {
       // If no ID in URL, fetch all properties
-      feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}`;
+      feturl = `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?page=${page}&limit=${pageSize}&search=${search}&filter=${filter}`;
     }
     
     try {
@@ -143,6 +146,16 @@ const Sites = () => {
       setSearch(value);
       setPage(1);
     }
+    if (name === "filter") {
+      setfilter(value);
+      setPage(1);
+    }
+    console.log(e.target);
+    if (name === "pageSize") {
+    
+      setPageSize(parseInt(value, 10)); // Convert value to a number
+      setPage(1);
+    }
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -195,6 +208,70 @@ const Sites = () => {
     }
   };
 
+  function downloadPDF() {
+    const table = document.getElementById('sitetable'); // Your table ID
+    const allDataRows = []; // This will hold all the table rows data
+  
+    // Get all rows from the table body (skip the header)
+    const rows = table.querySelectorAll('tbody tr'); // Adjust selector if your table structure is different
+  
+    rows.forEach(row => {
+      const rowData = {};
+      const cells = row.querySelectorAll('td'); // Get all cells in the current row
+      const totalCells = cells.length;
+
+      // Loop through cells except the last two
+      for (let index = 0; index < totalCells - 2; index++) {
+          // Assuming you have predefined column headers
+          const columnHeader = table.querySelectorAll('thead th')[index].innerText; // Get header name
+          rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+      }
+      allDataRows.push(rowData); // Add row data to allDataRows array
+  });
+  
+    // Create a temporary table to hold all records
+    const tempTable = document.createElement('table');
+    tempTable.style.width = '100%';
+    tempTable.style.borderCollapse = 'collapse';
+  
+    // Create table header
+    const headerRow = tempTable.insertRow();
+    const headers = Object.keys(allDataRows[0] || {}); // Get the keys from the first row object
+  
+    headers.forEach(header => {
+      const th = document.createElement('th');
+      th.innerText = header;
+      th.style.border = '1px solid black';
+      th.style.padding = '3px';
+      th.style.textAlign = 'left';
+      th.style.wordWrap = 'break-word';
+      headerRow.appendChild(th);
+    });
+  
+    // Create table body with all data rows
+    allDataRows.forEach(row => {
+      const tableRow = tempTable.insertRow();
+      headers.forEach(header => {
+        const td = document.createElement('td');
+        td.innerText = row[header] || ''; // Safely access row data
+        td.style.border = '1px solid black';
+        td.style.padding = '3px';
+        tableRow.appendChild(td);
+      });
+    });
+  
+    // Use html2pdf to generate PDF
+    html2pdf(tempTable, {
+      margin: 1,
+      filename: 'Sitereport.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    });
+  }
+
+
+ 
+
   const startIndex = (page - 1) * pageSize;
 
   return (
@@ -222,7 +299,7 @@ const Sites = () => {
           </button>
         </NavLink> */}
 
-        <div className={`flex items-center`}>
+        <div className={`flex `}>
           <input
             placeholder="Search "
             type="text"
@@ -232,6 +309,48 @@ const Sites = () => {
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
           />
         </div>
+        
+        <div className={` flex `}>
+          <select
+
+            type="text"
+            name="pageSize"
+            value={pageSize}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}>
+            <option value="">select Limit</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+         
+          </select>
+
+        </div>
+        <div className={` flex `}>
+          <select
+
+            type="text"
+            name="filter"
+            value={filter}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}>
+            <option value="">select filter</option>
+            <option value="recent">Recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="Available">Available</option>
+            <option value="Booked">Booked</option>
+            <option value="Completed">Completed</option>
+         
+          </select>
+
+        </div>
+        <div className="flex">
+  <button onClick={downloadPDF} className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
+    Download PDF
+  </button>
+</div>
       </div>
 
       {loader && (
@@ -248,7 +367,7 @@ const Sites = () => {
       )}
       <div className="relative overflow-x-auto m-5 mb-0">
         {sites.length > 0 && (
-          <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
+          <table id="sitetable" className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -284,18 +403,18 @@ const Sites = () => {
             <tbody>
               {sites.map((item, index) => (
                 <tr key={item?._id} className="bg-white">
-                  <th
+                  <td
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
                     {startIndex + index + 1}
-                  </th>
-                  <th
+                  </td>
+                  <td
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
                     {item?.propertyName}
-                  </th>
+                  </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.ClientName}
                     <span style={{ display: "none" }}>{item?.ClientId}</span>
