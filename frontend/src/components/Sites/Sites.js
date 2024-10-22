@@ -6,7 +6,9 @@ import { GoKebabHorizontal } from "react-icons/go";
 import "react-toastify/dist/ReactToastify.css";
 import { GoBookmarkFill } from "react-icons/go";
 import { MdEdit } from "react-icons/md";
-import html2pdf from 'html2pdf.js';
+// import html2pdf from 'html2pdf.js';
+import * as XLSX from 'xlsx';
+
 
 const Sites = () => {
   const [sites, setSites] = useState([]);
@@ -208,70 +210,103 @@ const Sites = () => {
     }
   };
 
-  function downloadPDF() {
-    const table = document.getElementById('sitetable'); // Your table ID
-    const allDataRows = []; // This will hold all the table rows data
+  // function downloadPDF() {
+  //   const table = document.getElementById('sitetable'); // Your table ID
+  //   const allDataRows = []; // This will hold all the table rows data
   
-    // Get all rows from the table body (skip the header)
-    const rows = table.querySelectorAll('tbody tr'); // Adjust selector if your table structure is different
+  //   // Get all rows from the table body (skip the header)
+  //   const rows = table.querySelectorAll('tbody tr'); // Adjust selector if your table structure is different
   
-    rows.forEach(row => {
-      const rowData = {};
-      const cells = row.querySelectorAll('td'); // Get all cells in the current row
-      const totalCells = cells.length;
+  //   rows.forEach(row => {
+  //     const rowData = {};
+  //     const cells = row.querySelectorAll('td'); // Get all cells in the current row
+  //     const totalCells = cells.length;
 
-      // Loop through cells except the last two
-      for (let index = 0; index < totalCells - 2; index++) {
-          // Assuming you have predefined column headers
-          const columnHeader = table.querySelectorAll('thead th')[index].innerText; // Get header name
-          rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
-      }
-      allDataRows.push(rowData); // Add row data to allDataRows array
-  });
+  //     // Loop through cells except the last two
+  //     for (let index = 0; index < totalCells - 2; index++) {
+  //         // Assuming you have predefined column headers
+  //         const columnHeader = table.querySelectorAll('thead th')[index].innerText; // Get header name
+  //         rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+  //     }
+  //     allDataRows.push(rowData); // Add row data to allDataRows array
+  // });
   
-    // Create a temporary table to hold all records
-    const tempTable = document.createElement('table');
-    tempTable.style.width = '100%';
-    tempTable.style.borderCollapse = 'collapse';
+  //   // Create a temporary table to hold all records
+  //   const tempTable = document.createElement('table');
+  //   tempTable.style.width = '100%';
+  //   tempTable.style.borderCollapse = 'collapse';
   
-    // Create table header
-    const headerRow = tempTable.insertRow();
-    const headers = Object.keys(allDataRows[0] || {}); // Get the keys from the first row object
+  //   // Create table header
+  //   const headerRow = tempTable.insertRow();
+  //   const headers = Object.keys(allDataRows[0] || {}); // Get the keys from the first row object
   
-    headers.forEach(header => {
-      const th = document.createElement('th');
-      th.innerText = header;
-      th.style.border = '1px solid black';
-      th.style.padding = '3px';
-      th.style.textAlign = 'left';
-      th.style.wordWrap = 'break-word';
-      headerRow.appendChild(th);
-    });
+  //   headers.forEach(header => {
+  //     const th = document.createElement('th');
+  //     th.innerText = header;
+  //     th.style.border = '1px solid black';
+  //     th.style.padding = '3px';
+  //     th.style.textAlign = 'left';
+  //     th.style.wordWrap = 'break-word';
+  //     headerRow.appendChild(th);
+  //   });
   
-    // Create table body with all data rows
-    allDataRows.forEach(row => {
-      const tableRow = tempTable.insertRow();
-      headers.forEach(header => {
-        const td = document.createElement('td');
-        td.innerText = row[header] || ''; // Safely access row data
-        td.style.border = '1px solid black';
-        td.style.padding = '3px';
-        tableRow.appendChild(td);
-      });
-    });
+  //   // Create table body with all data rows
+  //   allDataRows.forEach(row => {
+  //     const tableRow = tempTable.insertRow();
+  //     headers.forEach(header => {
+  //       const td = document.createElement('td');
+  //       td.innerText = row[header] || ''; // Safely access row data
+  //       td.style.border = '1px solid black';
+  //       td.style.padding = '3px';
+  //       tableRow.appendChild(td);
+  //     });
+  //   });
   
-    // Use html2pdf to generate PDF
-    html2pdf(tempTable, {
-      margin: 1,
-      filename: 'Sitereport.pdf',
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    });
-  }
+  //   // Use html2pdf to generate PDF
+  //   html2pdf(tempTable, {
+  //     margin: 1,
+  //     filename: 'Sitereport.pdf',
+  //     html2canvas: { scale: 2 },
+  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  //   });
+  // }
 
 
  
+ 
 
+  function downloadExcel() {
+      const table = document.getElementById('sitetable'); // Your table ID
+      const allDataRows = []; // This will hold all the table rows data
+  
+      // Get all rows from the table body (skip the header)
+      const rows = table.querySelectorAll('tbody tr'); // Adjust selector if your table structure is different
+  
+      rows.forEach(row => {
+          const rowData = {};
+          const cells = row.querySelectorAll('td'); // Get all cells in the current row
+          const totalCells = cells.length;
+  
+          // Loop through cells except the last two
+          for (let index = 0; index < totalCells - 2; index++) {
+              // Assuming you have predefined column headers
+              const columnHeader = table.querySelectorAll('thead th')[index].innerText; // Get header name
+              rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+          }
+          allDataRows.push(rowData); // Add row data to allDataRows array
+      });
+  
+      // Create a new workbook and a worksheet
+      const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+      const workbook = XLSX.utils.book_new();
+  
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Site Report');
+  
+      // Generate Excel file and prompt for download
+      XLSX.writeFile(workbook, 'Sitereport.xlsx');
+  }
+  
   const startIndex = (page - 1) * pageSize;
 
   return (
@@ -347,7 +382,7 @@ const Sites = () => {
 
         </div>
         <div className="flex">
-  <button onClick={downloadPDF} className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
+  <button onClick={downloadExcel} className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
     Download PDF
   </button>
 </div>
@@ -430,9 +465,17 @@ const Sites = () => {
                     {item?.description}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    <button className="bg-green-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
-                      {item?.status}
-                    </button>
+                  <button
+  className={`text-white font-bold py-2 px-4 rounded ${
+    item?.status === 'Available' ? 'bg-green-500 hover:bg-green-600' :
+    item?.status === 'Booked' ? 'bg-blue-500 hover:bg-blue-600' :
+    item?.status === 'Completed' ? 'bg-orange-500 hover:bg-orange-600' :
+    'bg-gray-500 hover:bg-gray-600' // default case if none match
+  }`}
+>
+  {item?.status}
+</button>
+
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     <br></br>
@@ -442,7 +485,7 @@ const Sites = () => {
                         <div>
                           {item?.propertyDetailsstatus === "0" ? (
                             // Show "Add Payment Details" button when propertyDetailsstatus is 0
-                            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                            <button className="bg-blue-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                               <NavLink to={`/addPropertyDetails/${item?._id}`}>
                                 <span className="block w-full text-left px-4 py-2 text-sm ">
                                   Add Payment Details
@@ -453,7 +496,7 @@ const Sites = () => {
                             <div>
                               {/* Show "Click to Book" button when propertyDetailsstatus is 1 */}
                               <button
-                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                                className="bg-blue-900 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                                 onClick={() =>
                                   handleStatusChange(item._id, "Booked")
                                 }
@@ -462,7 +505,7 @@ const Sites = () => {
                               </button>
 
                               {/* Show "Update Payment Details" button when propertyDetailsstatus is 1 */}
-                              <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">
+                              <button className="bg-blue-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">
                                 <NavLink
                                   to={`/addPropertyDetails/${item?._id}`}
                                 >
@@ -477,7 +520,7 @@ const Sites = () => {
                       ) : item?.status === "Booked" ? (
                         <div>
                           <button
-                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                            className="bg-orange-900 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                             onClick={() =>
                               handleStatusChange(item._id, "Completed")
                             }
@@ -487,7 +530,7 @@ const Sites = () => {
                           <br></br>
                           <br></br>
                           <button
-                            className="bg-blue-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                            className="bg-blue-800 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                             //  onClick={() => handleStatusChange(item._id, 'approved')}
                           >
                             <NavLink to={`/addPropertyDetails/${item?._id}`}>
@@ -499,7 +542,7 @@ const Sites = () => {
                         </div>
                       ) : (
                         <div> <button
-                        className="bg-blue-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                        className="bg-blue-800 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                         //  onClick={() => handleStatusChange(item._id, 'approved')}
                       >
                         <NavLink to={`/addPropertyDetails/${item?._id}`}>
