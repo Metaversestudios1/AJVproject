@@ -22,7 +22,7 @@ const DashboardRoutes = require("./Routes/DashboardRoutes");
 connectDB();
 const server = http.createServer(app);
 const corsOptions = {
-  origin: ["https://aj-vproject-front.vercel.app"],
+  origin: ["https://aj-vproject-front.vercel.app","https://aj-vproject-client-agent.vercel.app"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   credentials: true,
