@@ -1,9 +1,14 @@
 const Client = require("../Models/ClientModel");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 const insertClient = async (req, res) => {
-  console.log(req.body)
   try {
-    const newClient = new Client(req.body);
+    const { password, ...data } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new agent
+    const newClient = new Client({ ...data, password: hashedPassword });
     await newClient.save();
     res.status(201).json({ success: true });
   } catch (err) {
@@ -101,57 +106,34 @@ const deleteClient = async (req, res) => {
 };
 
 const clientlogin = async (req, res) => {
-    const { client_id, password } = req.body; // Include role in the destructuring
-    try {
-      // Check if all fields are provided
-      if (!client_id || !password) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Please provide all fields" });
-      }
-  
-      // Find the admin by email
-      const client = await Client.findOne({ client_id });
-      if (!client) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Email not found" });
-      }
-  
-      // Compare the provided password with the stored hashed password
-      const match = await bcrypt.compare(password, agent.password);
-      if (!match) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Password does not match" });
-      }
-  
-      // Generate a JWT token
-      const token = jwt.sign(
-        { id: client._id, username: client.clientname }, // Include role in the token payload if needed
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-  
-      // Set cookie options
-      const options = {
-        expires: new Date(Date.now() + 2592000000), // 30 days
-        httpOnly: true,
-        sameSite: "None",
-      };
-  
-      // Send response with token and admin details
-      res.cookie("token", token, options).json({
-        success: true,
-        token,
-        admin,
-      });
-    } catch (err) {
-      res
-        .status(500)
-        .json({ success: false, message: "Server error: " + err.message });
+  const { client_id, password } = req.body;
+  try {
+    if (!client_id || !password) {
+      return res.status(400).json({ success: false, message: "Please provide all fields" });
     }
-  };
+
+    const client = await Client.findOne({ client_id });
+    if (!client) {
+      return res.status(404).json({ success: false, message: "Client ID not found" });
+    }
+
+    const match = await bcrypt.compare(password, client.password);
+    if (!match) {
+      return res.status(401).json({ success: false, message: "Incorrect password" });
+    }
+
+    const token = jwt.sign(
+      { id: client._id, username: client.clientname },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("token", token, { expiresIn: "30d", httpOnly: true, sameSite: "None" })
+      .json({ success: true, token, user: client });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error: " + err.message });
+  }
+};
   
 const getNextclientId = async (req,res) => {
     try {
