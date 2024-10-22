@@ -18,10 +18,7 @@ const AgentSchema = new mongoose.Schema({
     ref: 'Rank', // This should match the name of the Rank model
     default: null, // Nullable
   },
-  commissionRate: {
-    type: mongoose.Types.Decimal128, // For decimal values
-    default: null, // Nullable
-  },
+  
   clients: {
     type: [String], // Array of Client IDs
     default: null, // Nullable
@@ -29,6 +26,11 @@ const AgentSchema = new mongoose.Schema({
   properties: {
     type: [String], // Array of Property IDs
     default: null, // Nullable
+  },
+  superior: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Agent', // References another agent (the superior)
+    default: null, // If null, this is the top agent
   },
   hierarchy: {
     type: [String], // Array of Agent IDs
