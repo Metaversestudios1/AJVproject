@@ -68,9 +68,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!validateLoginForm()) {
-        return;
-      }
+      // if (!validateLoginForm()) {
+      //   return;
+      // }
       setLoading(true);
       let res;
       if (role === "agent") {
