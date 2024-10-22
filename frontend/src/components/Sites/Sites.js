@@ -383,7 +383,7 @@ const Sites = () => {
         </div>
         <div className="flex">
   <button onClick={downloadExcel} className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
-    Download PDF
+    Download Excel
   </button>
 </div>
       </div>
