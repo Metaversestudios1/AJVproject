@@ -22,6 +22,9 @@ const clientSchema = new mongoose.Schema({
     type: String,
    
   },
+  password: {
+    type: String,
+    },
   preferredPropertyType: {
     type: String,
  
