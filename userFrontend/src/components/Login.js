@@ -139,7 +139,7 @@ const Login = () => {
       console.error("Error during login:", error);
     }
   };
-  console.log(agent_id, password, role)
+  console.log(process.env.REACT_APP_BACKEND_URL)
   return (
     <div>
       <ToastContainer
