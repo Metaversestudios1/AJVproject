@@ -12,6 +12,7 @@ const AddAgent = () => {
   const [agentID, setAgentID] = useState("");
   const [property, setProperty] = useState([]);
   const [clients, setClients] = useState([]);
+  const [agents, setAgents] = useState([]); // For storing all agents
   const [ranks, setRanks] = useState([]);
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
   const [propertyDropdownOpen, setPropertyDropdownOpen] = useState(false);
@@ -23,15 +24,28 @@ const AddAgent = () => {
     agent_id: "",
     password: "",
     rank: "",
-    agent_id:""
+    agent_id:"",
+    superior:""
   };
   const [data, setData] = useState(initialState);
 
   useEffect(() => {
     fetchRank();
     fetchRankId();
+    fetchAllAgents();
   }, []);
 
+  const fetchAllAgents = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`);
+      const response = await res.json();
+      if (response.success) {
+        setAgents(response.result); // Set agents data from API response
+      }
+    } catch (error) {
+      console.error("Failed to fetch agents:", error);
+    }
+  };
   const fetchRankId = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getNextAgentId`
@@ -94,6 +108,9 @@ const AddAgent = () => {
         properties: {
           required: true,
         },
+        superior:{
+          required:true,
+        }
       },
       messages: {
         agentname: {
@@ -111,6 +128,9 @@ const AddAgent = () => {
         properties: {
           required: "Please select properties",
         },
+        superior:{
+          required:"please select superior agent"
+        }
       },
       errorElement: "div",
       errorPlacement: function (error, element) {
@@ -238,6 +258,21 @@ const AddAgent = () => {
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
                   placeholder="Enter Agent name"
                 />
+              </div>
+              <div>
+                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                Superior Agent <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <div>
+                <select name="superior" value={data.superior} onChange={handleChange} className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full">
+                  <option value="">Select a superior agent</option>
+                  {agents.map((agent) => (
+                    <option key={agent._id} value={agent._id}>
+                      {agent.agentname}
+                    </option>
+                  ))}
+                </select>
+              </div>
               </div>
             {/* Rank Dropdown */}
             <div className="">

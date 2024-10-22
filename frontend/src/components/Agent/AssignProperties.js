@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,6 +8,7 @@ import { FaAngleDown } from "react-icons/fa6";
 const AssignProperties = () => {
   const [loader, setLoader] = useState(false);
   const [propertyDropdownOpen, setPropertyDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [properties, setProperties] = useState([]);
   const [propertyIds, setPropertyIds] = useState([]); // To store selected property IDs
   const params = useParams();
@@ -16,8 +17,20 @@ const AssignProperties = () => {
 
   useEffect(() => {
     fetchProperties();
-    fetchAgentData(); // Fetch the agent's current data
-  }, []);
+    fetchAgentData(); 
+    
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setPropertyDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]// Fetch the agent's current data
+);
 
   // Fetch all available properties
   const fetchProperties = async () => {
@@ -115,7 +128,7 @@ const AssignProperties = () => {
               <label htmlFor="properties" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
                 Properties
               </label>
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setPropertyDropdownOpen(!propertyDropdownOpen)}

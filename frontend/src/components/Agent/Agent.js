@@ -55,12 +55,16 @@ const Agent = () => {
           "/api/getSingleProperty"
         );
         const rankName = await fetchRankById(agent.rank); // Fetch the rank name here
+        const superiorAgentName = await fetchSuperiorAgentById(agent.superior);
 
         return {
           ...agent,
           clients: clientsNames,
           properties: propertiesNames,
-          rank: rankName, // Update rank with fetched rank name
+          rank: rankName.name, // Update rank with fetched rank name
+          commission:rankName.commissionRate,
+          superiorAgent: superiorAgentName, // Add the fetched superior agent name
+     
         };
       })
     );
@@ -81,9 +85,29 @@ const Agent = () => {
     const response = await res.json();
     console.log(response);
     if (response.success) {
-      return response.result.name; // Assuming the rank name is in `result.rankname`
+      return response.result; // Assuming the rank name is in `result.rankname`
     }
     return null;
+  };
+
+  const fetchSuperiorAgentById = async (superiorId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: superiorId }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        return result.result.agentname; // Assuming the agent name is stored in result.agent.name
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching superior agent:", error);
+      return null;
+    }
   };
   // Helper function to fetch names using IDs
   const fetchNamesByIds = async (ids, apiUrl) => {
@@ -178,7 +202,7 @@ const Agent = () => {
       const totalCells = cells.length;
 
       // Loop through cells excluding the first column (Sr no.) and the last column (Action)
-      for (let index = 1; index < totalCells - 1; index++) {
+      for (let index = 1; index < totalCells - 2; index++) {
         // Start from index 1 to skip Sr no.
         // Assuming you have predefined column headers
         const columnHeader =
@@ -286,8 +310,14 @@ const Agent = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  agentname
+                  Agent Name
                 </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Superior Agent
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Commission Rate(%)
+                </th>                
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   agent id
                 </th>
@@ -322,6 +352,19 @@ const Agent = () => {
                   >
                     {item?.agentname}
                   </th>
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.superiorAgent}
+                  </th>
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.commission} %
+                  </th>
+                  
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.agent_id}
                   </td>

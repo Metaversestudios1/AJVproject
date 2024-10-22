@@ -11,6 +11,7 @@ const EditAgent = () => {
   const [loader, setLoader] = useState(false);
   const [agentID, setAgentID] = useState("");
   const [property, setProperty] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [clients, setClients] = useState([]);
   const [ranks, setRanks] = useState([]);
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
@@ -26,6 +27,7 @@ const EditAgent = () => {
     rank: "",
     clients: [],
     properties: [],
+    superior:"",
   };
   const [oldData, setOldData] = useState(initialState);
 
@@ -34,8 +36,20 @@ const EditAgent = () => {
     fetchproperty();
     fetchClients();
     fetchRank();
+    fetchAllAgents();
   }, []);
 
+  const fetchAllAgents = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`);
+      const response = await res.json();
+      if (response.success) {
+        setAgents(response.result); // Set agents data from API response
+      }
+    } catch (error) {
+      console.error("Failed to fetch agents:", error);
+    }
+  };
   const fetchOldData = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
@@ -55,6 +69,8 @@ const EditAgent = () => {
         rank: response.result.rank,
         clients: response.result.clients || [], // Ensure clients is an array
         properties: response.result.properties || [], // Ensure properties is an array
+        superior: response.result.superior || "", // Ensure the superior agent is fetched correctly
+   
       });
     }
   };
@@ -237,6 +253,24 @@ const EditAgent = () => {
         <div className="w-[70%] m-auto my-10">
           <form id="agentform">
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+            <div className="">
+              <label htmlFor="rank" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                Rank
+              </label>
+              <select
+                name="rank"
+                value={oldData.rank}
+                onChange={handleChange}
+                className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
+              >
+                <option value="">Select a rank.</option>
+                {ranks.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
               <div>
                 <label
                   htmlFor="agent_id"
@@ -253,6 +287,7 @@ const EditAgent = () => {
                   readOnly
                 />
               </div>
+             
               <div>
                 <label
                   htmlFor="agentname"
@@ -271,120 +306,28 @@ const EditAgent = () => {
                   placeholder="Enter Agent name"
                 />
               </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-          
-              <div className="">
-                <label
-                  htmlFor="rank"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Rank
+              <div>
+                <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                Superior Agent <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
+                <div>
                 <select
-                  name="rank"
-                  value={oldData?.rank}
-                  onChange={handleChange}
-                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
-                >
-                  <option value="">Select a rank.</option>
-                  {ranks.map((option) => (
-                    <option key={option._id} value={option._id}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
+      name="superior"
+      value={oldData.superior} // Bind selected value
+      onChange={handleChange}  // Handle change to update the state
+      className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
+    >
+      <option value="">Select a superior agent</option>
+      {agents.map((agent) => (
+        <option key={agent._id} value={agent._id}>
+          {agent.agentname}
+        </option>
+      ))}
+    </select>
               </div>
-              <div className="">
-              <label
-                htmlFor="clients"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Clients
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setClientDropdownOpen(!clientDropdownOpen)}
-                  className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
-                >
-                  Select clients
-                  <FaAngleDown className="text-end" />
-                </button>
-                {clientDropdownOpen && (
-                  <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
-                    {clients.map((item) => (
-                      <div
-                        key={item._id}
-                        className="p-2 bg-gray-200 text-gray-900 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          id={`client-${item._id}`}
-                          value={item._id}
-                          checked={oldData?.clients?.includes(item._id) ?? false}
-                          onChange={(e) => handleCheckboxChange(e, "clients")}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`client-${item._id}`}>
-                          {item.clientname}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
+              
             </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-            
-
-              <div className="">
-                <label
-                  htmlFor="properties"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Properties
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPropertyDropdownOpen(!propertyDropdownOpen)
-                    }
-                    className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full flex justify-between items-center"
-                  >
-                    Select properties
-                    <FaAngleDown className="text-end" />
-                  </button>
-                  {propertyDropdownOpen && (
-                    <div className="absolute top-full left-0 bg-white border rounded-sm shadow-lg w-full">
-                      {property.map((item) => (
-                        <div
-                          key={item._id}
-                          className="p-2 bg-gray-200 text-gray-900 text-sm"
-                        >
-                          <input
-                            type="checkbox"
-                            id={`property-${item._id}`}
-                            value={item._id}
-                            checked={oldData?.properties?.includes(item._id) ?? false}
-                            onChange={(e) =>
-                              handleCheckboxChange(e, "properties")
-                            }
-                            className="mr-2"
-                          />
-                          <label htmlFor={`property-${item._id}`}>
-                            {item.propertyname}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             <button
               type="submit"
               onClick={handleSubmit}
