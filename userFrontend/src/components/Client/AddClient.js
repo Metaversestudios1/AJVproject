@@ -21,7 +21,8 @@ const AddClient = () => {
     bookedProperties: "",
     preferredPropertyType: "",
     notes: "",
-    budget: "",
+    budget: "", 
+    password:""
   };
   const [data, setData] = useState(initialState);
   const[client_id,setclientID]=useState('');

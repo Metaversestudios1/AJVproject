@@ -165,62 +165,9 @@ const fetchtotalrank = async () =>{
                     </div>
                   </NavLink>
                 </div>
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
-                  <NavLink to="/agents">
-                    <div className="flex items-center">
-                      <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
-                        <svg
-                          className="w-8 h-8"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                            clipRule="evenodd"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                        {totalAgent}
-                        </span>
-                        <h3 className="text-base font-normal text-gray-500">
-                          Total Agent
-                        </h3>
-                      </div>
-                    </div>
-                  </NavLink>
-                </div>
-                <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4  my-2">
-                  <NavLink to="/ranks">
-                    <div className="flex items-center">
-                      <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
-                        <svg
-                          className="w-8 h-8"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                            clipRule="evenodd"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div className="flex-shrink-0 ml-3">
-                        <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                          {availableRanks}
-                        </span>
-                        <h3 className="text-base font-normal text-gray-500">
-                          Total Ranks 
-                        </h3>
-                      </div>
-                    </div>
-                  </NavLink>
-                </div>
+          
+              
+              
               </div>
               <div className="flex flex-col flex-1 my-1">
                 <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 ">
@@ -281,29 +228,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
               </div>  
-                <div className="rounded-2xl shadow-lg shadow-gray-200 p-3 mx-1 py-5">
-      <div className="flex justify-between items-center">
-        <div className="font-bold flex items-center">
-          <span className="inline-block mr-2 h-5 w-5 rounded-full bg-[#1E88E5]"></span>
-          Ranks And There CommisionRates
-        </div>
-        <div>
-          <IoIosArrowRoundForward className="text-2xl" />
-        </div>
-      </div>
-
-      <div>
-        {events.map((event, index) => (
-          <div key={index} className="flex flex-col my-3">
-            <div className="flex items-center">
-              <div className="mr-2 text-lg"><b> {event.name}</b></div>
-              <div className="text-sm font-thin text-lg">Commition Rate :{event.commissionRate}</div>
-            </div>
-            <div className="text-sm font-thin text-lg">Level: {event.level}</div>
-          </div>
-        ))}
-      </div>
-    </div>
+             
 
             </div>
               <div className="flex flex-col flex-1 my-1">

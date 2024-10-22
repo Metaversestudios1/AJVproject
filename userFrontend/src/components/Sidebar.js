@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
-import { IoMdSettings } from "react-icons/io";
+import getUserFromToken from "./utils/getUserFromToken";
+
 const Sidebar = ({ sidebar, toggleSideBar }) => {
+  const userInfo = getUserFromToken();
   const [openSubMenu, setOpenSubMenu] = useState({
     client: false,
     property: false,
@@ -34,7 +36,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               href="/"
               aria-label="Brand"
             >
-              Admin
+              {userInfo.role}
             </a>
           </div>
           <nav
@@ -72,10 +74,9 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   Dashboard
                 </NavLink>
               </li>
-
-              <li className="hs-accordion " id="users-accordion ">
+             {userInfo.role==="agent" &&  <li className="hs-accordion " id="users-accordion ">
                 <button
-                  onClick={() => toggleSubMenu("client")}
+                  onClick={() => toggleSubMenu("property")}
                   type="button"
                   className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
                 >
@@ -97,17 +98,17 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    Client
+                    Property
                   </div>
-                  {openSubMenu.client ? (
+                  {openSubMenu.property ? (
                     <FaAngleDown className="text-end" />
                   ) : (
                     <FaAngleRight className="text-end" />
                   )}
                 </button>
-              </li>
+              </li>}
 
-              {openSubMenu.client && (
+              {openSubMenu.property && (
                 <ul>
                   <li
                     id="users-accordion"
@@ -116,14 +117,14 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   >
                     <div className="hs-accordion" id="users-accordion-sub-1">
                       <NavLink
-                        to="/clients"
+                        to="/properties"
                         className={({ isActive }) =>
                           isActive
                             ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
                             : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
                         }
                       >
-                        Clients List
+                        Property List
                       </NavLink>
                     </div>
                   </li>
@@ -134,19 +135,56 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   >
                     <div className="hs-accordion" id="users-accordion-sub-1">
                       <NavLink
-                        to="/clients/addclient"
+                        to="/properties/addproperty"
                         className={({ isActive }) =>
                           isActive
                             ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
                             : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
                         }
                       >
-                        Add client
+                        Add property
                       </NavLink>
+                    </div>
+                  </li>
+                  <li
+                    id="users-accordion"
+                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                    onClick={toggleSideBar}
+                  >
+                    <div className="hs-accordion" id="users-accordion-sub-1">
+                      <NavLink
+                        to="/sites"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                        }
+                      >
+                        Site List
+                      </NavLink>
+                    </div>
+                  </li>
+                  <li
+                    id="users-accordion"
+                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                    onClick={toggleSideBar}
+                  >
+                    <div className="hs-accordion" id="users-accordion-sub-1">
+                      {/* <NavLink
+                        to="/sites/addSite/"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                        }
+                      >
+                        Add Site
+                      </NavLink>*/}
                     </div>
                   </li>
                 </ul>
               )}
+
               <li className="hs-accordion " id="users-accordion ">
                 <button
                   onClick={() => toggleSubMenu("agent")}
@@ -223,6 +261,80 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               )}
               <li className="hs-accordion " id="users-accordion ">
                 <button
+                  onClick={() => toggleSubMenu("client")}
+                  type="button"
+                  className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
+                >
+                  <div className="flex items-center">
+                    <svg
+                      className="size-4 mr-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Client
+                  </div>
+                  {openSubMenu.client ? (
+                    <FaAngleDown className="text-end" />
+                  ) : (
+                    <FaAngleRight className="text-end" />
+                  )}
+                </button>
+              </li>
+
+              {openSubMenu.client && (
+                <ul>
+                  <li
+                    id="users-accordion"
+                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                    onClick={toggleSideBar}
+                  >
+                    <div className="hs-accordion" id="users-accordion-sub-1">
+                      <NavLink
+                        to="/clients"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                        }
+                      >
+                        Clients List
+                      </NavLink>
+                    </div>
+                  </li>
+                  <li
+                    id="users-accordion"
+                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
+                    onClick={toggleSideBar}
+                  >
+                    <div className="hs-accordion" id="users-accordion-sub-1">
+                      <NavLink
+                        to="/clients/addclient"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
+                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
+                        }
+                      >
+                        Add client
+                      </NavLink>
+                    </div>
+                  </li>
+                </ul>
+              )}
+              <li className="hs-accordion " id="users-accordion ">
+                <button
                   onClick={() => toggleSubMenu("rank")}
                   type="button"
                   className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
@@ -289,141 +401,12 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                             : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
                         }
                       >
-                        Add rank
+                        Add
                       </NavLink>
                     </div>
                   </li>
                 </ul>
               )}
-
-              <li className="hs-accordion " id="users-accordion ">
-                <button
-                  onClick={() => toggleSubMenu("property")}
-                  type="button"
-                  className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
-                >
-                  <div className="flex items-center">
-                    <svg
-                      className="size-4 mr-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    Property
-                  </div>
-                  {openSubMenu.property ? (
-                    <FaAngleDown className="text-end" />
-                  ) : (
-                    <FaAngleRight className="text-end" />
-                  )}
-                </button>
-              </li>
-
-              {openSubMenu.property && (
-                <ul>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/properties"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Property List
-                      </NavLink>
-                    </div>
-                  </li>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/properties/addproperty"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Add property
-                      </NavLink>
-                    </div>
-                  </li>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/sites"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Site List
-                      </NavLink>
-                    </div>
-                  </li>
-                  <li
-                    id="users-accordion"
-                    className="hs-accordion-content w-full my-2 overflow-hidden transition-all duration-200 hover:scale-110"
-                    onClick={toggleSideBar}
-                  >
-                    <div className="hs-accordion" id="users-accordion-sub-1">
-                      <NavLink
-                        to="/sites/addSite/"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white bg-[#0472ff] rounded-lg ml-10 "
-                            : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg ml-10  hover:text-black hover:bg-white"
-                        }
-                      >
-                        Add Site
-                      </NavLink>
-                    </div>
-                  </li>
-                </ul>
-              )}
-              <li className="hs-accordion " id="users-accordion ">
-                <button
-                  onClick={() => toggleSubMenu("setting")}
-                  type="button"
-                  className="justify-between active:bg-gray-100 hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg hover:bg-gray-100 hover:text-black transition-all duration-200 hover:scale-105"
-                >
-                  <div className="flex items-center">
-                    <IoMdSettings className="text-lg mr-3" />
-                    Setting
-                  </div>
-                  {openSubMenu.setting ? (
-                    <FaAngleDown className="text-end" />
-                  ) : (
-                    <FaAngleRight className="text-end" />
-                  )}
-                </button>
-              </li>
-              {openSubMenu.setting && <ul></ul>}
             </ul>
           </nav>
         </div>
