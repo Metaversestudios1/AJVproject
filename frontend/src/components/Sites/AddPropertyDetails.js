@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { CiEdit } from "react-icons/ci";
+import { NavLink } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
@@ -76,10 +78,9 @@ const AddPropertyDetails = () => {
         clientId: {
           required: true,
         },
-        // agentId: {
-        //   required: true,
-
-        // },
+        agentId: {
+          required: true,
+        },
         amountPaid: {
           required: true,
           number: true,
@@ -110,7 +111,7 @@ const AddPropertyDetails = () => {
           number: "Please enter a valid number", // Custom message for number validation
         },
         agentId: {
-          required: "Please select client",
+          required: "Please select agent",
         },
         clientId: {
           required: "Please select client",
@@ -135,21 +136,22 @@ const AddPropertyDetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     const updatedData = { ...data };
-  
+
     // Check if the name corresponds to propertyDetails
     if (name in updatedData.propertyDetails) {
       updatedData.propertyDetails = {
         ...updatedData.propertyDetails,
         [name]: value, // Update the specific property first
       };
-  
+
       // After updating, recalculate balanceRemaining
-      const totalValue = parseFloat(updatedData.propertyDetails.totalValue) || 0;
-      const amountPaid = parseFloat(updatedData.propertyDetails.amountPaid) || 0;
+      const totalValue =
+        parseFloat(updatedData.propertyDetails.totalValue) || 0;
+      const amountPaid =
+        parseFloat(updatedData.propertyDetails.amountPaid) || 0;
       updatedData.propertyDetails.balanceRemaining = totalValue - amountPaid;
-  
     } else if (name in updatedData.saleDeedDetails) {
       updatedData.saleDeedDetails = {
         ...updatedData.saleDeedDetails,
@@ -158,11 +160,11 @@ const AddPropertyDetails = () => {
     } else {
       updatedData[name] = value; // Update top-level property
     }
-  
+
     // Update the state with the modified data
     setData(updatedData);
   };
-  
+
   const fetchOldData = async () => {
     try {
       const response = await fetch(
@@ -359,6 +361,13 @@ const AddPropertyDetails = () => {
                     </>
                   )}
                 </select>
+                {agents.length === 0 && (
+                  <NavLink to={`/agents`}>
+                    <button className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">
+                      <CiEdit className="inline mr-2" /> Assign Properties
+                    </button>
+                  </NavLink>
+                )}
               </div>
             </div>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
@@ -381,7 +390,7 @@ const AddPropertyDetails = () => {
                   name="totalValue"
                   value={data.propertyDetails.totalValue}
                   onChange={handleChange}
-                    type="number"
+                  type="number"
                   id="totalValue"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="Eg.1234.."
@@ -406,7 +415,7 @@ const AddPropertyDetails = () => {
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="Eg.1200.."
                   required
-                   min="1"
+                  min="1"
                 />
               </div>
             </div>

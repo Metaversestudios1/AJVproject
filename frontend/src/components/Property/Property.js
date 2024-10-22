@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { GoKebabHorizontal } from "react-icons/go";
 import "react-toastify/dist/ReactToastify.css";
+import * as XLSX from "xlsx";
 
 const Property = () => {
   const [properties, setProperties] = useState([]);
@@ -18,7 +19,7 @@ const Property = () => {
 
   useEffect(() => {
     fetchData();
-  }, [page, search]);
+  }, [page, search, pageSize]);
 
   const fetchData = async () => {
     setLoader(true);
@@ -33,6 +34,27 @@ const Property = () => {
       }
       setProperties(response.result);
       setCount(response.count);
+
+      // Fetch agent names for each property
+      const propertiesWithAgents = await Promise.all(
+        response.result.map(async (property) => {
+          const agentRes = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgentProperty?pid=${property._id}` // Make sure this endpoint is correct
+          );
+          const agentResponse = await agentRes.json();
+          if (agentResponse.success) {
+            const agentNames = agentResponse.result
+              .map((agent) => agent.agentname)
+              .join(", ");
+            return { ...property, agentNames }; // Add agent names to property object
+          }
+          return property; // Return property without changes if no agents found
+        })
+      );
+
+      setProperties(propertiesWithAgents);
+      // setProperties(response.result);
+      setCount(response.count);
       setLoader(false);
     }
   };
@@ -46,11 +68,14 @@ const Property = () => {
       if (count === 1) {
         propertyOne = false;
       }
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/deleteemployee`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
@@ -86,23 +111,30 @@ const Property = () => {
       setSearch(value);
       setPage(1);
     }
+    if (name === "pageSize") {
+      setPageSize(parseInt(value, 10)); // Convert value to a number
+      setPage(1);
+    }
   };
-  const handleDeleteImage =async(propertyId, photoIndex)=>{
+  const handleDeleteImage = async (propertyId, photoIndex) => {
     // e.preventDefault();
     const permissionOfDelete = window.confirm(
       "Are you sure, you want to delete the property photo"
     );
-  
+
     if (permissionOfDelete) {
       let userOne = properties.length === 1;
       if (count === 1) {
         userOne = false;
       }
-       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyId, photoIndex }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ propertyId, photoIndex }),
+        }
+      );
       const response = await res.json();
       if (response.success) {
         toast.success("Property photo is deleted Successfully!", {
@@ -122,7 +154,41 @@ const Property = () => {
         }
       }
     }
+  };
 
+  function downloadExcel() {
+    const table = document.getElementById("propertytable"); // Your table ID
+    const allDataRows = []; // This will hold all the table rows data
+
+    // Get all rows from the table body (skip the header)
+    const rows = table.querySelectorAll("tbody tr"); // Adjust selector if your table structure is different
+
+    rows.forEach((row) => {
+      const rowData = {};
+      const cells = row.querySelectorAll("td, th"); // Get all cells in the current row (th included for Sr no.)
+      const totalCells = cells.length;
+
+      // Loop through cells, excluding the third column (index 2)
+      for (let index = 1; index < totalCells; index++) {
+        if (index === 2 || index === totalCells - 1) continue; // Skip the image column (third column)
+
+        // Assuming you have predefined column headers
+        const columnHeader =
+          table.querySelectorAll("thead th")[index].innerText; // Get header name
+        rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+      }
+      allDataRows.push(rowData); // Add row data to allDataRows array
+    });
+
+    // Create a new workbook and a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+    const workbook = XLSX.utils.book_new();
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
+
+    // Generate Excel file and prompt for download
+    XLSX.writeFile(workbook, "Propertyreport.xlsx");
   }
 
   const startIndex = (page - 1) * pageSize;
@@ -162,6 +228,30 @@ const Property = () => {
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
           />
         </div>
+        <div className={` flex `}>
+          <select
+            type="text"
+            name="pageSize"
+            value={pageSize}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
+          >
+            <option value="">select Limit</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+        <div className="flex">
+          <button
+            onClick={downloadExcel}
+            className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg"
+          >
+            Download Excel
+          </button>
+        </div>
       </div>
 
       {loader && (
@@ -178,7 +268,10 @@ const Property = () => {
       )}
       <div className="relative overflow-x-auto m-5 mb-0">
         {properties.length > 0 && (
-          <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
+          <table
+            id="propertytable"
+            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
+          >
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -191,7 +284,10 @@ const Property = () => {
                   property Image
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  description 
+                  Agent Assigned
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  description
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   address
@@ -224,34 +320,46 @@ const Property = () => {
                     {item?.propertyname}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-  {item?.photos?.length > 0 && (
-    <div className="flex space-x-2"> {/* Flex container for images */}
-      {item.photos.map((photo, index) => (
-        <div key={index} className="relative"> {/* Wrapper div for positioning */}
-          <a href={photo.url} target="_blank" rel="noopener noreferrer">
-            <img
-              src={photo.url}
-              alt={`Profile ${index + 1}`} // Alternate text for accessibility
-              className="w-12 h-12 rounded-full object-cover aspect-square"
-              style={{ width: "50px", height: "50px" }} // Set width and height to 50px
-            />
-          </a>
-          <button 
-            onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
-            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
-            style={{ cursor: "pointer" }}
-          >
-            &times; {/* Cross icon for delete */}
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
-</td>
+                    {item?.photos?.length > 0 && (
+                      <div className="flex space-x-2">
+                        {" "}
+                        {/* Flex container for images */}
+                        {item.photos.map((photo, index) => (
+                          <div key={index} className="relative">
+                            {" "}
+                            {/* Wrapper div for positioning */}
+                            <a
+                              href={photo.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img
+                                src={photo.url}
+                                alt={`Profile ${index + 1}`} // Alternate text for accessibility
+                                className="w-12 h-12 rounded-full object-cover aspect-square"
+                                style={{ width: "50px", height: "50px" }} // Set width and height to 50px
+                              />
+                            </a>
+                            <button
+                              onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
+                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
+                              style={{ cursor: "pointer" }}
+                            >
+                              &times; {/* Cross icon for delete */}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 border-2 border-gray-300">
+                    {item?.agentNames}
+                  </td>
 
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.description}
                   </td>
+
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.address}
                   </td>
@@ -262,30 +370,25 @@ const Property = () => {
                     {item?.createdAt?.split("T")[0]}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center">
-                  <GoKebabHorizontal
-                  className="text-lg transform rotate-90 cursor-pointer"
-                  onClick={() => handleKebabClick(item._id)}
-                  />
-                  </div>
+                    <div className="flex justify-center">
+                      <GoKebabHorizontal
+                        className="text-lg transform rotate-90 cursor-pointer"
+                        onClick={() => handleKebabClick(item._id)}
+                      />
+                    </div>
                     {activePropertyId === item._id && (
                       <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
                         <NavLink to={`/sites/${item?._id}`}>
-                      <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Check Sites
-                        </button>
+                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                            Check Sites
+                          </button>
                         </NavLink>
                         <NavLink to={`/editproperty/${item?._id}`}>
-                      <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Edit
-                        </button>
+                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                            Edit
+                          </button>
                         </NavLink>
-                        
-                       
+
                         {/* <button
                           onClick={() => handleDelete(item._id)}
                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

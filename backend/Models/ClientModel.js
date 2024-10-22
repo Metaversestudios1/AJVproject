@@ -33,7 +33,18 @@ const clientSchema = new mongoose.Schema({
   notes: {
     type: String,
   },
-  
+  panNumber: {
+    type: String,
+   },
+  dateOfBirth: {
+    type: Date,
+   },
+  gender: {
+    type: String,
+    },
+  occupation: {
+    type: String,
+  },
   updatedAt: {
     type: Date,
     default: Date.now, // Automatically sets the updatedAt field to the current date/time

@@ -5,6 +5,8 @@ import { NavLink } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoKebabHorizontal } from "react-icons/go";
+import * as XLSX from "xlsx";
+
 const Agent = () => {
   const [agents, setAgents] = useState([]);
   const [noData, setNoData] = useState(false);
@@ -16,7 +18,7 @@ const Agent = () => {
   const [activePropertyId, setActivePropertyId] = useState(null);
   useEffect(() => {
     fetchData();
-  }, [page, search]);
+  }, [page, search, pageSize]);
 
   const fetchData = async () => {
     setLoader(true);
@@ -157,7 +159,45 @@ const Agent = () => {
       setSearch(value);
       setPage(1);
     }
+    if (name === "pageSize") {
+      setPageSize(parseInt(value, 10)); // Convert value to a number
+      setPage(1);
+    }
   };
+
+  function downloadExcel() {
+    const table = document.getElementById("agenttable"); // Your table ID
+    const allDataRows = []; // This will hold all the table rows data
+
+    // Get all rows from the table body (skip the header)
+    const rows = table.querySelectorAll("tbody tr"); // Adjust selector if your table structure is different
+
+    rows.forEach((row) => {
+      const rowData = {};
+      const cells = row.querySelectorAll("td, th"); // Get all cells in the current row
+      const totalCells = cells.length;
+
+      // Loop through cells excluding the first column (Sr no.) and the last column (Action)
+      for (let index = 1; index < totalCells - 1; index++) {
+        // Start from index 1 to skip Sr no.
+        // Assuming you have predefined column headers
+        const columnHeader =
+          table.querySelectorAll("thead th")[index].innerText; // Get header name
+        rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+      }
+      allDataRows.push(rowData); // Add row data to allDataRows array
+    });
+
+    // Create a new workbook and a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+    const workbook = XLSX.utils.book_new();
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Agent Report");
+
+    // Generate Excel file and prompt for download
+    XLSX.writeFile(workbook, "Agentreport.xlsx");
+  }
 
   const startIndex = (page - 1) * pageSize;
 
@@ -196,6 +236,30 @@ const Agent = () => {
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
           />
         </div>
+        <div className={` flex `}>
+          <select
+            type="text"
+            name="pageSize"
+            value={pageSize}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
+          >
+            <option value="">select Limit</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+        <div className="flex">
+          <button
+            onClick={downloadExcel}
+            className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg"
+          >
+            Download Excel
+          </button>
+        </div>
       </div>
 
       {loader && (
@@ -212,7 +276,10 @@ const Agent = () => {
       )}
       <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
         {agents.length > 0 && (
-          <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300 ">
+          <table
+            id="agenttable"
+            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300 "
+          >
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -232,7 +299,7 @@ const Agent = () => {
                 </th>
 
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Created At
+                  Assign Property
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Action
@@ -266,7 +333,11 @@ const Agent = () => {
                   </td>
 
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.createdAt?.split("T")[0]}
+                    <NavLink to={`/assignproperties/${item._id}`}>
+                      <button className=" bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">
+                        <CiEdit className="inline mr-2" /> Assign Properties
+                      </button>
+                    </NavLink>
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 ">
                     <div className="flex justify-center relative">
@@ -276,23 +347,17 @@ const Agent = () => {
                       />
                       {activePropertyId === item._id && (
                         <div className="absolute z-50 right-12 top-2 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                          <NavLink to={`/assignproperties/${item._id}`}>
-                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                              <CiEdit className="inline mr-2" /> Assign
-                              Properties
-                            </button>
-                          </NavLink>
                           <NavLink to={`/agents/editagent/${item._id}`}>
                             <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
                               <CiEdit className="inline mr-2" /> Edit
                             </button>
                           </NavLink>
-                          <button
+                          {/* <button
                             onClick={(e) => handleDelete(e, item._id)}
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                           >
                             <MdDelete className="inline mr-2" /> Delete
-                          </button>
+                          </button> */}
                         </div>
                       )}
                     </div>

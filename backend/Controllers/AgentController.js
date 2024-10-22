@@ -183,8 +183,11 @@ const agentlogin = async (req, res) => {
   };
   const getAllAgentproperty = async (req, res) => {
     try {
-      console.log(req.query.sid);
-      const siteId = req.query.sid; // Property ID from the query parameter
+let propertyId;
+      if(req.query.pid){
+        propertyId=req.query.pid;
+      }else{
+       const siteId = req.query.sid; // Property ID from the query parameter
  
       // Validate the site ID
       if (!siteId) {
@@ -196,7 +199,8 @@ const agentlogin = async (req, res) => {
        if (!site) {
         return res.status(404).json({ success: false, message: "Site not found." });
       }  
-      const propertyId = site.propertyId; // Assuming the property ID is stored as propertyId in SITE collection
+       propertyId = site.propertyId;
+     } // Assuming the property ID is stored as propertyId in SITE collection
       const query = {
         deleted_at: null,
         properties: { $in: [propertyId] } // Check if the properties array contains the specified property ID

@@ -22,6 +22,11 @@ const AddClient = () => {
     preferredPropertyType: "",
     notes: "",
     budget: "",
+    panNumber: "",
+    dateOfBirth: "",
+    gender: "",
+    occupation: "",
+
   };
   const [data, setData] = useState(initialState);
   const [client_id, setclientID] = useState("");
@@ -39,7 +44,7 @@ const AddClient = () => {
       `${process.env.REACT_APP_BACKEND_URL}/api/getNextclientId`
     );
     const response = await res.json();
-    console.log(response);
+    console.log(response.client_id);
     if (response.success) {
       setData({ ...data, client_id: response.client_id });
       setclientID(response.client_id);
@@ -74,9 +79,9 @@ const AddClient = () => {
           required: true,
           email: true,
         },
-        address: {
-          required: true,
-        },
+        // address: {
+        //   required: true,
+        // },
         contactNumber: {
           required: true,
           validPhone: true,
@@ -290,7 +295,7 @@ const AddClient = () => {
                   placeholder="•••••••••"
                 />
               </div>
-              {/*<div>
+              <div>
                 <label
                   htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -313,6 +318,25 @@ const AddClient = () => {
                     {mobileValid}
                   </p>
                 )}
+              </div>
+              <div className="">
+                <label
+                  htmlFor="personal_email"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Email 
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="email"
+                  value={data.email}
+                  onChange={handleChange}
+                  type="email"
+                  id="email"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="john.doe@company.com"
+                  
+                />
               </div>
               <div>
                 <label
@@ -338,28 +362,99 @@ const AddClient = () => {
                   </p>
                 )}
               </div>
-            </div>
-            
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-              <div className="">
+              <div>
                 <label
-                  htmlFor="personal_email"
+                  htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Email 
+                  PAN Number
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="email"
-                  value={data.email}
+                  name="panNumber"
+                  value={data.panNumber}
                   onChange={handleChange}
-                  type="email"
-                  id="email"
+                  type="text"
+                  id="panNumber"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="john.doe@company.com"
+                  placeholder="PAN2324SDCF"
+                  
+                />
+              
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Gender
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="gender"
+                  value={data.gender}
+                  onChange={handleChange}
+                  type="text"
+                  id="gender"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Male/Female/Other"
                   
                 />
               </div>
+              <div>
+                <label
+                  htmlFor="occupation"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Occupation
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="occupation"
+                  value={data.occupation}
+                  onChange={handleChange}
+                  type="text"
+                  id="occupation"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Salaried 
+                  Employee"
+                  
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Date of Birth
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="dateOfBirth"
+                  value={data.dateOfBirth}
+                  onChange={handleChange}
+                  type="date"
+                  id="dateOfBirth"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="PAN2324SDCF"
+                  
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+             
+            </div>
+            
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+            
               <div className="">
                 <label
                   htmlFor="company_email"
@@ -377,7 +472,7 @@ const AddClient = () => {
                   placeholder="1234 Elm Street, Suite 567, Springfield, IL, 62704, USA"
                 />
               </div>
-              <div className="">
+              {/* <div className="">
                 <label
                   htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -404,7 +499,7 @@ const AddClient = () => {
                   );
                 })}
               </select>
-              </div>
+              </div> */}
               <div className="">
                 <label
                   htmlFor="budget"
@@ -423,26 +518,7 @@ const AddClient = () => {
                   
                 />
               </div>
-              <div className="">
-                <label
-                  htmlFor="note"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Note
-                </label>
-                <input
-                  name="note"
-                  value={data.note}
-                  onChange={handleChange}
-                  type="text"
-                  id="note"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="lorem ipsum ..."
-                  
-                />
-              </div>
-              
-              */}
+                        
             </div>
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button

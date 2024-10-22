@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ImCross } from "react-icons/im";
 import { IoMdEye } from "react-icons/io";
 import { GoKebabHorizontal } from "react-icons/go";
+import * as XLSX from "xlsx";
 
 const Client = () => {
   const [clients, setClients] = useState([]);
@@ -22,8 +23,6 @@ const Client = () => {
     fetchData();
   }, [page, search]);
 
- 
-
   const fetchData = async () => {
     setLoader(true);
     try {
@@ -31,27 +30,27 @@ const Client = () => {
         `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
       );
       const response = await res.json();
-  
+
       if (response.success) {
         const clientsData = response.result;
-  
+
         // Fetch the booked property name for each client
         const updatedClients = await Promise.all(
           clientsData.map(async (client) => {
             if (client.bookedProperties) {
               // Fetch the property details using the property ID
               const propertyRes = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,{
+                `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
+                {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ id : client.bookedProperties }),
+                  body: JSON.stringify({ id: client.bookedProperties }),
                 }
               );
               const propertyData = await propertyRes.json();
               // Add the property name to the client object
               if (propertyData.success) {
-                client.bookedProperties = propertyData.result.propertyname
-                ; // Assuming the API returns propertyName
+                client.bookedProperties = propertyData.result.propertyname; // Assuming the API returns propertyName
               }
             }
             return client;
@@ -67,7 +66,6 @@ const Client = () => {
       setLoader(false);
     }
   };
-  
 
   const handleDelete = async (e, id) => {
     e.preventDefault();
@@ -79,11 +77,14 @@ const Client = () => {
       if (count === 1) {
         clientOne = false;
       }
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteClient`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/deleteClient`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
@@ -117,7 +118,45 @@ const Client = () => {
       setSearch(value);
       setPage(1);
     }
+    if (name === "pageSize") {
+      setPageSize(parseInt(value, 10)); // Convert value to a number
+      setPage(1);
+    }
   };
+
+  function downloadExcel() {
+    const table = document.getElementById("clienttable"); // Your table ID
+    const allDataRows = []; // This will hold all the table rows data
+
+    // Get all rows from the table body (skip the header)
+    const rows = table.querySelectorAll("tbody tr"); // Adjust selector if your table structure is different
+
+    rows.forEach((row) => {
+      const rowData = {};
+      const cells = row.querySelectorAll("td, th"); // Get all cells in the current row
+      const totalCells = cells.length;
+
+      // Loop through cells starting from the second column and ending before the last column
+      for (let index = 1; index < totalCells - 1; index++) {
+        // Start from index 1 to skip Sr no. and end before Action
+        // Assuming you have predefined column headers
+        const columnHeader =
+          table.querySelectorAll("thead th")[index].innerText; // Get header name
+        rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+      }
+      allDataRows.push(rowData); // Add row data to allDataRows array
+    });
+
+    // Create a new workbook and a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+    const workbook = XLSX.utils.book_new();
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Client Report");
+
+    // Generate Excel file and prompt for download
+    XLSX.writeFile(workbook, "ClientReport.xlsx");
+  }
 
   const startIndex = (page - 1) * pageSize;
   return (
@@ -155,6 +194,30 @@ const Client = () => {
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
           />
         </div>
+        <div className={` flex `}>
+          <select
+            type="text"
+            name="pageSize"
+            value={pageSize}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
+          >
+            <option value="">select Limit</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+        <div className="flex">
+          <button
+            onClick={downloadExcel}
+            className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg"
+          >
+            Download Excel
+          </button>
+        </div>
       </div>
 
       {loader && (
@@ -171,27 +234,33 @@ const Client = () => {
       )}
       <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
         {clients.length > 0 && (
-          <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
+          <table
+            id="clienttable"
+            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
+          >
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  name
+                  Client Name
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Client Id
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Contact Number
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  email
+                  Email
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  address
+                  Address
                 </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Booked Properties
-                </th>
+                </th> */}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Preferred Property Type
                 </th>
@@ -199,7 +268,7 @@ const Client = () => {
                   budget
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  notes
+                  PAN Number
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Created At
@@ -225,55 +294,58 @@ const Client = () => {
                   >
                     {item?.clientname}
                   </th>
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.client_id}
+                  </th>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.contactNumber}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.email }
+                    {item?.email}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.address }
+                    {item?.address}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
+                  {/* <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.bookedProperties}
+                  </td> */}
+                  <td className="px-6 py-4 border-2 border-gray-300">
+                    {item?.preferredPropertyType}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.preferredPropertyType }
+                    {item?.budget || "N/A"}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.budget || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.notes || 'N/A'}
+                    {item?.panNumber || "N/A"}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.createdAt?.split("T")[0]}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center relative">
-                  <GoKebabHorizontal
-                  className="text-lg transform rotate-90 cursor-pointer"
-                  onClick={() => handleKebabClick(item._id)}
-                  />
-                  {activePropertyId === item._id && (
-                    <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                    <NavLink to={`/clients/editclient/${item._id}`}>
-                    <button
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                    >
-                    <CiEdit className="inline mr-2" /> Edit
-                    </button>
-                    </NavLink>
-                      <button
-                        onClick={(e) => handleDelete(e, item._id)}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        <MdDelete className="inline mr-2" /> Delete
-                      </button>
+                    <div className="flex justify-center relative">
+                      <GoKebabHorizontal
+                        className="text-lg transform rotate-90 cursor-pointer"
+                        onClick={() => handleKebabClick(item._id)}
+                      />
+                      {activePropertyId === item._id && (
+                        <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
+                          <NavLink to={`/clients/editclient/${item._id}`}>
+                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                              <CiEdit className="inline mr-2" /> Edit
+                            </button>
+                          </NavLink>
+                          {/* <button
+                            onClick={(e) => handleDelete(e, item._id)}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                          >
+                            <MdDelete className="inline mr-2" /> Delete
+                          </button> */}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  </div>
-                  
                   </td>
                 </tr>
               ))}

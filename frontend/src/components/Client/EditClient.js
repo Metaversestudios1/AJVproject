@@ -22,6 +22,10 @@ const EditClient = () => {
     preferredPropertyType: "",
     notes: "",
     budget: "",
+    panNumber: "",
+    dateOfBirth: "",
+    gender: "",
+    occupation: "",
   };
   const [data, setData] = useState(initialState);
   const [client_id, setclientID] = useState("");
@@ -53,6 +57,12 @@ const EditClient = () => {
         preferredPropertyType: response.result.preferredPropertyType,
         notes: response.result.notes,
         budget: response.result.budget,
+        panNumber: response.result.panNumber,
+        dateOfBirth: response.result.dateOfBirth ? new Date(response.result.dateOfBirth).toISOString().split('T')[0] : '', 
+ 
+        gender: response.result.gender,
+        occupation: response.result.occupation,
+        
       });
     }
   };
@@ -281,7 +291,7 @@ const EditClient = () => {
                 />
               </div>
 
-              {/*   <div>
+              <div>
                 <label
                   htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
@@ -297,12 +307,32 @@ const EditClient = () => {
                   id="contactNumber"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="123-45-678"
+                  
                 />
                 {mobileValid && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                     {mobileValid}
                   </p>
                 )}
+              </div>
+              <div className="">
+                <label
+                  htmlFor="personal_email"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Email 
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="email"
+                  value={data.email}
+                  onChange={handleChange}
+                  type="email"
+                  id="email"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="john.doe@company.com"
+                  
+                />
               </div>
               <div>
                 <label
@@ -320,6 +350,7 @@ const EditClient = () => {
                   id="preferredPropertyType"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="Residential, Commercial, etc"
+                  
                 />
                 {mobileValid && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -327,33 +358,105 @@ const EditClient = () => {
                   </p>
                 )}
               </div>
-            </div>
-
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-              <div className="">
+              <div>
                 <label
-                  htmlFor="personal_email"
+                  htmlFor="contact"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Email
+                  PAN Number
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
-                  name="email"
-                  value={data.email}
+                  name="panNumber"
+                  value={data.panNumber}
                   onChange={handleChange}
-                  type="email"
-                  id="email"
+                  type="text"
+                  id="panNumber"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="john.doe@company.com"
+                  placeholder="PAN2324SDCF"
+                  
+                />
+              
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Gender
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="gender"
+                  value={data.gender}
+                  onChange={handleChange}
+                  type="text"
+                  id="gender"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Male/Female/Other"
+                  
                 />
               </div>
+              <div>
+                <label
+                  htmlFor="occupation"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Occupation
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="occupation"
+                  value={data.occupation}
+                  onChange={handleChange}
+                  type="text"
+                  id="occupation"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="Salaried 
+                  Employee"
+                  
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Date of Birth
+                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                </label>
+                <input
+                  name="dateOfBirth"
+                  value={data.dateOfBirth}
+                  onChange={handleChange}
+                  type="date"
+                  id="dateOfBirth"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                  placeholder="PAN2324SDCF"
+                  
+                />
+                {mobileValid && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {mobileValid}
+                  </p>
+                )}
+              </div>
+             
+            </div>
+            
+            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
+            
               <div className="">
                 <label
                   htmlFor="company_email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  address
+                   address
                 </label>
                 <input
                   name="address"
@@ -365,38 +468,34 @@ const EditClient = () => {
                   placeholder="1234 Elm Street, Suite 567, Springfield, IL, 62704, USA"
                 />
               </div>
-            </div>
-
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-             
-              <div className="">
+              {/* <div className="">
                 <label
                   htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  bookedProperties
-                  <span className="text-red-900 text-lg ">&#x2a;</span>
+                  bookedProperties<span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <select
-                  name="bookedProperties"
-                  value={data?.bookedProperties}
-                  onChange={handleChange}
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                >
-                  <option value="">Select a property name</option>
-                  {property.map((option) => {
-                    return (
-                      <option
-                        key={option._id}
-                        value={option._id}
-                        className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                      >
-                        {option.propertyname}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+                name="bookedProperties"
+                value={data?.bookedProperties}
+                onChange={handleChange}
+                className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                
+              >
+                <option value="">Select a property name</option>
+                {property.map((option) => {
+                  return (
+                    <option
+                      key={option._id}
+                      value={option._id}
+                      className=" bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
+                    >
+                      {option.propertyname}
+                    </option>
+                  );
+                })}
+              </select>
+              </div> */}
               <div className="">
                 <label
                   htmlFor="budget"
@@ -412,25 +511,10 @@ const EditClient = () => {
                   id="budget"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
                   placeholder="$546"
+                  
                 />
               </div>
-              <div className="">
-                <label
-                  htmlFor="note"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-                >
-                  Note
-                </label>
-                <input
-                  name="note"
-                  value={data.note}
-                  onChange={handleChange}
-                  type="text"
-                  id="note"
-                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-                  placeholder="lorem ipsum ..."
-                />
-              </div>*/}
+                        
             </div>
             {error && <p className="text-red-900  text-[17px] mb-5">{error}</p>}
             <button
@@ -440,8 +524,7 @@ const EditClient = () => {
             >
               ADD
             </button>
-          </form>
-        </div>
+          </form>        </div>
       )}
     </>
   );
