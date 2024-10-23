@@ -308,7 +308,7 @@ const EditAgent = () => {
               </div>
               <div>
                 <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Superior Agent <span className="text-red-900 text-lg ">&#x2a;</span>
+                Referal Agent <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <div>
                 <select
@@ -317,7 +317,7 @@ const EditAgent = () => {
       onChange={handleChange}  // Handle change to update the state
       className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
     >
-      <option value="">Select a superior agent</option>
+      <option value="">Select a referal agent</option>
       {agents.map((agent) => (
         <option key={agent._id} value={agent._id}>
           {agent.agentname}
