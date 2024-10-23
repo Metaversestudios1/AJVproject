@@ -123,7 +123,7 @@ const clientlogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: client._id, username: client.clientname },
+      { id: client._id, username: client.clientname, role: 'client' },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );

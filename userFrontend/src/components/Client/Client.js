@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import { NavLink } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ImCross } from "react-icons/im";
-import { IoMdEye } from "react-icons/io";
-import { GoKebabHorizontal } from "react-icons/go";
+import * as XLSX from "xlsx";
+import getUserFromToken from "../utils/getUserFromToken";
 
 const Client = () => {
+  const userInfo = getUserFromToken()
   const [clients, setClients] = useState([]);
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
@@ -21,47 +19,64 @@ const Client = () => {
   useEffect(() => {
     fetchData();
   }, [page, search]);
-
- 
-
+  
   const fetchData = async () => {
     setLoader(true);
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getAllClient?page=${page}&limit=${pageSize}&search=${search}`
+      // Step 1: Fetch the single agent using userInfo.id
+      const agentRes = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userInfo?.id }), // Assuming userInfo has the agent's ID
+        }
       );
-      const response = await res.json();
+      const agentResponse = await agentRes.json();
   
-      if (response.success) {
-        const clientsData = response.result;
+      if (agentResponse.success) {
+        const clientsArray = agentResponse.result.clients; // Assuming clients are returned in `agentResponse.result.clients`
   
-        // Fetch the booked property name for each client
-        const updatedClients = await Promise.all(
-          clientsData.map(async (client) => {
-            if (client.bookedProperties) {
-              // Fetch the property details using the property ID
-              const propertyRes = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,{
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ id : client.bookedProperties }),
-                }
-              );
-              const propertyData = await propertyRes.json();
-              console.log(propertyData)
-              // Add the property name to the client object
-              if (propertyData.success) {
-                client.bookedProperties = propertyData.result.propertyname
-                ; // Assuming the API returns propertyName
+        // Step 2: Fetch details for each client in the array
+        const clientsData = await Promise.all(
+          clientsArray.map(async (clientId) => {
+            // Fetch client details using the client ID
+            const clientRes = await fetch(
+              `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: clientId }),
               }
+            );
+            const clientData = await clientRes.json();
+  
+            if (clientData.success) {
+              const client = clientData.result;
+              // Step 3: If client has booked properties, fetch property details
+              if (client.bookedProperties) {
+                const propertyRes = await fetch(
+                  `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: client.bookedProperties }),
+                  }
+                );
+                const propertyData = await propertyRes.json();
+                // If property details are successfully fetched, attach property name to client object
+                if (propertyData.success) {
+                  client.bookedProperties = propertyData.result.propertyname; // Assuming property name is in `propertyname`
+                }
+              }
+              return client; // Return the updated client object with property details (if any)
             }
-            return client;
           })
         );
-  console.log(updatedClients)
-        setClients(updatedClients);
-        setCount(response.count);
-        setNoData(updatedClients.length === 0);
+        // Step 4: Update the state with fetched client data
+        setClients(clientsData);
+        setCount(clientsData.length); // You can set the count to the number of clients
+        setNoData(clientsData.length === 0); // Set no data flag if no clients are found
       }
     } catch (error) {
       console.error("Error fetching data", error);
@@ -71,55 +86,52 @@ const Client = () => {
   };
   
 
-  const handleDelete = async (e, id) => {
-    e.preventDefault();
-    const permissionOfDelete = window.confirm(
-      "Are you sure, you want to delete the user"
-    );
-    if (permissionOfDelete) {
-      let clientOne = clients.length === 1;
-      if (count === 1) {
-        clientOne = false;
-      }
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteClient`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const response = await res.json();
-      if (response.success) {
-        toast.success("Employee is deleted Successfully!", {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        if (clientOne) {
-          setPage(page - 1);
-        } else {
-          fetchData();
-        }
-      }
-    }
-  };
-  const handleKebabClick = (propertyId) => {
-    // Toggle the kebab menu for the clicked row
-    setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
-  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "search") {
       setSearch(value);
       setPage(1);
     }
+    if (name === "pageSize") {
+      setPageSize(parseInt(value, 10)); // Convert value to a number
+      setPage(1);
+    }
   };
+
+  function downloadExcel() {
+    const table = document.getElementById("clienttable"); // Your table ID
+    const allDataRows = []; // This will hold all the table rows data
+
+    // Get all rows from the table body (skip the header)
+    const rows = table.querySelectorAll("tbody tr"); // Adjust selector if your table structure is different
+
+    rows.forEach((row) => {
+      const rowData = {};
+      const cells = row.querySelectorAll("td, th"); // Get all cells in the current row
+      const totalCells = cells.length;
+
+      // Loop through cells starting from the second column and ending before the last column
+      for (let index = 1; index < totalCells - 1; index++) {
+        // Start from index 1 to skip Sr no. and end before Action
+        // Assuming you have predefined column headers
+        const columnHeader =
+          table.querySelectorAll("thead th")[index].innerText; // Get header name
+        rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+      }
+      allDataRows.push(rowData); // Add row data to allDataRows array
+    });
+
+    // Create a new workbook and a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+    const workbook = XLSX.utils.book_new();
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Client Report");
+
+    // Generate Excel file and prompt for download
+    XLSX.writeFile(workbook, "ClientReport.xlsx");
+  }
 
   const startIndex = (page - 1) * pageSize;
   return (
@@ -157,10 +169,34 @@ const Client = () => {
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
           />
         </div>
+        <div className={` flex `}>
+          <select
+            type="text"
+            name="pageSize"
+            value={pageSize}
+            onChange={handleChange}
+            className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
+          >
+            <option value="">select Limit</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </div>
+        <div className="flex">
+          <button
+            onClick={downloadExcel}
+            className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg"
+          >
+            Download Excel
+          </button>
+        </div>
       </div>
 
       {loader && (
-        <div className="absolute h-full w-full top-64  flex justify-center items-center">
+        <div className="absolute h-full w-full -top-24 flex justify-center items-center">
           <div
             className=" flex justify-center h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] "
             role="status"
@@ -171,43 +207,46 @@ const Client = () => {
           </div>
         </div>
       )}
-      <div className="relative overflow-x-auto m-5 mb-0">
+      <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
         {clients.length > 0 && (
-          <table className="w-full text-sm text-left rtl:text-right border-2 border-gray-300">
+          <table
+            id="clienttable"
+            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
+          >
             <thead className="text-xs uppercase bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  name
+                  Client Name
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Client Id
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Contact Number
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  email
+                  Email
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  address
+                  Address
                 </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Booked Properties
-                </th>
+                </th> */}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Preferred Property Type
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Booked property
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   budget
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  notes
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Created At
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Action
+                  PAN Number
                 </th>
               </tr>
             </thead>
@@ -227,55 +266,32 @@ const Client = () => {
                   >
                     {item?.clientname}
                   </th>
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.client_id}
+                  </th>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.contactNumber}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.email }
+                    {item?.email}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.address }
+                    {item?.address}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
+                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.bookedProperties}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.preferredPropertyType }
+                    {item?.preferredPropertyType}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.budget || 'N/A'}
+                    {item?.budget || "N/A"}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.notes || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.createdAt?.split("T")[0]}
-                  </td>
-                  <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center">
-                  <GoKebabHorizontal
-                  className="text-lg transform rotate-90 cursor-pointer"
-                  onClick={() => handleKebabClick(item._id)}
-                  />
-                  </div>
-                    {activePropertyId === item._id && (
-                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                      <NavLink to={`/clients/editclient/${item._id}`}>
-                      <button
-                      onClick={() => console.log("Edit:", item._id)}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                      >
-                      <CiEdit className="inline mr-2" /> Edit
-                      </button>
-                      </NavLink>
-                        <button
-                          onClick={(e) => handleDelete(e, item._id)}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        >
-                          <MdDelete className="inline mr-2" /> Delete
-                        </button>
-                      </div>
-                    )}
+                    {item?.panNumber || "N/A"}
                   </td>
                 </tr>
               ))}

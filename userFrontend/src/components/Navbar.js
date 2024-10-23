@@ -1,13 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
-import { CgLogOut } from "react-icons/cg";
-import { PiLineVerticalThin } from "react-icons/pi";
 import { AuthContext } from "../context/AuthContext";
+import { IoMdSettings } from "react-icons/io";
+import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
+import getUserFromToken from "./utils/getUserFromToken";
+
 const Navbar = ({ toggleSideBar }) => {
-  const { setAuth } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);  
+  const [settingDropdown, setSettingDropdown] = useState(false);
+  const userInfo = getUserFromToken();
+
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
@@ -111,13 +115,37 @@ const Navbar = ({ toggleSideBar }) => {
         >
          
         </div>
-        <button
-                  onClick={handleLogout}
-                  className="flex items-center text-[16px]  font-medium text-black hover:text-blue-900 "
-                >
-                  <CgLogOut className="text-lg mx-2" />
-                  Logout
-                </button>
+        <div
+        className="relative"
+        onMouseEnter={() => setSettingDropdown(true)}
+        onMouseLeave={() => setSettingDropdown(false)}
+      >
+        <div className="flex items-center justify-center text-xl font-semibold cursor-pointer">
+          <IoMdSettings className="text- pr-1  mt-[2px]  text-black" />
+          <div className="text-lg">Setting</div>
+          {settingDropdown ? (
+            <FaAngleDown className="text-end text-sm mt-1 mx-4" />
+          ) : (
+            <FaAngleRight className="text-end text-sm mt-1 mx-4" />
+          )}
+        </div>
+        {settingDropdown && (
+          <div className="absolute text-white flex items-center shadow-lg bg-gradient-to-r from-[#4c4f6a] to-[#767ca3]  rounded-md border-[1px] right-3 p-4 min-w-80">
+            <div className="w-2/3 mx-2">
+              <div className="py-1 text-sm font-semibold">Username:  {userInfo?.role}</div>
+              <div className="py-1 text-sm font-semibold">Email: {userInfo?.email}</div>
+            </div>
+            <div className="w-1/3  ml-5">
+              <button
+                onClick={handleLogout}
+                className="flex items-center text-[16px] px-4 py-2 font-medium text-white bg-gray-800 rounded-full hover:scale-110 transform transition-transform duration-200"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       </nav>
     </header>
   );
