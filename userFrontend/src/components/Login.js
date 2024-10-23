@@ -58,7 +58,6 @@ const Login = () => {
       toast.error(response.message);
     }
   };
-  console.log(process.env.REACT_APP_BACKEND_URL)
 
   return (
     <div className="bg-sky-100 flex justify-center items-center h-screen">
