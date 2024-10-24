@@ -149,7 +149,7 @@ const Ranks = () => {
                     {item?.name}
                   </th>
                   <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.commissionRate}
+                    {item?.commissionRate} %
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.description }
