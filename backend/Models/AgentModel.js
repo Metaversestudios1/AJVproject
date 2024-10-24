@@ -28,9 +28,7 @@ const AgentSchema = new mongoose.Schema({
     default: null, // Nullable
   },
   superior: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Agent', // References another agent (the superior)
-    default: null, // If null, this is the top agent
+    type: String,  
   },
  
   commissions: [
