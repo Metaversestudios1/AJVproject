@@ -160,7 +160,6 @@ const deleteAgent = async (req, res) => {
 
 const agentlogin = async (req, res) => {
   const { agent_id, password } = req.body;
-  console.log(req.body);
   try {
     if (!agent_id || !password) {
       return res
@@ -238,7 +237,6 @@ const getAllAgentproperty = async (req, res) => {
 
     // Fetch agents matching the query
     const result = await Agent.find(query);
-    console.log(result);
     // Get the count of documents matching the query
     const count = await Agent.countDocuments(query);
     if (!result || result.length === 0) {
