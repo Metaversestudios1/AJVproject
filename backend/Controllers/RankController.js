@@ -59,7 +59,6 @@ const getAllRank = async (req, res) => {
     }
 
     const result = await RankModel.find(query)
-      .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
     const count = await RankModel.find(query).countDocuments();
