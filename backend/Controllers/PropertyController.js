@@ -98,14 +98,29 @@ const insertProperty = async (req, res) => {
       await newProperty.save();
 
       // Handle site insertion if the "sites" field is present
+      // if (sites) {
+      //   for (let i = 0; i < sites; i++) {
+      //     const newSite = new Site({
+      //       propertyId: newProperty._id, // Link site with the newly created property
+      //     });
+      //     await newSite.save();
+      //   }
+      // }
       if (sites) {
-        for (let i = 0; i < sites; i++) {
-          const newSite = new Site({
-            propertyId: newProperty._id, // Link site with the newly created property
-          });
-          await newSite.save();
-        }
-      }
+        const lastSite = await Site.findOne().sort({ createdAt: -1 });   
+       let currentCount = lastSite ? lastSite.site_count : 0; 
+   
+       for (let i = 0; i < sites; i++) { // Loop for the number of sites specified
+         currentCount += 1; // Increment for each new site      
+         const newSite = new Site({
+           propertyId: newProperty._id, // Link site with the newly created property
+           site_count: currentCount,      // Set site_count to the calculated value
+         });
+     
+         await newSite.save(); // Save the new site
+       }
+     }
+      
 
       res.status(201).json({ success: true });
     } catch (error) {
@@ -127,16 +142,21 @@ const insertProperty = async (req, res) => {
       });
 
       await newProperty.save();
-
       if (sites) {
-        for (let i = 0; i < sites; i++) {
+         const lastSite = await Site.findOne().sort({ createdAt: -1 });   
+        let currentCount = lastSite ? lastSite.site_count : 0; 
+    
+        for (let i = 0; i < sites; i++) { // Loop for the number of sites specified
+          currentCount += 1; // Increment for each new site      
           const newSite = new Site({
             propertyId: newProperty._id, // Link site with the newly created property
+            site_count: currentCount,      // Set site_count to the calculated value
           });
-          await newSite.save();
+      
+          await newSite.save(); // Save the new site
         }
       }
-
+      
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property without files:", error.message);

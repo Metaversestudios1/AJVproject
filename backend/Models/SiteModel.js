@@ -6,6 +6,7 @@ const siteSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Property", // Reference to the Property model
      },
+     site_count: { type: Number, default: 0 }, // Initialize with 0
     siteNumber: {
       type:String
     },
@@ -65,6 +66,16 @@ const siteSchema = new mongoose.Schema(
         default: null, // Nullable for registration date
       },
     },
+    payments: [{ // New field for payments
+      amount: {
+        type: Number,
+        required: true, // Make amount required
+      },
+      date: {
+        type: Date,
+        default: Date.now, // Automatically set to current date
+      },
+    }],
     createdAt: {
       type: Date,
       default: Date.now, // Automatically set to current date
