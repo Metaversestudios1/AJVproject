@@ -108,9 +108,9 @@ const AddAgent = () => {
         properties: {
           required: true,
         },
-        superior:{
-          required:true,
-        }
+        // superior:{
+        //   required:true,
+        // }
       },
       messages: {
         agentname: {
