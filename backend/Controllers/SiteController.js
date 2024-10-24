@@ -111,6 +111,7 @@ console.log(agentId)
         $push: {
           commissions: { 
             siteId: id, // Include the site ID for reference
+            PaidAmount:paidAmount,
             amount: commissionDeduction,
             date: new Date()
           }

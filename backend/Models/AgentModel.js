@@ -37,6 +37,10 @@ const AgentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Site', // Reference to the Site model
       },
+      PaidAmount: {
+        type: Number,
+        required: true,
+      },
       amount: {
         type: Number,
         required: true,
