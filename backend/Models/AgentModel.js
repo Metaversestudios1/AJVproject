@@ -37,7 +37,7 @@ const AgentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Site', // Reference to the Site model
       },
-      PaidAmount: {
+      balanceRemaining: {
         type: Number,
         required: true,
       },
