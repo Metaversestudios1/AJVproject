@@ -50,7 +50,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               </li>
               <li className="hs-accordion " id="users-accordion ">
               <NavLink
-                to="/profile"
+                to={"/profile"}
                 className={({ isActive }) =>
                   isActive
                     ? "flex items-center gap-x-3.5  text-sm text-white bg-[#0472ff] rounded-lg"
@@ -128,7 +128,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   </NavLink>
                 </li>
 
-              <li className="hs-accordion " id="users-accordion ">
+              {userInfo.role==="agent" && <li className="hs-accordion " id="users-accordion ">
               <NavLink
               to="/clients"
               className={({ isActive }) =>
@@ -164,7 +164,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   </div>
                 </button>
                 </NavLink>
-              </li>
+              </li>}
             </ul>
           </nav>
         </div>
