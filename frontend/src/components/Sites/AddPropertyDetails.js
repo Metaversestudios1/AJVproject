@@ -93,7 +93,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
           agentRes.json(),
           clientRes.json(),
         ]);
-        console.log(clientData);
+        
         if (agentData.success) setAgents(agentData.result);
         if (clientData.success) setClients(clientData.result);
         setLoader(false);
@@ -229,6 +229,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
     }
   };
   const fetchOldData = async () => {
+   
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/getSingleSite`,
@@ -240,6 +241,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
       );
       const result = await response.json();
       if (result.success) {
+      
         const formatDate = (dateString) => {
           if (dateString) {
             const date = new Date(dateString);
@@ -247,23 +249,24 @@ const handleChangeAndValidate = (e, remainingAmount) => {
           }
           return ""; // Return empty if dateString is null/undefined
         };
-        console.log(result.result?.payments);
         setPayments(result.result?.payments)
+        const propertyName = await fetchPropertyName(result.result?.propertyId);        
+       
         const propertyDetails = result.result?.propertyDetails || {};
         const saleDeedDetails = result.result?.saleDeedDetails || {};
+       
         setsitecount(result.result?.site_count);
-        console.log(result.result?.propertyDetailsstatus);
         setIsFirstUpdate(result.result?.propertyDetailsstatus);
         const paymentsArray = result.result?.payments || [];
         const totalAmountPaid = paymentsArray.reduce((total, payment) => {
           return total + (payment.amount || 0); // Ensure that the amount is added safely
         }, 0);
-      
-        setoldamoutpaid(totalAmountPaid); 
-        setRemainingBalance(result.result?.propertyDetails.balanceRemaining)
+        
+        setoldamoutpaid(totalAmountPaid);
+         setRemainingBalance(result.result?.propertyDetails.balanceRemaining)
+        
         settotalValue(result.result?.propertyDetails.totalValue);
-        const propertyName = await fetchPropertyName(result.result?.propertyId);        
-        setData({
+         setData({
           clientId: result.result?.clientId,
           agentId: result.result?.agentId,
           propertyDetailsstatus: "1",

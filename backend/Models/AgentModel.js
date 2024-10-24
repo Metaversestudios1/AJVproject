@@ -32,10 +32,23 @@ const AgentSchema = new mongoose.Schema({
     ref: 'Agent', // References another agent (the superior)
     default: null, // If null, this is the top agent
   },
-  hierarchy: {
-    type: [String], // Array of Agent IDs
-    default: null, // Nullable
-  },
+ 
+  commissions: [
+    {
+      siteId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Site', // Reference to the Site model
+      },
+      amount: {
+        type: Number,
+        required: true,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   updatedAt: {
     type: Date,
     default: Date.now, 
