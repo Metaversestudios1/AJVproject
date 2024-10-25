@@ -245,7 +245,7 @@ const Home = () => {
             </div>
           ):(<div className="flex gap-2 flex-1 my-1">
             <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
-              <NavLink to="/properties">
+              <NavLink to="/sites">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
                     <LiaSitemapSolid className="text-xl" />
