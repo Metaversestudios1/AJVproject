@@ -1,8 +1,8 @@
 const PropertyModel = require("../Models/PropertyModel");
 const Site = require("../Models/SiteModel");
-const Rank = require('../Models/RankModel');
+const Rank = require("../Models/RankModel");
 const bcrypt = require("bcrypt");
-const Agent =require('../Models/AgentModel')
+const Agent = require("../Models/AgentModel");
 // const insertSite = async (req, res) => {
 //   try {
 //     const newSite = new Site(req.body);
@@ -68,64 +68,136 @@ const updateSite = async (req, res) => {
   const reaminingAmount = updatedata.data.propertyDetails.balanceRemaining;
 
   // Remove 'payments' from updatedata if it exists
-  const { payments, ...restData } = updatedata.data;  // Exclude 'payments' field
-  
+  const { payments, ...restData } = updatedata.data; // Exclude 'payments' field
+
   try {
     // First, update other fields except 'payments'
     const updateFields = await Site.updateOne(
       { _id: id },
-      { $set: restData }  // Only update fields except 'payments'
+      { $set: restData } // Only update fields except 'payments'
     );
 
     if (updateFields.nModified === 0) {
-      return res.status(404).json({ success: false, message: "No fields updated, or site not found" });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "No fields updated, or site not found",
+        });
     }
 
     // Next, push the new payment to the 'payments' array
     const updatePayments = await Site.updateOne(
       { _id: id },
-      { $push: { payments: { amount: paidAmount, date: new Date() } } }  // Push new payment
+      { $push: { payments: { amount: paidAmount, date: new Date() } } } // Push new payment
     );
 
     if (updatePayments.nModified === 0) {
-      return res.status(404).json({ success: false, message: "Unable to update payments" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Unable to update payments" });
     }
-  
+
     const agentId = updatedata.data.agentId; // Get the agent ID associated with this site
-console.log(agentId)
-    // Step 3: Fetch the agent and their commission rate
-    const agent = await Agent.findById(agentId).populate('rank'); // Assuming the rank has commissionRate
-    console.log(agent);
+
+    const agent = await Agent.findById(agentId).populate("rank"); // Assuming the rank has commissionRate
+
     if (!agent || !agent.rank) {
-      return res.status(404).json({ success: false, message: "Agent or rank not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent or rank not found" });
     }
     const commission = agent.rank.commissionRate;
-    console.log(commission);
-    const commissionRate = (commission / 100);
-    console.log(commissionRate)
+    const agentLevel = agent.rank.level; // Assuming this gives you the level
+    const getCommissionBasedOnLevel = async (level) => {
+      let totalCommission = 0;
+
+      for (let i = level; i >= 1; i--) {
+        // Access commission rate for the current level
+        const commissionRate = agent.rank.commissionRate; // Adjust based on your data structure
+        const getcommition = await getcommitionrate(i);
+        if (getcommition !== undefined) {
+          // Check if the commission rate exists
+          totalCommission += Number(getcommition); // Add commission rate to total
+        } else {
+          console.log(`Commission rate for level ${i} is not defined.`);
+        }
+      }
+      return totalCommission;
+    };
+
+    // Calculate total commission based on level
+    const totalCommissionFromLevels = await getCommissionBasedOnLevel(
+      agentLevel
+    );
+    const commissionRate = totalCommissionFromLevels / 100;
+    // console.log(commissionRate)
     const commissionDeduction = reaminingAmount * commissionRate;
-    console.log(reaminingAmount);
+    //console.log(reaminingAmount);
     const updateAgent = await Agent.updateOne(
       { _id: agentId },
       {
         $push: {
-          commissions: { 
+          commissions: {
             siteId: id, // Include the site ID for reference
-            balanceRemaining:reaminingAmount,
+            balanceRemaining: reaminingAmount,
             amount: commissionDeduction,
-            date: new Date()
-          }
+            percentage: totalCommissionFromLevels,
+            date: new Date(),
+          },
         },
         // $inc: { totalCommission: -commissionDeduction } // Deduct from totalCommission
       }
     );
 
+  
+    const getlowerlevelcommition = async (level) => {
+      let totalCommission = 0;
+      const highestLevel = await getHigherLevel();
+      console.log(highestLevel);
+      for (let i = level; i <= highestLevel; i++) {
+        // Access commission rate for the current level
+        const commissionRatelower = agent.rank.commissionRate; // Adjust based on your data structure
+        const getcommitionlower = await getcommitionrate(i);
+
+        const commissionRatelowers = getcommitionlower / 100;
+
+        const commissionDeductionlower = reaminingAmount * commissionRatelowers;
+
+        const getagentid = await getAgentId(i);
+
+        const updateAgent = await Agent.updateOne(
+          { _id: getagentid },
+          {
+            $push: {
+              commissions: {
+                siteId: id, // Include the site ID for reference
+                balanceRemaining: reaminingAmount,
+                amount: commissionDeductionlower,
+                percentage: getcommitionlower,
+                date: new Date(),
+              },
+            },
+            // $inc: { totalCommission: -commissionDeduction } // Deduct from totalCommission
+          }
+        );
+      }
+      // return totalCommission;
+    };
+    const getlowercommition = await getlowerlevelcommition(agentLevel);
+
     if (updateAgent.nModified === 0) {
-      return res.status(404).json({ success: false, message: "Unable to update agent's commission" });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Unable to update agent's commission",
+        });
     }
 
-    res.status(201).json({ success: true, message: "Site updated successfully" });
-
+    res
+      .status(201)
+      .json({ success: true, message: "Site updated successfully" });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -135,6 +207,58 @@ console.log(agentId)
   }
 };
 
+const getcommitionrate = async (level) => {
+  try {
+    const commissionData = await Rank.findOne({ level: level });
+    return commissionData.commissionRate;
+  } catch (error) {
+    console.error("Error fetching commission rates:", error);
+  }
+};
+
+const getAgentId = async (level) => {
+  try {
+      // Find the rank based on the provided commission rate
+      const commissionData = await Rank.findOne({ level: level });
+      
+      // Check if commissionData is found
+      if (!commissionData) {
+          console.error(`No rank found for level rate: ${level}`);
+          throw new Error(`Rank not found for level rate: ${level}`);
+      }
+
+      const rankID = commissionData._id;
+
+      // Find the agent based on the rank ID
+      const agent = await Agent.findOne({ rank: rankID });
+
+      // Check if agent is found
+      if (!agent) {
+          console.warn(`No agent found for rank ID: ${rankID}. Skipping this level.`);
+          return null; // Return null to indicate no agent found for this level
+      }
+
+      return agent._id; // Return the found agent's ID
+  } catch (error) {
+      console.error(`Error in getAgentId: ${error.message}`);
+      throw error; // Rethrow the error for further handling if needed
+  }
+};
+
+const getHigherLevel  = async()=>{
+  try {
+    const ranks = await Rank.find(); // Fetch all rank records
+
+    if (ranks.length === 0) return null; // Return null if no records found
+
+    // Use Math.max to find the highest level
+    const highestLevel = Math.max(...ranks.map(rank => rank.level));
+    return highestLevel;
+} catch (error) {
+    console.error("Error fetching ranks:", error);
+    throw error; // Rethrow the error for handling
+}
+}
 
 // const updateSite = async (req, res) => {
 //   const updatedata = req.body;
@@ -143,7 +267,7 @@ console.log(agentId)
 //   console.log(paidAmount);
 //   console.log(updatedata.data)
 //   try {
-//     const { ...restData } = updatedata.data; 
+//     const { ...restData } = updatedata.data;
 //     const result = await Site.updateOne(
 //       { _id: id },
 //       {
@@ -217,18 +341,18 @@ const getAllSite = async (req, res) => {
       deleted_at: null, // Ensure we only match non-deleted sites
     };
     let sortCondition = { createdAt: -1 };
-    if (filter === 'recent') {
+    if (filter === "recent") {
       sortCondition = { createdAt: -1 }; // Descending order (newest first)
-    } else if (filter === 'oldest') {
-      sortCondition = { createdAt: 1 };  // Ascending order (oldest first)
-    } else if (filter === 'Available') {
-      query.status = 'Available'; // Filter by status 1
-    } else if (filter === 'Booked') {
-      query.status = 'Booked'; // Filter by status 0
-    } else if (filter === 'Completed') {
-      query.status = 'Completed'; // Filter by status 0
+    } else if (filter === "oldest") {
+      sortCondition = { createdAt: 1 }; // Ascending order (oldest first)
+    } else if (filter === "Available") {
+      query.status = "Available"; // Filter by status 1
+    } else if (filter === "Booked") {
+      query.status = "Booked"; // Filter by status 0
+    } else if (filter === "Completed") {
+      query.status = "Completed"; // Filter by status 0
     }
-    console.log
+    console.log;
     if (id) {
       query.propertyId = id;
     }
@@ -240,7 +364,7 @@ const getAllSite = async (req, res) => {
 
       // If properties are found, use their IDs in the query
       if (properties.length > 0) {
-        const propertyIds = properties.map(property => property._id);
+        const propertyIds = properties.map((property) => property._id);
         query.propertyId = { $in: propertyIds };
       } else {
         // If no matching properties found, return empty result
@@ -250,7 +374,7 @@ const getAllSite = async (req, res) => {
 
     // Perform the site query with pagination
     const result = await Site.find(query)
-      .populate('propertyId', 'propertyname') // Populate the propertyname
+      .populate("propertyId", "propertyname") // Populate the propertyname
       .sort(sortCondition)
       .skip((page - 1) * pageSize)
       .limit(pageSize);
@@ -259,8 +383,13 @@ const getAllSite = async (req, res) => {
 
     res.status(200).json({ success: true, result, count });
   } catch (error) {
-    console.error("Error fetching Sites:", error);  // Log the actual error
-    res.status(500).json({ success: false, message: `Error fetching Sites: ${error.message}` });
+    console.error("Error fetching Sites:", error); // Log the actual error
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: `Error fetching Sites: ${error.message}`,
+      });
   }
 };
 
@@ -274,11 +403,9 @@ const getSingleSite = async (req, res) => {
     }
     const count = await Site.countDocuments({ site_name: result.propertyId });
 
-    res.status(201).json({ success: true, result: result,count:count });
+    res.status(201).json({ success: true, result: result, count: count });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "error fetching Site" });
+    res.status(500).json({ success: false, message: "error fetching Site" });
   }
 };
 
@@ -300,32 +427,33 @@ const deleteSite = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "error fetching Site" });
+    res.status(500).json({ success: false, message: "error fetching Site" });
   }
 };
 const updatesitestatus = async (req, res) => {
   try {
     console.log(res.body);
-      const { id } = req.params
-      const status = req.body.status;
-      const Sitenew = await Site.findById(id);
-      Sitenew.status = status;
-      await Sitenew.save();
-      res.status(200).json({ success: true });
-
+    const { id } = req.params;
+    const status = req.body.status;
+    const Sitenew = await Site.findById(id);
+    Sitenew.status = status;
+    await Sitenew.save();
+    res.status(200).json({ success: true });
   } catch (err) {
-      res.status(500).json({ success: false, message: "error fetching transaction", error: err.message });
-
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "error fetching transaction",
+        error: err.message,
+      });
   }
-
-}
+};
 module.exports = {
   insertSite,
   updateSite,
   getAllSite,
   getSingleSite,
   deleteSite,
-  updatesitestatus
+  updatesitestatus,
 };

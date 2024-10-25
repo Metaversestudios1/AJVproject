@@ -28,7 +28,7 @@ const AgentSchema = new mongoose.Schema({
     default: null, // Nullable
   },
   superior: {
-    type: String,  
+    type: String,
   },
  
   commissions: [
@@ -44,6 +44,9 @@ const AgentSchema = new mongoose.Schema({
       amount: {
         type: Number,
         required: true,
+      },
+      percentage:{
+        type: Number,
       },
       date: {
         type: Date,
