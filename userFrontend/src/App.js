@@ -13,7 +13,7 @@ import Property from "./components/Property/Property";
 import Sites from "./components/Sites/Sites";
 import AddPropertyDetails from "./components/Sites/AddPropertyDetails";
 import AgentRoute from "./components/utils/AgentRoute";
-import AgentProfile from "./components/Agent/AgentProfile";
+import Profile from "./components/profile/Profile";
 
 function App() {
   const [sideBar, setSideBar] = useState(true);
@@ -69,7 +69,7 @@ function App() {
             />
             <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
               <Navbar toggleSideBar={toggleSideBar} />
-              <AgentProfile />
+              <Profile />
             </div>
           </div>
         </PrivateRoute>
@@ -79,17 +79,19 @@ function App() {
       path: "/clients",
       element: (
         <PrivateRoute>
-          <div className="flex h-screen">
-            <Sidebar
-              sidebar={sideBar}
-              className="flex-1"
+        <AgentRoute>
+        <div className="flex h-screen">
+        <Sidebar
+        sidebar={sideBar}
+        className="flex-1"
               toggleSideBar={toggleSideBar}
-            />
+              />
             <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
               <Navbar toggleSideBar={toggleSideBar} />
               <Client />
             </div>
-          </div>
+            </div>
+            </AgentRoute>
         </PrivateRoute>
       ),
     },

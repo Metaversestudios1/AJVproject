@@ -21,6 +21,19 @@ const Sites = () => {
   const params = useParams();
   const [filter, setfilter] = useState("");
   const { id } = params;
+  const fetchClient = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userInfo?.id }),
+      }
+    );
+    const response = await res.json();
+    return response?.result;
+  };
+
   const fetchPropertyName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
@@ -61,87 +74,144 @@ const Sites = () => {
     }
     return [];
   };
-
   const fetchData = async () => {
     setLoader(true);
     setSites([]);
 
     try {
-      // Fetch the agent data first
-      const agentData = await fetchAgentData(userInfo.id);
+      if (userInfo.role === "agent") {
+        // Agent specific logic
+        const agentData = await fetchAgentData(userInfo.id);
 
-      if (
-        agentData &&
-        agentData.properties &&
-        agentData.properties.length > 0
-      ) {
-        const agentProperties = agentData.properties.map(
-          (property) => property
-        );
+        if (
+          agentData &&
+          agentData.properties &&
+          agentData.properties.length > 0
+        ) {
+          const agentProperties = agentData.properties.map(
+            (property) => property
+          );
 
-        // Fetch all sites
-        const allSites = await fetchAllSites();
+          const allSites = await fetchAllSites();
 
-        // Initialize an array to hold all the matching sites
-        let sitesForAgent = [];
+          let sitesForAgent = [];
 
-        // Filter the sites where propertyId matches any of the agent's properties
-        agentProperties.forEach((property) => {
-          const matchingSites = allSites.filter(
-            (site) => site.propertyId._id === property
-          );
-          sitesForAgent = [...sitesForAgent, ...matchingSites]; // Accumulate matching sites
-        });
+          agentProperties.forEach((property) => {
+            const matchingSites = allSites.filter(
+              (site) => site.propertyId._id === property
+            );
+            sitesForAgent = [...sitesForAgent, ...matchingSites];
+          });
 
-        // Apply the filter before setting the data
-        let filteredSites = sitesForAgent;
+          let filteredSites = sitesForAgent;
 
-        // Apply the selected filter from the state
-        if (filter === "recent") {
-          // Assuming sites have a createdAt date
-          filteredSites = filteredSites.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          if (filter === "recent") {
+            filteredSites = filteredSites.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+          } else if (filter === "oldest") {
+            filteredSites = filteredSites.sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+          } else if (filter === "Available") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Available"
+            );
+          } else if (filter === "Booked") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Booked"
+            );
+          } else if (filter === "Completed") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Completed"
+            );
+          }
+
+          const sitesWithDetails = await Promise.all(
+            filteredSites.map(async (site) => {
+              let propertyName = "-";
+              if (site.propertyId) {
+                propertyName = await fetchPropertyName(site.propertyId);
+              }
+
+              return {
+                ...site,
+                propertyName,
+              };
+            })
           );
-        } else if (filter === "oldest") {
-          filteredSites = filteredSites.sort(
-            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-          );
-        } else if (filter === "Available") {
-          filteredSites = filteredSites.filter(
-            (site) => site.status === "Available"
-          );
-        } else if (filter === "Booked") {
-          filteredSites = filteredSites.filter(
-            (site) => site.status === "Booked"
-          );
-        } else if (filter === "Completed") {
-          filteredSites = filteredSites.filter(
-            (site) => site.status === "Completed"
-          );
+
+          setSites(sitesWithDetails);
+          setCount(sitesWithDetails.length);
+          setNoData(sitesWithDetails.length === 0);
+          updatePaginatedSites();
         }
+      } else if (userInfo.role === "client") {
+        // Client specific logic
+        const clientData = await fetchClient();
+        if (clientData && clientData.bookedProperties) {
+          const bookedProperties = clientData.bookedProperties; // This should be an array of booked property IDs
 
-        // Fetch related data (property names, agent names, client names) and prepare the site data
-        const sitesWithDetails = await Promise.all(
-          filteredSites.map(async (site) => {
-            let propertyName = "-";
-            if (site.propertyId) {
-              propertyName = await fetchPropertyName(site.propertyId);
-            }
+          // Fetch all sites
+          const allSites = await fetchAllSites();
+          let sitesForClient = [];
 
-            return {
-              ...site,
-              propertyName,
-              // Add more details as required (clientName, agentName)
-            };
-          })
-        );
+          // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
+          const matchingSites = allSites.filter((site) => {
+            const isBookedProperty = bookedProperties.includes(
+              site.propertyId._id
+            ); // Check if site propertyId matches any booked property
+            const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
+            return isBookedProperty || isClientSite; // Only return sites that match either condition
+          });
 
-        setSites(sitesWithDetails);
-        setCount(sitesWithDetails.length);
-        setNoData(sitesWithDetails.length === 0);
-        updatePaginatedSites();
-      } else {
-        setNoData(true); // No properties for this agent
+          sitesForClient = [...sitesForClient, ...matchingSites];
+
+          let filteredSites = sitesForClient;
+
+          // Apply filters based on the selected filter criteria
+          if (filter === "recent") {
+            filteredSites = filteredSites.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+          } else if (filter === "oldest") {
+            filteredSites = filteredSites.sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+          } else if (filter === "Available") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Available"
+            );
+          } else if (filter === "Booked") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Booked"
+            );
+          } else if (filter === "Completed") {
+            filteredSites = filteredSites.filter(
+              (site) => site.status === "Completed"
+            );
+          }
+
+          // Fetch property names for the filtered sites
+          const sitesWithDetails = await Promise.all(
+            filteredSites.map(async (site) => {
+              let propertyName = "-";
+              if (site.propertyId) {
+                propertyName = await fetchPropertyName(site.propertyId);
+              }
+
+              return {
+                ...site,
+                propertyName,
+              };
+            })
+          );
+
+          setSites(sitesWithDetails);
+          setCount(sitesWithDetails.length);
+          setNoData(sitesWithDetails.length === 0);
+          updatePaginatedSites();
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -155,26 +225,24 @@ const Sites = () => {
     fetchData();
   }, [currentPage, search, filter, pageSize]);
   const updatePaginatedSites = () => {
-    
-    const filteredSites = sites.filter(site => {
+    const filteredSites = sites.filter((site) => {
       const siteName = site.propertyName ? site.propertyName.toLowerCase() : ""; // Safeguard for undefined
       const includesSearchTerm = siteName.includes(search.toLowerCase());
-      
+
       return includesSearchTerm; // Only return sites that match the search term
     });
-  
-    
+
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-  
+
     if (filteredSites.length === 0) {
-      setNoData(true)
+      setNoData(false);
       setPaginatedSites([]); // Clear paginatedSites when no results are found
     } else {
       setPaginatedSites(filteredSites.slice(startIndex, endIndex));
     }
   };
-  
+
   // Update paginated data when sites, currentPage, or pageSize change
   useEffect(() => {
     updatePaginatedSites();

@@ -17,15 +17,26 @@ const Home = () => {
 
   useEffect(() => {
     setLoader(true);
-    Promise.all([
-      fetchProprtyCount(),
-      fetchClientCount(),
-    ]).finally(() => {
-      setLoader(false);
-    });
-  }, []);
 
-  const fetchProprtyCount = async () => {
+    const fetchData = async () => {
+      try {
+        if (userInfo.role === "client") {
+        } else if (userInfo.role === "agent") {
+          await Promise.all([fetchPropertyCount(), fetchClientCount()]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoader(false);
+      }
+    };
+
+    fetchData();
+  }, [userInfo.role]); // Dependency on userInfo.role to refetch if role changes
+
+
+
+  const fetchPropertyCount = async () => {
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
       {
@@ -47,24 +58,30 @@ const Home = () => {
       let totalSiteCount = 0;
       let availableSiteCount = 0;
       let bookedSiteCount = 0;
-  
+
       // Fetch all sites once, instead of making multiple requests
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`);
-      
+        `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`
+      );
+
       const response = await res.json();
       const allSites = response.result;
-        console.log(response)
       // Now filter the sites by property ID
-      properties.forEach(property => {
-        const sitesForProperty = allSites.filter(site => site.propertyId._id === property);
-  
+      properties.forEach((property) => {
+        const sitesForProperty = allSites.filter(
+          (site) => site.propertyId._id === property
+        );
+
         // Count total, available, and booked sites for the current property
         totalSiteCount += sitesForProperty.length;
-        availableSiteCount += sitesForProperty.filter(site => site.status === "Available").length;
-        bookedSiteCount += sitesForProperty.filter(site => site.status === "Booked").length;
+        availableSiteCount += sitesForProperty.filter(
+          (site) => site.status === "Available"
+        ).length;
+        bookedSiteCount += sitesForProperty.filter(
+          (site) => site.status === "Booked"
+        ).length;
       });
-  
+
       // Set the counts in state after processing
       setTotalSites(totalSiteCount);
       setTotalAvailableSites(availableSiteCount);
@@ -73,7 +90,6 @@ const Home = () => {
       console.error("Error fetching sites:", error);
     }
   };
-  
 
   const fetchClientCount = async () => {
     const res = await fetch(
@@ -99,12 +115,12 @@ const Home = () => {
       ) : (
         <div className="flex flex-col md:flex-row p-3 mb-6 w-full">
           {/* Property Summary */}
-          <div className="flex gap-2 flex-1 my-1">
+        {(userInfo.role==="Agent" || userInfo.role==="agent") && <div className="flex gap-2 flex-1 my-1">
             <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
               <NavLink to="/properties">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                  <IoHomeOutline className="text-xl"/>
+                    <IoHomeOutline className="text-xl" />
                   </div>
                   <div className="ml-3">
                     <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
@@ -125,7 +141,7 @@ const Home = () => {
               <NavLink to="/sites">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                  <LiaSitemapSolid className="text-xl"/>
+                    <LiaSitemapSolid className="text-xl" />
                   </div>
                   <div className="ml-3">
                     <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
@@ -146,7 +162,7 @@ const Home = () => {
               <NavLink to="/sites">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                  <MdOutlineEventAvailable className="text-xl"/>
+                    <MdOutlineEventAvailable className="text-xl" />
                   </div>
                   <div className="ml-3">
                     <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
@@ -167,7 +183,7 @@ const Home = () => {
               <NavLink to="/sites">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                    <FaRegBookmark className="text-xl"/>
+                    <FaRegBookmark className="text-xl" />
                   </div>
                   <div className="ml-3">
                     <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
@@ -180,7 +196,7 @@ const Home = () => {
                 </div>
               </NavLink>
             </div>
-          </div>
+          </div>}
         </div>
       )}
     </div>
