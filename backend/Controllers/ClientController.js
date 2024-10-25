@@ -113,7 +113,6 @@ const clientlogin = async (req, res) => {
     }
 
     const client = await Client.findOne({ client_id });
-    console.log(client)
     if (!client) {
       return res.status(404).json({ success: false, message: "Client ID not found" });
     }
