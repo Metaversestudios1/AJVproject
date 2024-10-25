@@ -383,7 +383,7 @@ const renderPaymentFields = () => {
         </div>
         <div className="flex items-center">
           <div className="text-2xl font-bold mx-2 my-8 px-4">
-            Property details
+            Site details
           </div>
         </div>
       </div>
