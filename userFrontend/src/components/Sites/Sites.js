@@ -151,20 +151,22 @@ const Sites = () => {
         const clientData = await fetchClient();
         if (clientData && clientData.bookedProperties) {
           const bookedProperties = clientData.bookedProperties; // This should be an array of booked property IDs
-
+          
           // Fetch all sites
           const allSites = await fetchAllSites();
           let sitesForClient = [];
-
+console.log(allSites)
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties.includes(
-              site.propertyId._id
-            ); // Check if site propertyId matches any booked property
-            const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
-            return isBookedProperty || isClientSite; // Only return sites that match either condition
-          });
+            const isBookedProperty = bookedProperties===site.propertyId._id
+            console.log(isBookedProperty)
 
+           // Check if site propertyId matches any booked property
+            const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
+            console.log(isClientSite)
+            return isBookedProperty && isClientSite; // Only return sites that match either condition
+          });
+          console.log(matchingSites)
           sitesForClient = [...sitesForClient, ...matchingSites];
 
           let filteredSites = sitesForClient;
@@ -255,10 +257,11 @@ const Sites = () => {
       return prev; // Return current page if no direction is specified
     });
   };
-  const handleKebabClick = (propertyId) => {
-    // Toggle the kebab menu for the clicked row
-    setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
-  };
+  // const handleKebabClick = (propertyId) => {
+  //   // Toggle the kebab menu for the clicked row
+  //   setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
+  // };
+  console.log(sites)
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     updatePaginatedSites(); // Call this to update the filtered sites immediately
@@ -464,28 +467,19 @@ const Sites = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Property Name
+                Site no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Client Name
+                Property Name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Agent Name
-                </th>
-                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Site Number
-                </th> */}
+                   total amount
+                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Description
-                </th>
+                   Amount Paid
+                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Staus
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Site Actions
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Action
                 </th>
               </tr>
             </thead>
@@ -503,22 +497,27 @@ const Sites = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
+                    {item?.siteNumber}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
                     {item?.propertyName}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.ClientName}
-                    <span style={{ display: "none" }}>{item?.ClientId}</span>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.propertyDetails?.totalValue}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.AgentName}
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.propertyDetails?.amountPaid}
                   </td>
-                  {/* <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.siteNumber}
-                  </td> */}
-
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    {item?.description}
-                  </td>
+                 
                   <td className="px-6 py-4 border-2 border-gray-300">
                     <button
                       className={`text-white font-bold py-2 px-4 rounded ${
@@ -534,122 +533,8 @@ const Sites = () => {
                       {item?.status}
                     </button>
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300">
-                    <br></br>
-                    &ensp;
-                    <div className="flex justify-between">
-                      {item?.status === "Available" ? (
-                        <div>
-                          {item?.propertyDetailsstatus === "0" ? (
-                            // Show "Add Payment Details" button when propertyDetailsstatus is 0
-                            <button className="bg-blue-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                              <NavLink to={`/addPropertyDetails/${item?._id}`}>
-                                <span className="block w-full text-left px-4 py-2 text-sm ">
-                                  Add Payment Details
-                                </span>
-                              </NavLink>
-                            </button>
-                          ) : item?.propertyDetailsstatus === "1" ? (
-                            <div>
-                              {/* Show "Click to Book" button when propertyDetailsstatus is 1 */}
-                              <button
-                                className="bg-blue-900 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                                onClick={() =>
-                                  handleStatusChange(item._id, "Booked")
-                                }
-                              >
-                                Click to Book
-                              </button>
-
-                              {/* Show "Update Payment Details" button when propertyDetailsstatus is 1 */}
-                              <button className="bg-blue-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">
-                                <NavLink
-                                  to={`/addPropertyDetails/${item?._id}`}
-                                >
-                                  <span className="block w-full text-left px-4 py-2 text-sm ">
-                                    Update Payment Details
-                                  </span>
-                                </NavLink>
-                              </button>
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : item?.status === "Booked" ? (
-                        <div>
-                          <button
-                            className="bg-orange-900 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            onClick={() =>
-                              handleStatusChange(item._id, "Completed")
-                            }
-                          >
-                            Click to Complete the Site
-                          </button>
-                          <br></br>
-                          <br></br>
-                          <button
-                            className="bg-blue-800 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            //  onClick={() => handleStatusChange(item._id, 'approved')}
-                          >
-                            <NavLink to={`/addPropertyDetails/${item?._id}`}>
-                              <button className="block w-full text-left px-4 py-2 text-sm ">
-                                update Payment Details{" "}
-                              </button>
-                            </NavLink>
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          {" "}
-                          <button
-                            className="bg-blue-800 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-                            //  onClick={() => handleStatusChange(item._id, 'approved')}
-                          >
-                            <NavLink to={`/addPropertyDetails/${item?._id}`}>
-                              <button className="block w-full text-left px-4 py-2 text-sm ">
-                                update Payment Details{" "}
-                              </button>
-                            </NavLink>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 border-2 border-gray-300 relative">
-                    <div className="flex justify-center">
-                      <GoKebabHorizontal
-                        className="text-lg transform rotate-90 cursor-pointer"
-                        onClick={() => handleKebabClick(item._id)}
-                      />
-                    </div>
-                    {activePropertyId === item._id && (
-                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                        <NavLink to={`/sites/editsite/${item?._id}`}>
-                          <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                            <MdEdit className="inline mr-2" /> Edit
-                          </button>
-                        </NavLink>
-                        {item?.propertyDetailsstatus === "1" && (
-                          <NavLink to={`/viewsite/${item?._id}`}>
-                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                              <MdEdit className="inline mr-2" /> View Property
-                              Details
-                            </button>
-                          </NavLink>
-                        )}
-
-                        {/* Uncomment this block if you want to add a delete button */}
-                        {/* 
-    <button
-      onClick={() => handleDelete(item._id)}
-      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-    >
-      <MdDelete className="inline mr-2" /> Delete
-    </button>
-    */}
-                      </div>
-                    )}
-                  </td>
+                  
+             
                 </tr>
               ))}
             </tbody>

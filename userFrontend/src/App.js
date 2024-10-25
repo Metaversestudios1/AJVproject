@@ -11,7 +11,6 @@ import AuthProvider from "./context/AuthContext";
 import Client from "./components/Client/Client";
 import Property from "./components/Property/Property";
 import Sites from "./components/Sites/Sites";
-import AddPropertyDetails from "./components/Sites/AddPropertyDetails";
 import AgentRoute from "./components/utils/AgentRoute";
 import Profile from "./components/profile/Profile";
 
@@ -130,25 +129,6 @@ function App() {
             <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
               <Navbar toggleSideBar={toggleSideBar} />
               <Sites />
-            </div>
-          </div>
-        </PrivateRoute>
-      ),
-    },
-
-    {
-      path: "/addPropertyDetails/:id",
-      element: (
-        <PrivateRoute>
-          <div className="flex h-screen">
-            <Sidebar
-              sidebar={sideBar}
-              className="flex-1"
-              toggleSideBar={toggleSideBar}
-            />
-            <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-              <Navbar toggleSideBar={toggleSideBar} />
-              <AddPropertyDetails />
             </div>
           </div>
         </PrivateRoute>

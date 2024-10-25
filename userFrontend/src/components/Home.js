@@ -10,6 +10,7 @@ const Home = () => {
   const userInfo = getUserFromToken();
   const [loader, setLoader] = useState(true);
   const [totalClient, setTotalClient] = useState(0);
+  const [totalClientSites, setTotalClientSites] = useState(0);
   const [totalProperties, setTotalProperties] = useState(0);
   const [totalSites, setTotalSites] = useState(0);
   const [totalAvailableSites, setTotalAvailableSites] = useState(0);
@@ -21,6 +22,7 @@ const Home = () => {
     const fetchData = async () => {
       try {
         if (userInfo.role === "client") {
+          await fetchClientSites();
         } else if (userInfo.role === "agent") {
           await Promise.all([fetchPropertyCount(), fetchClientCount()]);
         }
@@ -33,8 +35,51 @@ const Home = () => {
 
     fetchData();
   }, [userInfo.role]); // Dependency on userInfo.role to refetch if role changes
+  const fetchClient = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userInfo?.id }),
+      }
+    );
+    const response = await res.json();
+    return response?.result;
+  };
 
+  const fetchAllSites = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`
+    );
+    const siteData = await res.json();
+    if (siteData.success) {
+      return siteData.result;
+    }
+    return [];
+  };
+  const fetchClientSites = async () => {
+    const clientData = await fetchClient();
+    if (clientData && clientData.bookedProperties) {
+      const bookedProperties = clientData.bookedProperties; // This should be an array of booked property IDs
 
+      // Fetch all sites
+      const allSites = await fetchAllSites();
+      let sitesForClient = [];
+      // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
+      const matchingSites = allSites.filter((site) => {
+        const isBookedProperty = bookedProperties === site.propertyId._id;
+        console.log(isBookedProperty);
+
+        // Check if site propertyId matches any booked property
+        const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
+        console.log(isClientSite);
+        return isBookedProperty && isClientSite; // Only return sites that match either condition
+      });
+      sitesForClient = [...sitesForClient, ...matchingSites];
+      setTotalClientSites(sitesForClient.length)
+    }
+  };
 
   const fetchPropertyCount = async () => {
     const res = await fetch(
@@ -115,40 +160,102 @@ const Home = () => {
       ) : (
         <div className="flex flex-col md:flex-row p-3 mb-6 w-full">
           {/* Property Summary */}
-        {(userInfo.role==="Agent" || userInfo.role==="agent") && <div className="flex gap-2 flex-1 my-1">
+          {(userInfo.role === "Agent" || userInfo.role === "agent") ? (
+            <div className="flex gap-2 flex-1 my-1">
+              <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
+                <NavLink to="/properties">
+                  <div className="flex items-center">
+                    <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
+                      <IoHomeOutline className="text-xl" />
+                    </div>
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        {totalProperties}
+                      </span>
+                      <h3 className="text-base font-normal text-gray-500">
+                        Total Properties
+                      </h3>
+                    </div>
+                  </div>
+                </NavLink>
+              </div>
+
+              <br />
+
+              {/* Total Sites */}
+              <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
+                <NavLink to="/sites">
+                  <div className="flex items-center">
+                    <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
+                      <LiaSitemapSolid className="text-xl" />
+                    </div>
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        {totalSites}
+                      </span>
+                      <h3 className="text-base font-normal text-gray-500">
+                        Total Sites
+                      </h3>
+                    </div>
+                  </div>
+                </NavLink>
+              </div>
+
+              <br />
+
+              {/* Available Sites */}
+              <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
+                <NavLink to="/sites">
+                  <div className="flex items-center">
+                    <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
+                      <MdOutlineEventAvailable className="text-xl" />
+                    </div>
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        {totalAvailableSites}
+                      </span>
+                      <h3 className="text-base font-normal text-gray-500">
+                        Available Sites
+                      </h3>
+                    </div>
+                  </div>
+                </NavLink>
+              </div>
+
+              <br />
+
+              {/* Booked Sites */}
+              <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
+                <NavLink to="/sites">
+                  <div className="flex items-center">
+                    <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
+                      <FaRegBookmark className="text-xl" />
+                    </div>
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
+                        {totalBookedSites}
+                      </span>
+                      <h3 className="text-base font-normal text-gray-500">
+                        Booked Sites
+                      </h3>
+                    </div>
+                  </div>
+                </NavLink>
+              </div>
+            </div>
+          ):(<div className="flex gap-2 flex-1 my-1">
             <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
               <NavLink to="/properties">
-                <div className="flex items-center">
-                  <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                    <IoHomeOutline className="text-xl" />
-                  </div>
-                  <div className="ml-3">
-                    <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                      {totalProperties}
-                    </span>
-                    <h3 className="text-base font-normal text-gray-500">
-                      Total Properties
-                    </h3>
-                  </div>
-                </div>
-              </NavLink>
-            </div>
-
-            <br />
-
-            {/* Total Sites */}
-            <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
-              <NavLink to="/sites">
                 <div className="flex items-center">
                   <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
                     <LiaSitemapSolid className="text-xl" />
                   </div>
                   <div className="ml-3">
                     <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                      {totalSites}
+                      {totalClientSites}
                     </span>
                     <h3 className="text-base font-normal text-gray-500">
-                      Total Sites
+                      Total client Sites
                     </h3>
                   </div>
                 </div>
@@ -157,46 +264,8 @@ const Home = () => {
 
             <br />
 
-            {/* Available Sites */}
-            <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
-              <NavLink to="/sites">
-                <div className="flex items-center">
-                  <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                    <MdOutlineEventAvailable className="text-xl" />
-                  </div>
-                  <div className="ml-3">
-                    <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                      {totalAvailableSites}
-                    </span>
-                    <h3 className="text-base font-normal text-gray-500">
-                      Available Sites
-                    </h3>
-                  </div>
-                </div>
-              </NavLink>
-            </div>
-
-            <br />
-
-            {/* Booked Sites */}
-            <div className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4">
-              <NavLink to="/sites">
-                <div className="flex items-center">
-                  <div className="inline-flex justify-center items-center w-12 h-12 text-white bg-[#1E88E5] rounded-lg">
-                    <FaRegBookmark className="text-xl" />
-                  </div>
-                  <div className="ml-3">
-                    <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-                      {totalBookedSites}
-                    </span>
-                    <h3 className="text-base font-normal text-gray-500">
-                      Booked Sites
-                    </h3>
-                  </div>
-                </div>
-              </NavLink>
-            </div>
-          </div>}
+  
+          </div>)}
         </div>
       )}
     </div>
