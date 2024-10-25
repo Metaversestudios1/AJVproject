@@ -5,11 +5,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
+import * as XLSX from "xlsx";
 
 const AddPropertyDetails = () => {
   const [loader, setLoader] = useState(false);
+  const [payments, setPayments] = useState([{ amount: 0 }]);
   const [clients, setClients] = useState([]);
   const [agents, setAgents] = useState([]);
+  const[totalValue,settotalValue] =useState(0);
   const [siteid, setsiteid] = useState([]);
   const [clientName, setClientName] = useState("");
   const [agentName, setAgentName] = useState("");
@@ -18,6 +21,7 @@ const AddPropertyDetails = () => {
   const params = useParams();
   const { id } = params;
   const navigate = useNavigate();
+  const [remainingBalance, setRemainingBalance] = useState(totalValue);
 
   const initialState = {
     agentId: "",
@@ -65,6 +69,24 @@ const AddPropertyDetails = () => {
       fetchOldData();
     }, [id]);
 
+    const fetchPropertyName = async (id) => {
+      const nameRes = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
+        {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
+      const propertyName = await nameRes.json();
+      if (propertyName && propertyName.success && propertyName.result) {
+        console.log(propertyName.result.propertyname);
+        setPropertyName(propertyName.result.propertyname);
+        return propertyName.result;
+      } else {
+        return "-"; // Return "Unknown" if data is not present
+      }
+    };
   const fetchOldData = async () => {
     try {
       const response = await fetch(
@@ -84,10 +106,13 @@ const AddPropertyDetails = () => {
           }
           return ""; // Return empty if dateString is null/undefined
         };
+        setPayments(result.result?.payments)
+        const propertyName = await fetchPropertyName(result.result?.propertyId);  
         const propertyDetails = result.result?.propertyDetails || {};
         const saleDeedDetails = result.result?.saleDeedDetails || {};
         const fetchedClientId = result.result?.clientId;
         const fetchedAgentId = result.result?.agentId;
+        setRemainingBalance(result.result?.propertyDetails.balanceRemaining)
         console.log(result.result?.clientId);
         setData({
            clientId: fetchedClientId,
@@ -153,6 +178,188 @@ const AddPropertyDetails = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  function downloadExcel() {
+    const table = document.getElementById("sitetable"); // Your table ID
+    const allDataRows = []; // Holds all the table rows data
+
+    if (!table) {
+        console.error("Table not found.");
+        return;
+    }
+
+    const headers = table.querySelectorAll("thead th");
+    if (headers.length === 0) {
+        console.error("No headers found in the table.");
+        return;
+    }
+
+    // Process each row in the table body
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach((row) => {
+        const rowData = {};
+        const cells = row.querySelectorAll("td");
+
+        // Capture data only for columns that have headers
+        for (let index = 0; index < headers.length; index++) {
+            const columnHeader = headers[index]?.innerText || `Column${index + 1}`;
+
+            // If the current cell does not exist, skip it
+            if (cells[index]) {
+                // If this is the "Payments" column, handle payments separately
+                if (columnHeader.toLowerCase() === "payments" && cells[index].querySelector(".payments")) {
+                    // Extract all payment details
+                    const payments = cells[index].querySelectorAll(".payments div");
+                    let paymentDetails = "";
+                    payments.forEach((payment, idx) => {
+                        const amount = payment.querySelector(".amount")?.innerText || 'N/A';
+                        const date = payment.querySelector(".date") ? new Date(payment.querySelector(".date").innerText).toLocaleDateString() : 'N/A';
+                        paymentDetails += `Payment ${idx + 1}: ${amount} on ${date}\n`;
+                    });
+                    rowData["Payments"] = paymentDetails.trim(); // Store payments as multiline text in one cell
+                } else {
+                    rowData[columnHeader] = cells[index]?.innerText.trim() || 'N/A';
+                }
+            }
+        }
+
+        // Only push row data if it has at least one valid entry
+        if (Object.keys(rowData).length > 0) {
+            allDataRows.push(rowData); // Add row data to allDataRows array
+        }
+    });
+
+    // Add two blank rows at the beginning of the data
+    if (allDataRows.length >= 2) {
+      allDataRows.splice(1, 0, {}); // Insert a blank row at the third position
+  }
+    // Create a new workbook and a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+    const workbook = XLSX.utils.book_new();
+
+    // Adjust column width for the payments column to ensure proper display
+    worksheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 40 }];
+
+    // Append the worksheet and write the file
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
+    XLSX.writeFile(workbook, "Sitereport.xlsx");
+}
+
+
+
+
+  // function downloadExcel() {
+  //   const table = document.getElementById("sitetable"); // Your table ID
+  //   const allDataRows = []; // This will hold all the table rows data
+
+  //   // Get all rows from the table body (skip the header)
+  //   const rows = table.querySelectorAll("tbody tr"); // Adjust selector if your table structure is different
+
+  //   rows.forEach((row) => {
+  //     const rowData = {};
+  //     const cells = row.querySelectorAll("td"); // Get all cells in the current row
+  //     const totalCells = cells.length;
+
+  //     // Loop through cells except the last two
+  //     for (let index = 0; index < totalCells ; index++) {
+  //       // Assuming you have predefined column headers
+  //       const columnHeader =
+  //         table.querySelectorAll("thead th")[index].innerText; // Get header name
+  //       rowData[columnHeader] = cells[index].innerText; // Set the cell data with the header name as key
+  //     }
+  //     allDataRows.push(rowData); // Add row data to allDataRows array
+  //   });
+
+  //   // Create a new workbook and a worksheet
+  //   const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+  //   const workbook = XLSX.utils.book_new();
+
+  //   // Add the worksheet to the workbook
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
+
+  //   // Generate Excel file and prompt for download
+  //   XLSX.writeFile(workbook, "Sitereport.xlsx");
+  // }
+
+  
+
+//   const renderPaymentFields = () => {
+//     return payments.map((payment, index) => {
+//       // Check if a payment exists for this index
+//       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
+//       return (
+//         <div key={index} className="space-y-2">
+//           {/* Display Amount and Date in a single row */}
+//           {index > 0 && (
+//   <>
+    
+//     <div className="flex items-center space-x-4">
+//       <div className="flex items-center space-x-2">
+//       <label
+//       htmlFor={`payment-${index}`}
+//       className="text-sm font-medium text-gray-900 dark:text-black"
+//     >
+//       Payment {index}
+//       <span className="text-red-900 text-lg">&#x2a;</span>
+//     </label>
+//         <span>Amount:</span> 
+//         <span>{payments[index - 1]?.amount || 'N/A'}</span>
+//       </div>
+//       <div className="flex items-center space-x-2">
+//         <span>Date:</span> 
+//         <span>{payments[index - 1]?.date ? new Date(payments[index - 1].date).toLocaleDateString() : 'N/A'}</span>
+//       </div>
+//     </div>
+//   </>
+// )}
+
+      
+//           {/* Display the label in the same row */}
+//           {/* Display the label in the same row */}
+//         </div>
+//       );
+      
+//      });
+//   };
+  
+const renderPaymentFields = () => {
+  return (
+    <table className="w-full border-collapse border border-gray-300">
+      <thead>
+        <tr>
+          <th className="border px-2 py-1">Payment #</th>
+          <th className="border px-2 py-1">Amount</th>
+          <th className="border px-2 py-1">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {payments.map((payment, index) => {
+          const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
+          return (
+            <tr key={index} className="border">
+              <td className="border px-2 py-1">
+                {`Payment ${index + 1}`}
+              </td>
+              <td className="border px-2 py-1">
+                {payment.amount || 'N/A'}
+              </td>
+              <td className="border px-2 py-1">
+                {payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+  useEffect(() => {
+    if (remainingBalance > 0 && payments.length > 0 && payments[payments.length - 1].amount > 0) {
+      setPayments((prevPayments) => [...prevPayments, { amount: 0 }]);
+    }
+  }, [payments, remainingBalance]);
+
    return (
     <>
       <div className="flex items-center ">
@@ -180,6 +387,25 @@ const AddPropertyDetails = () => {
           </div>
         </div>
       </div>
+      <div className="flex justify-between">
+        {/* <NavLink to="/sites/addSite/">
+          <button className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
+            Add New
+          </button>
+        </NavLink> */}
+
+       
+       
+    
+        <div className="flex">
+          <button
+            onClick={downloadExcel}
+            className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg"
+          >
+            Download Excel
+          </button>
+        </div>
+      </div>
       {loader ? (
         <div className="absolute w-[80%] h-[40%] flex justify-center items-center">
           <div
@@ -192,135 +418,159 @@ const AddPropertyDetails = () => {
           </div>
         </div>
       ) : (
-        <div className="w-[70%] m-auto my-10">
-          <form id="siteform">
-          <label><b>Property Details</b></label>
-          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-          <div className="my-2">
-              <label
-                htmlFor="clientId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Clients : {clientName}
-              </label>
-            </div>
-            <div className="my-2">
-              <label
-                htmlFor="agentId"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Agents : {agentName}
-              </label>
-            </div>
-            </div>
+        <div className="w-[100%] m-auto my-10">        
 
-          <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-          <div>
-              <label
-                htmlFor="totalValue"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Total value :{data.propertyDetails.totalValue}
-              </label>
-             
-           </div>
-           <div>
-              <label
-                htmlFor="amountPaid"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Amount Paid :
-                {data.propertyDetails.amountPaid}
-              </label>
-            </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="balanceRemaining"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-                Balance Remaining : {data.propertyDetails.balanceRemaining}
-               </label>
-            </div>
-            </div>
-            <label><b>Sales Deed Details</b></label>&ensp;
-            &ensp;
-            <br></br>
-          
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="deedNumber"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Deed Number : {data.saleDeedDetails.deedNumber}
-              </label>
-             
-            </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-           
-            <div >
-              <label
-                htmlFor="executionDate"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Execution Date : {data.saleDeedDetails.executionDate}
-              </label>
-              
-            </div>
-            <div >
-              <label
-                htmlFor="buyer"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Buyer : {data.saleDeedDetails.buyer}
-              </label>
-             
-            </div>
-            </div>
-            
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-            <div >
-              <label
-                htmlFor="saleAmount"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Sale Amount : {data.saleDeedDetails.saleAmount}
-              </label>
-            
-            </div>
-            <div>
-              <label
-                htmlFor="witnesses"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-              >
-              Witnesses : {data.saleDeedDetails.witnesses}
-              </label>
-              
-            </div>
-            </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
-       
-       <div >
-       <label
-         htmlFor="seller"
-         className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-       >
-       Seller : {data.saleDeedDetails.seller}
-       </label>
+          <div className="relative overflow-x-auto m-5 mb-0">
       
-     </div>
-     
-     </div>
-          </form>
+          <table
+            id="sitetable"
+            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
+          >
+            <thead className="text-xs uppercase bg-gray-200">
+              <tr>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Property Name
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Client Name
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Agent Name
+                </th>
+                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Site Number
+                </th> */}
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Total Value
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Amount Paid 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Balance Remaning
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Payments 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                Deed Number
+                </th>
+               
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                Execution Date 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                Buyer 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                Sale Amount 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                Witnesses 
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                seller 
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+            <tr className="bg-white">
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {propertyName}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {clientName}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {agentName}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                  {data.propertyDetails.totalValue}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+               {data.propertyDetails.amountPaid}
+                  </td>
+                  <td
+  scope="row"
+  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300 w-[300px]"
+>
+  {data.propertyDetails.balanceRemaining}
+  
+</td>
+<td
+  scope="row"
+  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300 w-[300px]"
+>
+  {data.propertyDetails.balanceRemaining}
+  <div className="grid  items-center">
+    {renderPaymentFields()} {/* Dynamically render payment fields */}
+  </div>
+</td>
+
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                 {data.saleDeedDetails.deedNumber}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                  {data.saleDeedDetails.executionDate}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                 {data.saleDeedDetails.buyer}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                  {data.saleDeedDetails.saleAmount}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                  {data.saleDeedDetails.witnesses}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                  {data.saleDeedDetails.seller}
+                  </td>
+                  </tr>
+           
+            </tbody>
+          </table>
+
+      </div>
+    
+
+      
         </div>
+
+        
       )}
     </>
   );

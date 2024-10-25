@@ -166,6 +166,11 @@ const updateSite = async (req, res) => {
 
         const getagentid = await getAgentId(i);
 
+        if (getagentid != null && agentId === getagentid.toString()) {
+          console.log(`Ignoring update for agent ID: ${getagentid} as it matches the provided agent ID.`);
+          continue; // Skip to the next iteration of the loop
+      }else{
+
         const updateAgent = await Agent.updateOne(
           { _id: getagentid },
           {
@@ -182,6 +187,7 @@ const updateSite = async (req, res) => {
           }
         );
       }
+    }
       // return totalCommission;
     };
     const getlowercommition = await getlowerlevelcommition(agentLevel);
