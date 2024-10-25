@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import getUserFromToken from "../utils/getUserFromToken";
 
 const Client = () => {
-  const userInfo = getUserFromToken()
+  const userInfo = getUserFromToken();
   const [clients, setClients] = useState([]);
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
@@ -19,7 +19,7 @@ const Client = () => {
   useEffect(() => {
     fetchData();
   }, [page, search]);
-  
+
   const fetchData = async () => {
     setLoader(true);
     try {
@@ -33,50 +33,54 @@ const Client = () => {
         }
       );
       const agentResponse = await agentRes.json();
-  
+
       if (agentResponse.success) {
         const clientsArray = agentResponse.result.clients; // Assuming clients are returned in `agentResponse.result.clients`
-  
+
         // Step 2: Fetch details for each client in the array
-        const clientsData = await Promise.all(
-          clientsArray.map(async (clientId) => {
-            // Fetch client details using the client ID
-            const clientRes = await fetch(
-              `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: clientId }),
-              }
-            );
-            const clientData = await clientRes.json();
-  
-            if (clientData.success) {
-              const client = clientData.result;
-              // Step 3: If client has booked properties, fetch property details
-              if (client.bookedProperties) {
-                const propertyRes = await fetch(
-                  `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: client.bookedProperties }),
-                  }
-                );
-                const propertyData = await propertyRes.json();
-                // If property details are successfully fetched, attach property name to client object
-                if (propertyData.success) {
-                  client.bookedProperties = propertyData.result.propertyname; // Assuming property name is in `propertyname`
+        if (clientsArray) {
+          const clientsData = await Promise.all(
+            clientsArray.map(async (clientId) => {
+              // Fetch client details using the client ID
+              const clientRes = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id: clientId }),
                 }
+              );
+              const clientData = await clientRes.json();
+
+              if (clientData.success) {
+                const client = clientData.result;
+                // Step 3: If client has booked properties, fetch property details
+                if (client.bookedProperties) {
+                  const propertyRes = await fetch(
+                    `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: client.bookedProperties }),
+                    }
+                  );
+                  const propertyData = await propertyRes.json();
+                  // If property details are successfully fetched, attach property name to client object
+                  if (propertyData.success) {
+                    client.bookedProperties = propertyData.result.propertyname; // Assuming property name is in `propertyname`
+                  }
+                }
+                return client; // Return the updated client object with property details (if any)
               }
-              return client; // Return the updated client object with property details (if any)
-            }
-          })
-        );
-        // Step 4: Update the state with fetched client data
-        setClients(clientsData);
-        setCount(clientsData.length); // You can set the count to the number of clients
-        setNoData(clientsData.length === 0); // Set no data flag if no clients are found
+            })
+          );
+          // Step 4: Update the state with fetched client data
+          setClients(clientsData);
+          setCount(clientsData.length); // You can set the count to the number of clients
+          setNoData(clientsData.length === 0);
+        } // Set no data flag if no clients are found
+      } else {
+        setNoData(false);
       }
     } catch (error) {
       console.error("Error fetching data", error);
@@ -84,8 +88,6 @@ const Client = () => {
       setLoader(false);
     }
   };
-  
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,7 +100,7 @@ const Client = () => {
       setPage(1);
     }
   };
-
+console.log(noData)
   function downloadExcel() {
     const table = document.getElementById("clienttable"); // Your table ID
     const allDataRows = []; // This will hold all the table rows data
@@ -196,7 +198,7 @@ const Client = () => {
       </div>
 
       {loader && (
-        <div className="absolute h-full w-full -top-24 flex justify-center items-center">
+        <div className={`absolute h-full w-full ${noData && "-top-24"} flex justify-center items-center`}>
           <div
             className=" flex justify-center h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] "
             role="status"
@@ -207,7 +209,7 @@ const Client = () => {
           </div>
         </div>
       )}
-      <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
+      <div className={`relative overflow-x-auto m-5 mb-0 ${noData && "min-h-[430px]"}`}>
         {clients.length > 0 && (
           <table
             id="clienttable"
@@ -281,7 +283,7 @@ const Client = () => {
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.address}
                   </td>
-                   <td className="px-6 py-4 border-2 border-gray-300">
+                  <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.bookedProperties}
                   </td>
                   <td className="px-6 py-4 border-2 border-gray-300">
@@ -299,7 +301,7 @@ const Client = () => {
           </table>
         )}
       </div>
-      {noData && (
+      {!noData && (
         <div className="text-center text-xl">
           Currently! There are no clients in the storage.
         </div>

@@ -24,7 +24,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               href="/"
               aria-label="Brand"
             >
-              {userInfo.role}
+              {userInfo.username}
             </a>
           </div>
           <nav
