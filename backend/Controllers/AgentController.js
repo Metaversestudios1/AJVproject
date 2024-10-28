@@ -258,6 +258,46 @@ const getAllAgentproperty = async (req, res) => {
       .json({ success: false, message: "Error retrieving agents" });
   }
 };
+const getAgentCommition = async (req, res) => {
+  try {
+    // Extract `site_id` from the request body
+    const { id } = req.body;
+    const {index} = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Site ID is required" });
+    }
+
+    // Fetch agents with matching `siteId` in the `commissions` array
+    const matchingRecords = await Agent.find({
+      commissions: { $elemMatch: { siteId: id,index: index } }
+    });
+    
+    // Check if any records were found
+    if (matchingRecords.length === 0) {
+      return res.status(404).json({ message: "No records found for the given Site ID." });
+    }
+
+    // Filter commissions to include only those matching the given `site_id` for each agent
+    const resultWithFilteredCommissions = matchingRecords.map(agent => {
+      return {
+        ...agent.toObject(),
+      //  commissions: agent.commissions.filter(commission => commission.siteId.toString() === id)
+      commissions: agent.commissions.filter((commission, index) => {
+        return commission.siteId.toString() === id && commission.index === index;
+      })
+      };
+    });
+    console.log(resultWithFilteredCommissions);
+
+    // Return the complete agent data with filtered commissions
+    res.status(200).json({ success: true, result:resultWithFilteredCommissions });
+  } catch (error) {
+    console.error("Error fetching commission records:", error);
+    res.status(500).json({ success: false, message: "Error retrieving agents" });
+  }
+};
+
 
 // Usage within another function (like insertAgent
 
@@ -270,4 +310,5 @@ module.exports = {
   deleteAgent,
   agentlogin,
   getNextAgentId,
+  getAgentCommition
 };

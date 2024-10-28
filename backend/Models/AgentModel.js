@@ -37,7 +37,7 @@ const AgentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Site', // Reference to the Site model
       },
-      balanceRemaining: {
+      index: {
         type: Number,
         required: true,
       },

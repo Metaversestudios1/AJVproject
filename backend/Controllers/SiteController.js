@@ -66,6 +66,8 @@ const updateSite = async (req, res) => {
   const id = updatedata.id;
   const paidAmount = updatedata.data.propertyDetails.amountPaid;
   const reaminingAmount = updatedata.data.propertyDetails.balanceRemaining;
+const index = updatedata.data.index;
+console.log(paidAmount);
 
   // Remove 'payments' from updatedata if it exists
   const { payments, ...restData } = updatedata.data; // Exclude 'payments' field
@@ -132,18 +134,19 @@ const updateSite = async (req, res) => {
     );
     const commissionRate = totalCommissionFromLevels / 100;
     // console.log(commissionRate)
-    const commissionDeduction = reaminingAmount * commissionRate;
-    //console.log(reaminingAmount);
+    const commissionDeduction = paidAmount * commissionRate;
+    console.log(commissionDeduction);
     const updateAgent = await Agent.updateOne(
       { _id: agentId },
       {
         $push: {
           commissions: {
             siteId: id, // Include the site ID for reference
-            balanceRemaining: reaminingAmount,
             amount: commissionDeduction,
             percentage: totalCommissionFromLevels,
+            balanceRemaining: reaminingAmount,
             date: new Date(),
+            index:index
           },
         },
         // $inc: { totalCommission: -commissionDeduction } // Deduct from totalCommission
@@ -162,7 +165,7 @@ const updateSite = async (req, res) => {
 
         const commissionRatelowers = getcommitionlower / 100;
 
-        const commissionDeductionlower = reaminingAmount * commissionRatelowers;
+        const commissionDeductionlower = paidAmount * commissionRatelowers;
 
         const getagentid = await getAgentId(i);
 
@@ -177,10 +180,11 @@ const updateSite = async (req, res) => {
             $push: {
               commissions: {
                 siteId: id, // Include the site ID for reference
-                balanceRemaining: reaminingAmount,
                 amount: commissionDeductionlower,
                 percentage: getcommitionlower,
+                balanceRemaining: reaminingAmount,
                 date: new Date(),
+                index:index
               },
             },
             // $inc: { totalCommission: -commissionDeduction } // Deduct from totalCommission

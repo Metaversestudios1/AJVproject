@@ -19,6 +19,7 @@ const AddPropertyDetails = () => {
   const [propertyName, setPropertyName] = useState("");
   const [error, setError] = useState("");
   const params = useParams();
+  const [commission, setCommission] = useState([]);
   const { id } = params;
   const navigate = useNavigate();
   const [remainingBalance, setRemainingBalance] = useState(totalValue);
@@ -48,7 +49,7 @@ const AddPropertyDetails = () => {
       const fetchData = async () => {
         try {
           const [agentRes, clientRes] = await Promise.all([
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSinleAgent`),
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`),
             fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
           ]);
   
@@ -56,7 +57,7 @@ const AddPropertyDetails = () => {
             agentRes.json(),
             clientRes.json(),
           ]);
-  console.log(clientData);
+          console.log(agentData.result);
           if (agentData.success) setAgents(agentData.result);
           if (clientData.success) setClients(clientData.result);
           setLoader(false);
@@ -64,9 +65,10 @@ const AddPropertyDetails = () => {
           console.error("Error fetching data:", error);
         }
       };
-  
+      
       fetchData();
       fetchOldData();
+
     }, [id]);
 
     const fetchPropertyName = async (id) => {
@@ -80,7 +82,7 @@ const AddPropertyDetails = () => {
       );
       const propertyName = await nameRes.json();
       if (propertyName && propertyName.success && propertyName.result) {
-        console.log(propertyName.result.propertyname);
+
         setPropertyName(propertyName.result.propertyname);
         return propertyName.result;
       } else {
@@ -113,7 +115,7 @@ const AddPropertyDetails = () => {
         const fetchedClientId = result.result?.clientId;
         const fetchedAgentId = result.result?.agentId;
         setRemainingBalance(result.result?.propertyDetails.balanceRemaining)
-        console.log(result.result?.clientId);
+
         setData({
            clientId: fetchedClientId,
           agentId: fetchedAgentId,        
@@ -168,7 +170,7 @@ const AddPropertyDetails = () => {
       );
       const agentResult = await agentResponse.json();
       if (agentResult.success) {
-        setAgentName(agentResult.result?.agentname); // Adjust based on the response structure
+        setAgentName(agentResult.result); // Adjust based on the response structure
       }
     } catch (error) {
       console.error("Error fetching client and agent names:", error);
@@ -321,45 +323,53 @@ const AddPropertyDetails = () => {
       
 //      });
 //   };
-  
-const renderPaymentFields = () => {
-  return (
-    <table className="w-full border-collapse border border-gray-300">
-      <thead>
-        <tr>
-          <th className="border px-2 py-1">Payment #</th>
-          <th className="border px-2 py-1">Amount</th>
-          <th className="border px-2 py-1">Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {payments.map((payment, index) => {
-          const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
-          return (
-            <tr key={index} className="border">
-              <td className="border px-2 py-1">
-                {`Payment ${index + 1}`}
-              </td>
-              <td className="border px-2 py-1">
-                {payment.amount || 'N/A'}
-              </td>
-              <td className="border px-2 py-1">
-                {payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+
+const fetchCommission = async (index) => {
+  console.log(index);
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAgentCommition`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id,index }), // Ensure 'id' is defined and passed correctly
+      }
+    );
+
+    const result = await response.json();
+    if (result.success) {
+      console.log(result.result)
+      setCommission(result.result); // Set state with fetched commission data
+      return result.result; // Return the result if needed elsewhere
+    } else {
+      console.error("Failed to fetch commission data:", result.message);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching commission data:", error);
+    return [];
+  }
 };
 
-  useEffect(() => {
-    if (remainingBalance > 0 && payments.length > 0 && payments[payments.length - 1].amount > 0) {
-      setPayments((prevPayments) => [...prevPayments, { amount: 0 }]);
-    }
-  }, [payments, remainingBalance]);
+const renderAgentDataInTable = (agents,index) => {
+  return (
+    <>
+    
+  </>
+  );
 
+  
+};
+
+useEffect(() => {
+  payments.forEach((payment, index) => {
+    if (payment.amount > 0) {
+      fetchCommission(index); // Only fetch if payment amount is greater than 0
+    }
+  });
+}, [payments]); 
+
+ 
    return (
     <>
       <div className="flex items-center ">
@@ -452,6 +462,16 @@ const renderPaymentFields = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Payments 
                 </th>
+              
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Payments  Amount
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Payments Date 
+                </th>  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Commissions 
+                </th>
+                
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                 Deed Number
                 </th>
@@ -474,7 +494,10 @@ const renderPaymentFields = () => {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody> {payments.map((payment, index) => {
+        const paymentFound = payment.amount > 0;
+        // fetchCommission(index);
+        return (
             <tr className="bg-white">
                   <td
                     scope="row"
@@ -492,7 +515,7 @@ const renderPaymentFields = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
-                    {agentName}
+                    {agentName?.agentname}
                   </td>
                   <td
                     scope="row"
@@ -513,15 +536,90 @@ const renderPaymentFields = () => {
   {data.propertyDetails.balanceRemaining}
   
 </td>
-<td
-  scope="row"
-  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300 w-[300px]"
->
-  {data.propertyDetails.balanceRemaining}
-  <div className="grid  items-center">
-    {renderPaymentFields()} {/* Dynamically render payment fields */}
-  </div>
-</td>
+<td className="border px-2 py-1">
+              {`Payment ${index + 1}`}
+            </td>
+            <td className="border px-2 py-1">
+              {payment.amount || 'N/A'}
+            </td>
+            <td className="border px-2 py-1">
+              {payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}
+            </td>
+            <td className="px-6 py-4 border-2 border-gray-300">
+          <div className="grid item-center">
+          {commission.map((commission, index) => ( // Use index from map function
+    
+    <tr key={commission._id}> {/* Use commission._id for the row key */}
+      <td className="px-6 py-4 border border-gray-300">
+        <div className="bg-white p-4 rounded shadow">
+          <table className="w-full text-sm text-left text-gray-700 mb-4">
+            <thead>
+               {/* Render booking agent details for the first agent */}
+          {index === 0 ? (
+            <div className="text-blue-600 font-semibold">
+              Booking Agent Details:
+              {/* Add any additional booking agent-specific details here */}
+            </div>
+          ) :  <div className="text-blue-600 font-semibold">
+          Other Agent Details:
+          {/* Add any additional booking agent-specific details here */}
+        </div>}
+              <tr>
+                <th colSpan="2" className="text-lg text-gray-900">
+                  Agent: {commission.agentname} {/* Access agent name directly from commission */}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="font-medium">Agent ID</td>
+                <td>{commission.agent_id}</td> {/* Access agent ID directly from commission */}
+              </tr>
+            </tbody>
+          </table>
+
+         
+
+          {/* Check if commission details exist and display them */}
+          {commission.commissions && commission.commissions.length > 0 ? ( // Ensure commissionDetails is an array
+            <table className="w-full text-sm text-left text-gray-700 border-t pt-4">
+              <thead>
+                <tr>
+                  {/* <th colSpan="2" className="font-semibold text-gray-900">Commissions</th> */}
+                </tr>
+              </thead>
+              <tbody>
+                {commission.commissions.map((comm) => ( // Map over the commission details array
+                  <React.Fragment key={comm._id}>
+                   
+                   <tr>
+                      <td className="font-medium">Percentage</td>
+                      <td>{comm.percentage}%</td>
+                    </tr>
+                    <tr>
+                      <td className="font-medium">Amount</td>
+                      <td>{comm.amount}</td>
+                    </tr>
+                    <tr>
+                      <td className="font-medium">Date</td>
+                      <td>{comm.date?.split("T")[0]}</td>
+                    </tr>
+                  
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No commission data available.</p>
+          )}
+        </div>
+      </td>
+    </tr>
+  ))}
+            {/* {renderAgentDataInTable(agents,index)}  */}
+            {/* Dynamically render payment fields */}
+          </div>
+        </td>
 
                   <td
                     scope="row"
@@ -560,7 +658,8 @@ const renderPaymentFields = () => {
                   {data.saleDeedDetails.seller}
                   </td>
                   </tr>
-           
+              );
+            })}
             </tbody>
           </table>
 

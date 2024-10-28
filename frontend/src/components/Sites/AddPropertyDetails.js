@@ -19,6 +19,7 @@ const AddPropertyDetails = () => {
   const [remainingBalance, setRemainingBalance] = useState(totalValue);
   const [isFirstUpdate, setIsFirstUpdate] = useState(0);
   const [oldamountpaid,setoldamoutpaid]=useState(0);
+  const[index,setindex]=useState(0);
   const inputRef = useRef(null);
 
   // const handlePaymentChange = (index, value) => {
@@ -76,7 +77,8 @@ const handleChangeAndValidate = (e, remainingAmount) => {
     payments:{
       amount:"",
       date:"",
-    }
+    },
+    index:""
   };
   const [data, setData] = useState(initialState);
   useEffect(() => {
@@ -176,6 +178,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
     const { name, value } = e.target;
 
     const updatedData = { ...data };
+ 
     // Check if the name corresponds to propertyDetails
     if (name in updatedData.propertyDetails) {
       updatedData.propertyDetails = {
@@ -205,7 +208,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
     } else {
       updatedData[name] = value; // Update top-level property
     }
-
+    updatedData.index = index;
     // Update the state with the modified data
     setData(updatedData);
   };
@@ -283,7 +286,9 @@ const handleChangeAndValidate = (e, remainingAmount) => {
             saleAmount: saleDeedDetails.saleAmount || "",
             witnesses: saleDeedDetails.witnesses || "",
             buyer: saleDeedDetails.buyer || "",
+           
           },
+          index: index || "",
         });
       } else {
         console.error("No data found for the given parameter.");
@@ -340,6 +345,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
 
   const renderPaymentFields = () => {
     return payments.map((payment, index) => {
+      
       // Check if a payment exists for this index
       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
       return (
@@ -361,6 +367,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
           {/* Display the label in the same row */}
           {/* Display the label in the same row */}
 {!paymentFound && (
+ 
   <>
     <div className="flex items-center space-x-4">
       <label
@@ -379,6 +386,14 @@ const handleChangeAndValidate = (e, remainingAmount) => {
         name={`payment-${index}`}
         value={index}
         id={`payment-${index}`}
+        className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
+        required
+      />
+       <input
+        type="hidden"
+        name='index'
+        value={data.index}
+        id="index"
         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
         required
       />
@@ -412,6 +427,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
         id="amountPaid"
         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
         placeholder="Eg.1200.."
+        onFocus={() => setindex(index)}
       />
     </div>
   </>
