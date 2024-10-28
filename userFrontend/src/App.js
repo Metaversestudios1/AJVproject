@@ -13,8 +13,12 @@ import Property from "./components/Property/Property";
 import Sites from "./components/Sites/Sites";
 import AgentRoute from "./components/utils/AgentRoute";
 import Profile from "./components/profile/Profile";
+import EditAgent from "./components/profile/EditAgent";
+import EditClient from "./components/profile/EditClient";
+import getUserFromToken from "./components/utils/getUserFromToken";
 
 function App() {
+  const userInfo = getUserFromToken()
   const [sideBar, setSideBar] = useState(true);
   const toggleSideBar = () => {
     setSideBar(!sideBar);
@@ -78,19 +82,55 @@ function App() {
       path: "/clients",
       element: (
         <PrivateRoute>
-        <AgentRoute>
-        <div className="flex h-screen">
-        <Sidebar
-        sidebar={sideBar}
-        className="flex-1"
-              toggleSideBar={toggleSideBar}
+          <AgentRoute>
+            <div className="flex h-screen">
+              <Sidebar
+                sidebar={sideBar}
+                className="flex-1"
+                toggleSideBar={toggleSideBar}
               />
-            <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-              <Navbar toggleSideBar={toggleSideBar} />
-              <Client />
+              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+                <Navbar toggleSideBar={toggleSideBar} />
+                <Client />
+              </div>
             </div>
+          </AgentRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: `editclient/:id`,
+      element: (
+        <PrivateRoute>
+            <div className="flex h-screen">
+              <Sidebar
+                sidebar={sideBar}
+                className="flex-1"
+                toggleSideBar={toggleSideBar}
+              />
+              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+                <Navbar toggleSideBar={toggleSideBar} />
+                <EditClient />
+              </div>
             </div>
-            </AgentRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: `editagent/:id`,
+      element: (
+        <PrivateRoute>
+            <div className="flex h-screen">
+              <Sidebar
+                sidebar={sideBar}
+                className="flex-1"
+                toggleSideBar={toggleSideBar}
+              />
+              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+                <Navbar toggleSideBar={toggleSideBar} />
+                <EditAgent />
+              </div>
+            </div>
         </PrivateRoute>
       ),
     },
