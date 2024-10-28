@@ -133,7 +133,6 @@ const Navbar = ({ toggleSideBar }) => {
           <div className="absolute text-white flex items-center shadow-lg bg-gradient-to-r from-[#4c4f6a] to-[#767ca3]  rounded-md border-[1px] right-3 p-4 min-w-80">
             <div className="w-2/3 mx-2">
               <div className="py-1 text-sm font-semibold">Username:  {userInfo?.role}</div>
-              <div className="py-1 text-sm font-semibold">Email: {userInfo?.email}</div>
             </div>
             <div className="w-1/3  ml-5">
               <button

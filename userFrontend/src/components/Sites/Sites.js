@@ -140,7 +140,7 @@ const Sites = () => {
               };
             })
           );
-
+          console.log(sitesWithDetails);
           setSites(sitesWithDetails);
           setCount(sitesWithDetails.length);
           setNoData(sitesWithDetails.length === 0);
@@ -151,22 +151,22 @@ const Sites = () => {
         const clientData = await fetchClient();
         if (clientData && clientData.bookedProperties) {
           const bookedProperties = clientData.bookedProperties; // This should be an array of booked property IDs
-          
+
           // Fetch all sites
           const allSites = await fetchAllSites();
           let sitesForClient = [];
-console.log(allSites)
+          console.log(allSites);
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties===site.propertyId._id
-            console.log(isBookedProperty)
+            const isBookedProperty = bookedProperties === site.propertyId._id;
+            console.log(isBookedProperty);
 
-           // Check if site propertyId matches any booked property
+            // Check if site propertyId matches any booked property
             const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
-            console.log(isClientSite)
+            console.log(isClientSite);
             return isBookedProperty && isClientSite; // Only return sites that match either condition
           });
-          console.log(matchingSites)
+          console.log(matchingSites);
           sitesForClient = [...sitesForClient, ...matchingSites];
 
           let filteredSites = sitesForClient;
@@ -221,10 +221,16 @@ console.log(allSites)
       setLoader(false);
     }
   };
-
+// const fetchCommission = async()=>{
+//   const res = await fetch(
+//     `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`
+//   );
+//   const siteData = await res.json();
+// }
   // Fetch data when component mounts or relevant dependencies change
   useEffect(() => {
     fetchData();
+    // fetchCommission()
   }, [currentPage, search, filter, pageSize]);
   const updatePaginatedSites = () => {
     const filteredSites = sites.filter((site) => {
@@ -261,7 +267,6 @@ console.log(allSites)
   //   // Toggle the kebab menu for the clicked row
   //   setActivePropertyId(activePropertyId === propertyId ? null : propertyId);
   // };
-  console.log(sites)
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     updatePaginatedSites(); // Call this to update the filtered sites immediately
@@ -466,18 +471,24 @@ console.log(allSites)
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Sr no.
                 </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                {/*    <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                 Site no.
+                </th> */}
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Property Name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Property Name
+                  Payments
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                   total amount
-                 </th>
+                  total amount
+                </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                   Amount Paid
-                 </th>
+                  Amount Paid
+                </th>
+                {/*<th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Commissions
+                </th>*/}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Staus
                 </th>
@@ -493,17 +504,30 @@ console.log(allSites)
                   >
                     {startIndex + index + 1}
                   </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                    {item?.siteNumber}
-                  </td>
+
                   <td
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
                     {item?.propertyName}
+                  </td>
+                  <td
+                    scope="row"
+                    className={`${
+                      item?.payments?.length != 0 && "grid grid-cols-2 gap-4 justify-between"
+                    } px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300`}
+                  >
+                    {item?.payments?.length != 0
+                      ? item?.payments.map((payment, index) => {
+                          return (
+                            <div className="border-[1px] border-gray-700 p-2 ">
+                              <div className="">Payment {index + 1}:-</div>
+                              <div>Amount: {payment?.amount}</div>
+                              <div>Date: {payment?.date?.split("T")[0]}</div>
+                            </div>
+                          );
+                        })
+                      : "N/A"}
                   </td>
                   <td
                     scope="row"
@@ -517,7 +541,25 @@ console.log(allSites)
                   >
                     {item?.propertyDetails?.amountPaid}
                   </td>
-                 
+                 {/* <td
+                    scope="row"
+                    className={`${
+                      item?.payments?.length != 0 && "grid grid-cols-2 gap-4 justify-between"
+                    } px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300`}
+                  >
+                      {item?.payments?.length != 0
+                      ? item?.payments.map((payment, index) => {
+                          return (
+                            <div className="border-[1px] border-gray-700 p-2 ">
+                              <div className="">Payment {index + 1}:-</div>
+                              <div>Amount: {payment?.amount}</div>
+                              <div>Date: {payment?.date?.split("T")[0]}</div>
+                            </div>
+                          );
+                        })
+                      : "N/A"}
+                  </td>
+*/}
                   <td className="px-6 py-4 border-2 border-gray-300">
                     <button
                       className={`text-white font-bold py-2 px-4 rounded ${
@@ -533,8 +575,6 @@ console.log(allSites)
                       {item?.status}
                     </button>
                   </td>
-                  
-             
                 </tr>
               ))}
             </tbody>
