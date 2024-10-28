@@ -155,11 +155,7 @@ console.log(noData)
         <div className="text-2xl font-bold mx-2 my-8 px-4">Clients List</div>
       </div>
       <div className="flex justify-between">
-        <NavLink to="/clients/addclient">
-          <button className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
-            Add New
-          </button>
-        </NavLink>
+
 
         <div className={`flex items-center`}>
           <input
@@ -301,7 +297,7 @@ console.log(noData)
           </table>
         )}
       </div>
-      {!noData && (
+      {noData && (
         <div className="text-center text-xl">
           Currently! There are no clients in the storage.
         </div>

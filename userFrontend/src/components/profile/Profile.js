@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import getUserFromToken from "../utils/getUserFromToken";
@@ -113,12 +113,20 @@ const Profile = () => {
             onClick={handleGoBack}
             className="bg-[#032e4e] text-white rounded-sm text-[40px] cursor-pointer shadow-xl ml-5"
           />
-        </div>
-        <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">
-            {userInfo.role === "agent" ? "Agent" : "Client"}
+
+          <div className="flex items-center">
+            <div className="text-2xl font-bold mx-2 my-8 px-4">
+              {userInfo.role === "agent" ? "Agent" : "Client"}
+            </div>
           </div>
         </div>
+      </div>
+      <div className="flex justify-end">
+        <NavLink to={`/edit${userInfo.role}/${userInfo.id}`}>
+          <button className="bg-blue-800 text-white px-5 py-3 mx-5 text-sm rounded-lg">
+            Edit
+          </button>
+        </NavLink>
       </div>
       {loader ? (
         <div className="absolute w-[80%] h-[40%] flex justify-center items-center">
@@ -276,7 +284,7 @@ const Profile = () => {
                       htmlFor="properties"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                     >
-                      <b>Date of birth</b>: {(clients.dateOfBirth)?.split("T")[0]}
+                      <b>Date of birth</b>: {clients.dateOfBirth?.split("T")[0]}
                     </label>
                   </div>
                   <div>
