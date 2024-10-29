@@ -1,5 +1,6 @@
 const Agent = require("../Models/AgentModel");
 const Site = require("../Models/SiteModel");
+const Rank = require("../Models/RankModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const getNextAgentId = async (req, res) => {
@@ -22,11 +23,44 @@ const getNextAgentId = async (req, res) => {
 const insertAgent = async (req, res) => {
   try {
     const { password, ...data } = req.body;
+    const rank = req.body.rank;
+    const superior = req.body.superior;
 
+    const rank_res = await Rank.findOne({ _id: rank }); // Assuming rank is stored in superior agent's data
+
+    if (!rank_res) {
+      return res.status(400).json({
+        success: false,
+        message: "Rank not found for superior agent",
+      });
+    }
+    let hierarchyId;
+    if (rank_res.level === 1) {
+      let isUnique = false;
+      while (!isUnique) {
+        hierarchyId = Math.floor(1000 + Math.random() * 9000).toString();
+        const existingAgent = await Agent.findOne({ hierarchy: hierarchyId });
+        if (!existingAgent) {
+          isUnique = true; // Unique ID found
+        }
+      }
+    } else {
+      const superior_res = await Agent.findById({ _id: superior });
+      if (!superior_res) {
+        return res.status(400).json({
+          success: false,
+          message: "Superior agent not found",
+        });
+      }
+      hierarchyId = superior_res.hierarchy;
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new agent
-    const newAgent = new Agent({ ...data, password: hashedPassword });
+    const newAgentData = {
+      ...data,
+      password: hashedPassword,
+      hierarchy: hierarchyId,
+    };
+    const newAgent = new Agent(newAgentData);
     await newAgent.save();
 
     res

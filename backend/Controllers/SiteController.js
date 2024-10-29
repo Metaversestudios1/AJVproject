@@ -104,6 +104,7 @@ console.log(paidAmount);
 
     const agent = await Agent.findById(agentId).populate("rank"); // Assuming the rank has commissionRate
 
+const hierarchy = agent.hierarchy;
     if (!agent || !agent.rank) {
       return res
         .status(404)
@@ -137,7 +138,10 @@ console.log(paidAmount);
     const commissionDeduction = paidAmount * commissionRate;
     console.log(commissionDeduction);
     const updateAgent = await Agent.updateOne(
-      { _id: agentId },
+          { 
+        _id: agentId, 
+        hierarchy: hierarchy // Ensure hierarchy matches as well
+      },
       {
         $push: {
           commissions: {
@@ -173,9 +177,11 @@ console.log(paidAmount);
           console.log(`Ignoring update for agent ID: ${getagentid} as it matches the provided agent ID.`);
           continue; // Skip to the next iteration of the loop
       }else{
-
         const updateAgent = await Agent.updateOne(
-          { _id: getagentid },
+          { 
+            _id: getagentid, 
+            hierarchy: hierarchy // Ensure hierarchy matches as well
+          },
           {
             $push: {
               commissions: {

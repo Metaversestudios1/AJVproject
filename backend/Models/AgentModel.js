@@ -30,7 +30,9 @@ const AgentSchema = new mongoose.Schema({
   superior: {
     type: String,
   },
- 
+  hierarchy: {
+    type: String,
+  }, 
   commissions: [
     {
       siteId: {
@@ -45,9 +47,7 @@ const AgentSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
-      hirarchy: {
-        type: String,
-      }, 
+    
       balanceRemaining:{
         type: String,
       },

@@ -261,6 +261,7 @@ const EditAgent = () => {
                 name="rank"
                 value={oldData.rank}
                 onChange={handleChange}
+                disabled
                 className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
               >
                 <option value="">Select a rank.</option>
@@ -314,7 +315,8 @@ const EditAgent = () => {
                 <select
       name="superior"
       value={oldData.superior} // Bind selected value
-      onChange={handleChange}  // Handle change to update the state
+      onChange={handleChange} 
+      disabled // Handle change to update the state
       className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
     >
       <option value="">Select a referal agent</option>

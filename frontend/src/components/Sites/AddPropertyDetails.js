@@ -343,26 +343,34 @@ const handleChangeAndValidate = (e, remainingAmount) => {
   };
 
   const renderPaymentFields = () => {
-    return payments.map((payment, index) => {
-      
+    // Determine how many payments to display
+    const numberOfPaymentsToDisplay = payments.length; // Set this to how many payments you want to show
+  
+    // If there are no payments, return a message or nothing
+    if (numberOfPaymentsToDisplay === 0) {
+      return <div>No payment records available.</div>;
+    }
+  
+    return payments.slice(0, numberOfPaymentsToDisplay).map((payment, index) => {
       // Check if a payment exists for this index
       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
+  
       return (
         <div key={index} className="space-y-2">
-          {/* Display Amount and Date in a single row */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span>Amount:</span> 
-              <span>{payment.amount}</span>
+          {/* Display Amount and Date in a single row if payment exists */}
+          {paymentFound ? (
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <span>Amount:</span>
+                <span>{payment.amount}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Date:</span>
+                <span>{payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <span>Date:</span> 
-              <span>{payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}</span>
-            </div>
-          </div>
-  
-          {/* Display the label and input fields if no payment is found */}
-          {!paymentFound && (
+          ) : (
+            // Display the label and input fields if no payment is found
             <>
               <div className="flex items-center space-x-4">
                 <label
@@ -388,7 +396,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
                   name="amountPaid"
                   ref={inputRef}
                   onChange={(e) => {
-                    const value = e.target.value; 
+                    const value = e.target.value;
                     const numValue = Number(value);
   
                     // Ensure value is valid
@@ -509,7 +517,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
 //   };
   
 
-  // Automatically add a new payment field when there’s a remaining balance after each payment
+ 
   useEffect(() => {
     if (remainingBalance > 0 && payments.length > 0 && payments[payments.length - 1].amount > 0) {
       setPayments((prevPayments) => [...prevPayments, { amount: 0 }]);

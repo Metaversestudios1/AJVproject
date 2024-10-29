@@ -67,29 +67,7 @@ const AddAgent = () => {
   };
 
 
- 
-  // Handle clients and properties separately
-  const handleCheckboxChange = (e, type) => {
-    const { value, checked } = e.target;
-
-    if (type === "clients") {
-      setData((prevState) => ({
-        ...prevState,
-        clients: checked
-          ? [...prevState.clients, value]
-          : prevState.clients.filter((id) => id !== value),
-      }));
-    } else if (type === "properties") {
-      setData((prevState) => ({
-        ...prevState,
-        properties: checked
-          ? [...prevState.properties, value]
-          : prevState.properties.filter((id) => id !== value),
-      }));
-    }
-  };
-
-  const validateagentform = () => {
+   const validateagentform = () => {
     // Initialize jQuery validation
     $("#agentform").validate({
       rules: {
@@ -215,6 +193,7 @@ const AddAgent = () => {
               </label>
               <select
                 name="rank"
+                  id="rank"
                 value={data.rank}
                 onChange={handleChange}
                 className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
@@ -257,6 +236,7 @@ const AddAgent = () => {
                   id="agentname"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
                   placeholder="Enter Agent name"
+                  autocomplete="agentname" 
                 />
               </div>
               <div>
@@ -289,6 +269,7 @@ const AddAgent = () => {
               onChange={handleChange}
               type="password"
               id="password"
+              autocomplete="current-password"
               className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
               placeholder="Enter a password"
             />
