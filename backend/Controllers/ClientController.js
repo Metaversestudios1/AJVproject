@@ -1,6 +1,49 @@
 const Client = require("../Models/ClientModel");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+ 
+// Helper function to upload images
+const uploadImage = (buffer, originalname, mimetype) => {
+  return new Promise((resolve, reject) => {
+    // Ensure only image files are processed
+    if (!mimetype.startsWith("image")) {
+      return reject(new Error("Only image files are supported"));
+    }
+
+    // Generate the public ID for Cloudinary upload
+    const fileNameWithoutExtension = path.basename(originalname, path.extname(originalname)); // Use extname to get the correct filename without extension
+    const publicId = `${fileNameWithoutExtension}`;
+
+    const options = {
+      resource_type: "image",
+      public_id: publicId,
+      use_filename: true,
+      unique_filename: false,
+      overwrite: true,
+    };
+
+    // Convert the buffer to a data URI for upload
+    const dataURI = `data:${mimetype};base64,${buffer.toString("base64")}`;
+    
+    // Perform the upload to Cloudinary
+    cloudinary.uploader.upload(dataURI, options, (error, result) => {
+      if (error) {
+        return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+      }
+      resolve(result); // Resolve with the result from Cloudinary
+    });
+  });
+};
+ 
+
 const insertClient = async (req, res) => {
   try {
     const { password, ...data } = req.body;
@@ -153,6 +196,57 @@ const getNextclientId = async (req,res) => {
       throw new Error("Could not retrieve Client ID.");
     }
   };
+
+   
+const updateClientDetails = async (req, res) => {
+  const { id, adhaar_id, pan_id, bank_details } = req.body;
+
+  try {
+    let photo = null;
+
+    // Check for uploaded photo file
+    if (req.files && req.files["photo"] && req.files["photo"][0].buffer) {
+      const photoFile = req.files["photo"][0];
+      // Upload the image using the helper function
+      const uploadResult = await uploadImage(photoFile.buffer, photoFile.originalname, photoFile.mimetype);
+      photo = {
+        publicId: uploadResult.public_id,
+        url: uploadResult.secure_url,
+        originalname: photoFile.originalname,
+        mimetype: photoFile.mimetype,
+      };
+    }
+
+    // Prepare update fields
+    const updateFields = {
+      adhaar_id,
+      pan_id,
+      bank_details,
+    };
+
+    if (photo) {
+      updateFields.photo = photo; // Add photo if it's available
+    }
+
+    // Update the agent in the database
+    const result = await Client.updateOne({ _id: id }, { $set: updateFields });
+
+    if (result.nModified === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found or no changes made",
+      });
+    }
+
+    res.status(200).json({ success: true, message: "Client data updated successfully" });
+  } catch (err) {
+    console.error("Error updating Client data:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error updating data: " + err.message,
+    });
+  }
+}
   
 module.exports = {
   insertClient,
@@ -161,5 +255,6 @@ module.exports = {
   getSingleClient,
   deleteClient,
   getNextclientId,
-  clientlogin
+  clientlogin,
+  updateClientDetails
 };
