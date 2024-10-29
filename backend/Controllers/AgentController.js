@@ -4,6 +4,7 @@ const Rank = require("../Models/RankModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
  
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -366,10 +367,8 @@ const getAgentCommition = async (req, res) => {
   }
 };
 
- 
 const updateAgentDetails = async (req, res) => {
-  const { id, adhaar_id, pan_id, bank_details } = req.body; // Get id from the request body
-  // Remove oldData from here since we won't be using it anymore
+  const { id, adhaar_id, pan_id, bank_details } = req.body;
  
   try {
     let photo = null;
@@ -377,24 +376,18 @@ const updateAgentDetails = async (req, res) => {
     // Check for uploaded photo file
     if (req.files && req.files["photo"] && req.files["photo"][0].buffer) {
       const photoFile = req.files["photo"][0];
-      if (photoFile.mimetype.startsWith("image")) {
-        const uploadResult = await uploadImage(
-          photoFile.buffer,
-          photoFile.originalname,
-          photoFile.mimetype
-        );
-        photo = {
-          publicId: uploadResult.public_id,
-          url: uploadResult.secure_url,
-          originalname: photoFile.originalname,
-          mimetype: photoFile.mimetype,
-        };
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: "Unsupported file type for photo",
-        });
-      }
+      // Upload the image using the helper function
+      const uploadResult = await uploadImage(
+        photoFile.buffer,
+        photoFile.originalname,
+        photoFile.mimetype
+      );
+      photo = {
+        publicId: uploadResult.public_id,
+        url: uploadResult.secure_url,
+        originalname: photoFile.originalname,
+        mimetype: photoFile.mimetype,
+      };
     }
  
     // Prepare update fields
@@ -409,10 +402,7 @@ const updateAgentDetails = async (req, res) => {
     }
  
     // Update the agent in the database
-    const result = await Agent.updateOne(
-      { _id: id },
-      { $set: updateFields }
-    );
+    const result = await Agent.updateOne({ _id: id }, { $set: updateFields });
  
     if (result.nModified === 0) {
       return res.status(404).json({
@@ -421,7 +411,9 @@ const updateAgentDetails = async (req, res) => {
       });
     }
  
-    res.status(200).json({ success: true, message: "Agent data updated successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Agent data updated successfully" });
   } catch (err) {
     console.error("Error updating agent data:", err);
     res.status(500).json({
@@ -430,7 +422,6 @@ const updateAgentDetails = async (req, res) => {
     });
   }
 };
- 
  
 const getNotification = async (req, res) => {
   const { agent_id } = req.body;
