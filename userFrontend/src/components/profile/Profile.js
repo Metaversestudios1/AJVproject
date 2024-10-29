@@ -140,10 +140,10 @@ const Profile = () => {
           </div>
         </div>
       ) : userInfo.role === "agent" ? (
-        <div className="w-[70%] m-auto my-10">
+        <div className="w-[70%] m-auto my-2">
           <form id="siteform">
             <label>
-              <b>Agent profile</b>
+              <b className="underline">Agent profile</b>
             </label>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center mt-3">
               {agent && (
@@ -215,6 +215,51 @@ const Profile = () => {
                     >
                       <b>Referal Agent</b> : {superiorAgent || "None"}
                     </label>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="superior"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                    >
+                      <b>Adhaar card</b> : {agent?.adhaar_id || "N/A"}
+                    </label>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="superior"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                    >
+                      <b>Pan card</b> : {agent?.pan_id || "N/A"}
+                    </label>
+                  </div>
+                  <div>
+                    <div className="font-bold underline">Bank Details:</div>
+                    <div className="grid gap-6 mb-6 md:grid-cols-2 items-center mt-3">
+                      <div>
+                        {" "}
+                        <b>Account type</b> :{" "}
+                        {agent?.bank_details?.acc_type || "N/A"}{" "}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Account number</b> :{" "}
+                        {agent?.bank_details?.acc_no || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Bank name</b> :{" "}
+                        {agent?.bank_details?.bank_name || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>IFSC code</b> : {agent?.bank_details?.ifsc || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Bank branch</b> :{" "}
+                        {agent?.bank_details?.branch || "N/A"}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
@@ -292,8 +337,47 @@ const Profile = () => {
                       htmlFor="superior"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                     >
-                      <b>Pan Number</b> : {clients.panNumber}
+                      <b>Pan Number</b> : {clients?.pan_id}
                     </label>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="superior"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
+                    >
+                      <b>Adhaar Number</b> : {clients?.adhaar_id}
+                    </label>
+                  </div>
+                  <br></br>
+                  <div>
+                    <div className="font-bold underline">Bank Details:</div>
+                    <div className="grid gap-6 mb-6 md:grid-cols-2 items-center mt-3">
+                      <div>
+                        {" "}
+                        <b>Account type</b> :{" "}
+                        {clients?.bank_details?.acc_type || "N/A"}{" "}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Account number</b> :{" "}
+                        {clients?.bank_details?.acc_no || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Bank name</b> :{" "}
+                        {clients?.bank_details?.bank_name || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>IFSC code</b> :{" "}
+                        {clients?.bank_details?.ifsc || "N/A"}
+                      </div>
+                      <div>
+                        {" "}
+                        <b>Bank branch</b> :{" "}
+                        {clients?.bank_details?.branch || "N/A"}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}

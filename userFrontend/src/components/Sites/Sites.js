@@ -254,7 +254,10 @@ const Sites = () => {
       }
     );
     const response = await res.json();
-    setCommissions(response.result.commissions);
+    if(response.success) {
+      setCommissions(response.result.commissions);
+    }
+      
   };
   useEffect(() => {
     fetchData();
@@ -528,9 +531,6 @@ const Sites = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Amount Paid
                 </th>
-                {/*<th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Commissions
-                </th>*/}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Staus
                 </th>
@@ -583,7 +583,7 @@ const Sites = () => {
                         : "N/A"}
                     </div>
                   </td>
-                  <td
+                  { (userInfo.role === "agent" || userInfo.role === "Agent") && <td
                     scope="row"
                     className={` px-6 py-4 font-medium text-gray-900  border-2 border-gray-300`}
                   >
@@ -613,7 +613,7 @@ const Sites = () => {
                             ))
                         : "N/A"}
                     </div>
-                  </td>
+                  </td>}
 
                   <td
                     scope="row"
