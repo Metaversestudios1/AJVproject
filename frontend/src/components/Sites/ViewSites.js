@@ -178,85 +178,155 @@ const AddPropertyDetails = () => {
   };
 
   function downloadExcel() {
-    const table = document.getElementById("sitetable"); // Your table ID
-    const allDataRows = []; // Holds all the table rows data
-
+    const table = document.getElementById("sitetable");
+    const allDataRows = [];
+  
     if (!table) {
       console.error("Table not found.");
       return;
     }
-
-    const headers = table.querySelectorAll("thead th");
+  
+    const headers = Array.from(table.querySelectorAll("thead th"));
     if (headers.length === 0) {
       console.error("No headers found in the table.");
       return;
     }
-
+  
     // Process each row in the table body
     const rows = table.querySelectorAll("tbody tr");
     rows.forEach((row) => {
       const rowData = {};
       const cells = row.querySelectorAll("td");
-
+  
       // Capture data only for columns that have headers
       for (let index = 0; index < headers.length; index++) {
         const columnHeader = headers[index]?.innerText || `Column${index + 1}`;
-
-        // If the current cell does not exist, skip it
+  
         if (cells[index]) {
           // If this is the "Payments" column, handle payments separately
-          if (
-            columnHeader.toLowerCase() === "payments" &&
-            cells[index].querySelector(".payments")
-          ) {
-            // Extract all payment details
+          if (columnHeader.toLowerCase() === "payments" && cells[index].querySelector(".payments")) {
             const payments = cells[index].querySelectorAll(".payments div");
-            let paymentDetails = "";
+            let paymentDetails = [];
+  
             payments.forEach((payment, idx) => {
-              const amount =
-                payment.querySelector(".amount")?.innerText || "N/A";
+              const amount = payment.querySelector(".amount")?.innerText || "N/A";
               const date = payment.querySelector(".date")
-                ? new Date(
-                    payment.querySelector(".date").innerText
-                  ).toLocaleDateString()
+                ? new Date(payment.querySelector(".date").innerText).toLocaleDateString()
                 : "N/A";
-              paymentDetails += `Payment ${idx + 1}: ${amount} on ${date}\n`;
+  
+              paymentDetails.push(`Payment ${idx + 1}:\n  Amount: ${amount}\n  Date: ${date}`);
             });
-            rowData["Payments"] = paymentDetails.trim(); // Store payments as multiline text in one cell
+  
+            rowData["Payments"] = paymentDetails.join("\n\n"); // Use double line breaks for clearer spacing
           } else {
             rowData[columnHeader] = cells[index]?.innerText.trim() || "N/A";
           }
         }
       }
-
-      // Only push row data if it has at least one valid entry
+  
       if (Object.keys(rowData).length > 0) {
-        allDataRows.push(rowData); // Add row data to allDataRows array
+        allDataRows.push(rowData);
       }
     });
-
-    // Add two blank rows at the beginning of the data
+  
+    // Add two blank rows at the beginning of the data if needed
     if (allDataRows.length >= 2) {
-      allDataRows.splice(1, 0, {}); // Insert a blank row at the third position
+      allDataRows.splice(1, 0, {}); // Insert a blank row at the second position
     }
-    // Create a new workbook and a worksheet
+  
     const worksheet = XLSX.utils.json_to_sheet(allDataRows);
     const workbook = XLSX.utils.book_new();
-
-    // Adjust column width for the payments column to ensure proper display
-    worksheet["!cols"] = [
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 40 },
-    ];
-
-    // Append the worksheet and write the file
+  
+    // Adjust column widths, especially for the "Payments" column
+    worksheet["!cols"] = headers.map((header, index) => {
+      return header.innerText.toLowerCase() === "payments" ? { wch: 40 } : { wch: 20 };
+    });
+  
     XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
     XLSX.writeFile(workbook, "Sitereport.xlsx");
   }
+  
+
+  // function downloadExcel() {
+  //   const table = document.getElementById("sitetable"); // Your table ID
+  //   const allDataRows = []; // Holds all the table rows data
+
+  //   if (!table) {
+  //     console.error("Table not found.");
+  //     return;
+  //   }
+
+  //   const headers = table.querySelectorAll("thead th");
+  //   if (headers.length === 0) {
+  //     console.error("No headers found in the table.");
+  //     return;
+  //   }
+
+  //   // Process each row in the table body
+  //   const rows = table.querySelectorAll("tbody tr");
+  //   rows.forEach((row) => {
+  //     const rowData = {};
+  //     const cells = row.querySelectorAll("td");
+
+  //     // Capture data only for columns that have headers
+  //     for (let index = 0; index < headers.length; index++) {
+  //       const columnHeader = headers[index]?.innerText || `Column${index + 1}`;
+
+  //       // If the current cell does not exist, skip it
+  //       if (cells[index]) {
+  //         // If this is the "Payments" column, handle payments separately
+  //         if (
+  //           columnHeader.toLowerCase() === "payments" &&
+  //           cells[index].querySelector(".payments")
+  //         ) {
+  //           // Extract all payment details
+  //           const payments = cells[index].querySelectorAll(".payments div");
+  //           let paymentDetails = "";
+  //           payments.forEach((payment, idx) => {
+  //             const amount =
+  //               payment.querySelector(".amount")?.innerText || "N/A";
+  //             const date = payment.querySelector(".date")
+  //               ? new Date(
+  //                   payment.querySelector(".date").innerText
+  //                 ).toLocaleDateString()
+  //               : "N/A";
+  //             paymentDetails += `Payment ${idx + 1}: ${amount} on ${date}\n`;
+  //           });
+  //           rowData["Payments"] = paymentDetails.trim(); // Store payments as multiline text in one cell
+  //         } else {
+  //           rowData[columnHeader] = cells[index]?.innerText.trim() || "N/A";
+  //         }
+  //       }
+  //     }
+
+  //     // Only push row data if it has at least one valid entry
+  //     if (Object.keys(rowData).length > 0) {
+  //       allDataRows.push(rowData); // Add row data to allDataRows array
+  //     }
+  //   });
+
+  //   // Add two blank rows at the beginning of the data
+  //   if (allDataRows.length >= 2) {
+  //     allDataRows.splice(1, 0, {}); // Insert a blank row at the third position
+  //   }
+  //   // Create a new workbook and a worksheet
+  //   const worksheet = XLSX.utils.json_to_sheet(allDataRows);
+  //   const workbook = XLSX.utils.book_new();
+
+  //   // Adjust column width for the payments column to ensure proper display
+  //   worksheet["!cols"] = [
+  //     { wch: 20 },
+  //     { wch: 20 },
+  //     { wch: 20 },
+  //     { wch: 20 },
+  //     { wch: 20 },
+  //     { wch: 40 },
+  //   ];
+
+  //   // Append the worksheet and write the file
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
+  //   XLSX.writeFile(workbook, "Sitereport.xlsx");
+  // }
 
   const fetchCommission = async (index) => {
     try {
