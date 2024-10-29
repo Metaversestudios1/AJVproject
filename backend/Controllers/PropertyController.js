@@ -1,5 +1,6 @@
 const Property = require("../Models/PropertyModel");
 const Site = require("../Models/SiteModel");
+const Agent = require("../Models/AgentModel");
 
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
@@ -121,7 +122,13 @@ const insertProperty = async (req, res) => {
        }
      }
       
-
+     await Agent.updateMany(
+      {}, // Select all agents
+      {
+        $inc: { notificationCount: 1 }, // Increment notificationCount by 1
+        $set: { notificationStatus: "1" } // Set notificationStatus to "1"
+      }
+    );
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property with multiple files:", error.message);
@@ -156,7 +163,13 @@ const insertProperty = async (req, res) => {
           await newSite.save(); // Save the new site
         }
       }
-      
+      await Agent.updateMany(
+        {}, // Select all agents
+        {
+          $inc: { notificationCount: 1 }, // Increment notificationCount by 1
+          $set: { notificationStatus: "1" } // Set notificationStatus to "1"
+        }
+      );
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property without files:", error.message);

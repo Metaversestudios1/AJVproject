@@ -432,7 +432,77 @@ const updateAgentDetails = async (req, res) => {
 };
  
  
- 
+const getNotification = async (req, res) => {
+  const { agent_id } = req.body;
+
+  try {
+    // Fetch agent details to get notificationCount and notificationStatus
+    const agent = await Agent.findById(agent_id, 'notificationCount notificationStatus');
+    if (!agent) {
+      return res.status(404).json({ success: false, message: 'Agent not found' });
+    }
+
+    const { notificationCount, notificationStatus } = agent;
+
+    // Check if notificationStatus is 1
+    if (notificationStatus === "1") {
+      // Fetch properties ordered by creation date in descending order, limited by notificationCount
+      const properties = await Property.find()
+        .sort({ createdAt: -1 }) // Descending order by creation date
+        .limit(notificationCount);
+
+      return res.status(200).json({
+        success: true,
+        data: properties,
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "No new notifications",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching notifications:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching notifications",
+      error: error.message,
+    });
+  }
+};
+
+const offNotification = async (req, res) => {
+  const { agent_id } = req.body;
+
+  try {
+   
+
+    // Update notificationCount and notificationStatus for the agent
+    const result = await Agent.updateOne(
+      { _id: agent_id }, // Find the agent by agent_id
+      {
+        $set: {
+          notificationCount: 0, // Set the new notificationCount
+          notificationStatus: '0' // Set the new notificationStatus
+        }
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Agent not found or no changes made' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Notification status updated successfully' });
+  } catch (error) {
+    console.error("Error updating notification status:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error updating notification status",
+      error: error.message,
+    });
+  }
+};
+
 
 
 // Usage within another function (like insertAgent
@@ -447,5 +517,7 @@ module.exports = {
   agentlogin,
   getNextAgentId,
   getAgentCommition,
-  updateAgentDetails
+  updateAgentDetails,
+  getNotification,
+  offNotification
 };

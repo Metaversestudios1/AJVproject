@@ -76,6 +76,14 @@ const AgentSchema = new mongoose.Schema({
     acc_no: { type: String },
     branch: { type: String },
   },
+  notificationCount:{
+    type: Number,
+    default: 0,
+  },
+  notificationStatus:{
+    type: String,
+    default:"0"
+  },
  updatedAt: {
     type: Date,
     default: Date.now, 
