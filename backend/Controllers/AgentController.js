@@ -260,38 +260,33 @@ const getAllAgentproperty = async (req, res) => {
 };
 const getAgentCommition = async (req, res) => {
   try {
-    // Extract `site_id` from the request body
-    const { id } = req.body;
-    const {index} = req.body;
+    // Extract `site_id` and `index` from the request body
+    const { id, index } = req.body;
 
-    if (!id) {
-      return res.status(400).json({ message: "Site ID is required" });
+    if (!id || index === undefined) {
+      return res.status(400).json({ message: "Site ID and index are required" });
     }
 
-    // Fetch agents with matching `siteId` in the `commissions` array
-    const matchingRecords = await Agent.find({
-      commissions: { $elemMatch: { siteId: id,index: index } }
-    });
-    
-    // Check if any records were found
-    if (matchingRecords.length === 0) {
-      return res.status(404).json({ message: "No records found for the given Site ID." });
+    // Find agents that have commissions matching `index` and `siteId`
+    const agents = await Agent.find({ 'commissions.index': index, 'commissions.siteId': id });
+
+    // Map and filter the specific commission data with agent details
+    const commissions = agents.flatMap(agent =>
+      agent.commissions
+        .filter(comm => comm.index === index && comm.siteId.toString() === id)
+        .map(comm => ({
+          ...comm.toObject(),
+          agentname: agent.agentname,
+          agent_id: agent.agent_id,
+        }))
+    );
+
+    // Check if commissions were found and return the result
+    if (commissions.length > 0) {
+      return res.json({ success: true, result: commissions });
+    } else {
+      return res.json({ success: false, message: 'No commission found for this index and siteId.' });
     }
-
-    // Filter commissions to include only those matching the given `site_id` for each agent
-    const resultWithFilteredCommissions = matchingRecords.map(agent => {
-      return {
-        ...agent.toObject(),
-      //  commissions: agent.commissions.filter(commission => commission.siteId.toString() === id)
-      commissions: agent.commissions.filter((commission, index) => {
-        return commission.siteId.toString() === id && commission.index === index;
-      })
-      };
-    });
-    console.log(resultWithFilteredCommissions);
-
-    // Return the complete agent data with filtered commissions
-    res.status(200).json({ success: true, result:resultWithFilteredCommissions });
   } catch (error) {
     console.error("Error fetching commission records:", error);
     res.status(500).json({ success: false, message: "Error retrieving agents" });

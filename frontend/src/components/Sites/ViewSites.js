@@ -12,7 +12,7 @@ const AddPropertyDetails = () => {
   const [payments, setPayments] = useState([{ amount: 0 }]);
   const [clients, setClients] = useState([]);
   const [agents, setAgents] = useState([]);
-  const[totalValue,settotalValue] =useState(0);
+  const [totalValue, settotalValue] = useState(0);
   const [siteid, setsiteid] = useState([]);
   const [clientName, setClientName] = useState("");
   const [agentName, setAgentName] = useState("");
@@ -32,7 +32,7 @@ const AddPropertyDetails = () => {
       amountPaid: "",
       balanceRemaining: "",
     },
-    
+
     saleDeedDetails: {
       deedNumber: "",
       executionDate: "",
@@ -45,50 +45,48 @@ const AddPropertyDetails = () => {
     },
   };
   const [data, setData] = useState(initialState);
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const [agentRes, clientRes] = await Promise.all([
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`),
-            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
-          ]);
-  
-          const [agentData, clientData] = await Promise.all([
-            agentRes.json(),
-            clientRes.json(),
-          ]);
-          console.log(agentData.result);
-          if (agentData.success) setAgents(agentData.result);
-          if (clientData.success) setClients(clientData.result);
-          setLoader(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-      
-      fetchData();
-      fetchOldData();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [agentRes, clientRes] = await Promise.all([
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`),
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/api/getAllClient`),
+        ]);
 
-    }, [id]);
-
-    const fetchPropertyName = async (id) => {
-      const nameRes = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
-        {
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ id }),
-        }
-      );
-      const propertyName = await nameRes.json();
-      if (propertyName && propertyName.success && propertyName.result) {
-
-        setPropertyName(propertyName.result.propertyname);
-        return propertyName.result;
-      } else {
-        return "-"; // Return "Unknown" if data is not present
+        const [agentData, clientData] = await Promise.all([
+          agentRes.json(),
+          clientRes.json(),
+        ]);
+        console.log(agentData.result);
+        if (agentData.success) setAgents(agentData.result);
+        if (clientData.success) setClients(clientData.result);
+        setLoader(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
+
+    fetchData();
+    fetchOldData();
+  }, [id]);
+
+  const fetchPropertyName = async (id) => {
+    const nameRes = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
+      {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const propertyName = await nameRes.json();
+    if (propertyName && propertyName.success && propertyName.result) {
+      setPropertyName(propertyName.result.propertyname);
+      return propertyName.result;
+    } else {
+      return "-"; // Return "Unknown" if data is not present
+    }
+  };
   const fetchOldData = async () => {
     try {
       const response = await fetch(
@@ -100,7 +98,7 @@ const AddPropertyDetails = () => {
         }
       );
       const result = await response.json();
-      if (result.success) {        
+      if (result.success) {
         const formatDate = (dateString) => {
           if (dateString) {
             const date = new Date(dateString);
@@ -108,22 +106,21 @@ const AddPropertyDetails = () => {
           }
           return ""; // Return empty if dateString is null/undefined
         };
-        setPayments(result.result?.payments)
-        const propertyName = await fetchPropertyName(result.result?.propertyId);  
+        setPayments(result.result?.payments);
+        const propertyName = await fetchPropertyName(result.result?.propertyId);
         const propertyDetails = result.result?.propertyDetails || {};
         const saleDeedDetails = result.result?.saleDeedDetails || {};
         const fetchedClientId = result.result?.clientId;
         const fetchedAgentId = result.result?.agentId;
-        setRemainingBalance(result.result?.propertyDetails.balanceRemaining)
+        setRemainingBalance(result.result?.propertyDetails.balanceRemaining);
 
         setData({
-           clientId: fetchedClientId,
-          agentId: fetchedAgentId,        
+          clientId: fetchedClientId,
+          agentId: fetchedAgentId,
           propertyDetails: {
             totalValue: propertyDetails.totalValue || "",
             amountPaid: propertyDetails.amountPaid || "",
             balanceRemaining: propertyDetails.balanceRemaining || "",
-            
           },
           saleDeedDetails: {
             deedNumber: saleDeedDetails.deedNumber || "",
@@ -136,7 +133,6 @@ const AddPropertyDetails = () => {
           },
         });
         fetchClientAndAgentNames(fetchedClientId, fetchedAgentId);
-     
       } else {
         console.error("No data found for the given parameter.");
       }
@@ -186,69 +182,81 @@ const AddPropertyDetails = () => {
     const allDataRows = []; // Holds all the table rows data
 
     if (!table) {
-        console.error("Table not found.");
-        return;
+      console.error("Table not found.");
+      return;
     }
 
     const headers = table.querySelectorAll("thead th");
     if (headers.length === 0) {
-        console.error("No headers found in the table.");
-        return;
+      console.error("No headers found in the table.");
+      return;
     }
 
     // Process each row in the table body
     const rows = table.querySelectorAll("tbody tr");
     rows.forEach((row) => {
-        const rowData = {};
-        const cells = row.querySelectorAll("td");
+      const rowData = {};
+      const cells = row.querySelectorAll("td");
 
-        // Capture data only for columns that have headers
-        for (let index = 0; index < headers.length; index++) {
-            const columnHeader = headers[index]?.innerText || `Column${index + 1}`;
+      // Capture data only for columns that have headers
+      for (let index = 0; index < headers.length; index++) {
+        const columnHeader = headers[index]?.innerText || `Column${index + 1}`;
 
-            // If the current cell does not exist, skip it
-            if (cells[index]) {
-                // If this is the "Payments" column, handle payments separately
-                if (columnHeader.toLowerCase() === "payments" && cells[index].querySelector(".payments")) {
-                    // Extract all payment details
-                    const payments = cells[index].querySelectorAll(".payments div");
-                    let paymentDetails = "";
-                    payments.forEach((payment, idx) => {
-                        const amount = payment.querySelector(".amount")?.innerText || 'N/A';
-                        const date = payment.querySelector(".date") ? new Date(payment.querySelector(".date").innerText).toLocaleDateString() : 'N/A';
-                        paymentDetails += `Payment ${idx + 1}: ${amount} on ${date}\n`;
-                    });
-                    rowData["Payments"] = paymentDetails.trim(); // Store payments as multiline text in one cell
-                } else {
-                    rowData[columnHeader] = cells[index]?.innerText.trim() || 'N/A';
-                }
-            }
+        // If the current cell does not exist, skip it
+        if (cells[index]) {
+          // If this is the "Payments" column, handle payments separately
+          if (
+            columnHeader.toLowerCase() === "payments" &&
+            cells[index].querySelector(".payments")
+          ) {
+            // Extract all payment details
+            const payments = cells[index].querySelectorAll(".payments div");
+            let paymentDetails = "";
+            payments.forEach((payment, idx) => {
+              const amount =
+                payment.querySelector(".amount")?.innerText || "N/A";
+              const date = payment.querySelector(".date")
+                ? new Date(
+                    payment.querySelector(".date").innerText
+                  ).toLocaleDateString()
+                : "N/A";
+              paymentDetails += `Payment ${idx + 1}: ${amount} on ${date}\n`;
+            });
+            rowData["Payments"] = paymentDetails.trim(); // Store payments as multiline text in one cell
+          } else {
+            rowData[columnHeader] = cells[index]?.innerText.trim() || "N/A";
+          }
         }
+      }
 
-        // Only push row data if it has at least one valid entry
-        if (Object.keys(rowData).length > 0) {
-            allDataRows.push(rowData); // Add row data to allDataRows array
-        }
+      // Only push row data if it has at least one valid entry
+      if (Object.keys(rowData).length > 0) {
+        allDataRows.push(rowData); // Add row data to allDataRows array
+      }
     });
 
     // Add two blank rows at the beginning of the data
     if (allDataRows.length >= 2) {
       allDataRows.splice(1, 0, {}); // Insert a blank row at the third position
-  }
+    }
     // Create a new workbook and a worksheet
     const worksheet = XLSX.utils.json_to_sheet(allDataRows);
     const workbook = XLSX.utils.book_new();
 
     // Adjust column width for the payments column to ensure proper display
-    worksheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 40 }];
+    worksheet["!cols"] = [
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 40 },
+    ];
 
     // Append the worksheet and write the file
     XLSX.utils.book_append_sheet(workbook, worksheet, "Site Report");
     XLSX.writeFile(workbook, "Sitereport.xlsx");
-}
-
-
-
+  }
 
   // function downloadExcel() {
   //   const table = document.getElementById("sitetable"); // Your table ID
@@ -283,94 +291,79 @@ const AddPropertyDetails = () => {
   //   XLSX.writeFile(workbook, "Sitereport.xlsx");
   // }
 
-  
+  //   const renderPaymentFields = () => {
+  //     return payments.map((payment, index) => {
+  //       // Check if a payment exists for this index
+  //       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
+  //       return (
+  //         <div key={index} className="space-y-2">
+  //           {/* Display Amount and Date in a single row */}
+  //           {index > 0 && (
+  //   <>
 
-//   const renderPaymentFields = () => {
-//     return payments.map((payment, index) => {
-//       // Check if a payment exists for this index
-//       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
-//       return (
-//         <div key={index} className="space-y-2">
-//           {/* Display Amount and Date in a single row */}
-//           {index > 0 && (
-//   <>
-    
-//     <div className="flex items-center space-x-4">
-//       <div className="flex items-center space-x-2">
-//       <label
-//       htmlFor={`payment-${index}`}
-//       className="text-sm font-medium text-gray-900 dark:text-black"
-//     >
-//       Payment {index}
-//       <span className="text-red-900 text-lg">&#x2a;</span>
-//     </label>
-//         <span>Amount:</span> 
-//         <span>{payments[index - 1]?.amount || 'N/A'}</span>
-//       </div>
-//       <div className="flex items-center space-x-2">
-//         <span>Date:</span> 
-//         <span>{payments[index - 1]?.date ? new Date(payments[index - 1].date).toLocaleDateString() : 'N/A'}</span>
-//       </div>
-//     </div>
-//   </>
-// )}
+  //     <div className="flex items-center space-x-4">
+  //       <div className="flex items-center space-x-2">
+  //       <label
+  //       htmlFor={`payment-${index}`}
+  //       className="text-sm font-medium text-gray-900 dark:text-black"
+  //     >
+  //       Payment {index}
+  //       <span className="text-red-900 text-lg">&#x2a;</span>
+  //     </label>
+  //         <span>Amount:</span>
+  //         <span>{payments[index - 1]?.amount || 'N/A'}</span>
+  //       </div>
+  //       <div className="flex items-center space-x-2">
+  //         <span>Date:</span>
+  //         <span>{payments[index - 1]?.date ? new Date(payments[index - 1].date).toLocaleDateString() : 'N/A'}</span>
+  //       </div>
+  //     </div>
+  //   </>
+  // )}
 
-      
-//           {/* Display the label in the same row */}
-//           {/* Display the label in the same row */}
-//         </div>
-//       );
-      
-//      });
-//   };
+  //           {/* Display the label in the same row */}
+  //           {/* Display the label in the same row */}
+  //         </div>
+  //       );
 
-const fetchCommission = async (index) => {
-  console.log(index);
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAgentCommition`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id,index }), // Ensure 'id' is defined and passed correctly
+  //      });
+  //   };
+  const fetchCommission = async (index) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getAgentCommition`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, index }), // Ensure 'id' is defined and passed correctly
+        }
+      );
+
+      const result = await response.json();
+      if (result.success) {
+        console.log(result.result);
+        setCommission((prev) => ({ ...prev, [index]: result.result }));
+      } else {
+        console.error("Failed to fetch commission data:", result.message);
       }
-    );
-
-    const result = await response.json();
-    if (result.success) {
-      console.log(result.result)
-      setCommission(result.result); // Set state with fetched commission data
-      return result.result; // Return the result if needed elsewhere
-    } else {
-      console.error("Failed to fetch commission data:", result.message);
-      return [];
+    } catch (error) {
+      console.error("Error fetching commission data:", error);
     }
-  } catch (error) {
-    console.error("Error fetching commission data:", error);
-    return [];
-  }
-};
+  };
 
-const renderAgentDataInTable = (agents,index) => {
+  const renderAgentDataInTable = (agents, index) => {
+    return <></>;
+  };
+
+  useEffect(() => {
+    payments.forEach((payment, index) => {
+      if (payment.amount > 0) {
+        fetchCommission(index); // Only fetch if payment amount is greater than 0
+      }
+    });
+  }, [payments]);
+
   return (
-    <>
-    
-  </>
-  );
-
-  
-};
-
-useEffect(() => {
-  payments.forEach((payment, index) => {
-    if (payment.amount > 0) {
-      fetchCommission(index); // Only fetch if payment amount is greater than 0
-    }
-  });
-}, [payments]); 
-
- 
-   return (
     <>
       <div className="flex items-center ">
         <ToastContainer
@@ -392,9 +385,7 @@ useEffect(() => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">
-            Site details
-          </div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Site details</div>
         </div>
       </div>
       <div className="flex justify-between">
@@ -404,9 +395,6 @@ useEffect(() => {
           </button>
         </NavLink> */}
 
-       
-       
-    
         <div className="flex">
           <button
             onClick={downloadExcel}
@@ -428,248 +416,257 @@ useEffect(() => {
           </div>
         </div>
       ) : (
-        <div className="w-[100%] m-auto my-10">        
-
+        <div className="w-[100%] m-auto my-10">
           <div className="relative overflow-x-auto m-5 mb-0">
-      
-          <table
-            id="sitetable"
-            className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
-          >
-            <thead className="text-xs uppercase bg-gray-200">
-              <tr>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Property Name
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Client Name
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Agent Name
-                </th>
-                {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+            <table
+              id="sitetable"
+              className="w-full text-sm text-left rtl:text-right border-2 border-gray-300"
+            >
+              <thead className="text-xs uppercase bg-gray-200">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Property Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Client Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Agent Name
+                  </th>
+                  {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Number
                 </th> */}
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Total Value
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Amount Paid 
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Balance Remaning
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Payments 
-                </th>
-              
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Payments  Amount
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Payments Date 
-                </th>  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Commissions 
-                </th>
-                
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Deed Number
-                </th>
-               
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Execution Date 
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Buyer 
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Sale Amount 
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Witnesses 
-                </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                seller 
-                </th>
-              </tr>
-            </thead>
-
-            <tbody> {payments.map((payment, index) => {
-        const paymentFound = payment.amount > 0;
-        // fetchCommission(index);
-        return (
-            <tr className="bg-white">
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
                   >
-                    {propertyName}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                    Total Value
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
                   >
-                    {clientName}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                    Amount Paid
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
                   >
-                    {agentName?.agentname}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                    Balance Remaning
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
                   >
-                  {data.propertyDetails.totalValue}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                    Payments
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
                   >
-               {data.propertyDetails.amountPaid}
-                  </td>
-                  <td
-  scope="row"
-  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300 w-[300px]"
->
-  {data.propertyDetails.balanceRemaining}
-  
-</td>
-<td className="border px-2 py-1">
-              {`Payment ${index + 1}`}
-            </td>
-            <td className="border px-2 py-1">
-              {payment.amount || 'N/A'}
-            </td>
-            <td className="border px-2 py-1">
-              {payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}
-            </td>
-            <td className="px-6 py-4 border-2 border-gray-300">
-          <div className="grid item-center">
-          {commission.map((commission, index) => ( // Use index from map function
-    
-    <tr key={commission._id}> {/* Use commission._id for the row key */}
-      <td className="px-6 py-4 border border-gray-300">
-        <div className="bg-white p-4 rounded shadow">
-          <table className="w-full text-sm text-left text-gray-700 mb-4">
-            <thead>
-               {/* Render booking agent details for the first agent */}
-          {index === 0 ? (
-            <div className="text-blue-600 font-semibold">
-              Booking Agent Details:
-              {/* Add any additional booking agent-specific details here */}
-            </div>
-          ) :  <div className="text-blue-600 font-semibold">
-          Other Agent Details:
-          {/* Add any additional booking agent-specific details here */}
-        </div>}
-              <tr>
-                <th colSpan="2" className="text-lg text-gray-900">
-                  Agent: {commission.agentname} {/* Access agent name directly from commission */}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="font-medium">Agent ID</td>
-                <td>{commission.agent_id}</td> {/* Access agent ID directly from commission */}
-              </tr>
-            </tbody>
-          </table>
-
-         
-
-          {/* Check if commission details exist and display them */}
-          {commission.commissions && commission.commissions.length > 0 ? ( // Ensure commissionDetails is an array
-            <table className="w-full text-sm text-left text-gray-700 border-t pt-4">
-              <thead>
-                <tr>
-                  {/* <th colSpan="2" className="font-semibold text-gray-900">Commissions</th> */}
+                    Payments Amount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Payments Date
+                  </th>{" "}
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Commissions
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Deed Number
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Execution Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Buyer
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Sale Amount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Witnesses
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    seller
+                  </th>
                 </tr>
               </thead>
+
               <tbody>
-                {commission.commissions.map((comm) => ( // Map over the commission details array
-                  <React.Fragment key={comm._id}>
-                   
-                   <tr>
-                      <td className="font-medium">Percentage</td>
-                      <td>{comm.percentage}%</td>
+                {" "}
+                {payments.map((payment, index) => {
+                  const paymentFound = payment.amount > 0;
+                  const commissionData = commission[index]; // Get commission data for this index
+
+                  // fetchCommission(index);
+                  return (
+                    <tr className="bg-white">
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {propertyName}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {clientName}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {agentName?.agentname}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.propertyDetails.totalValue}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.propertyDetails.amountPaid}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300 w-[300px]"
+                      >
+                        {data.propertyDetails.balanceRemaining}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {`Payment ${index + 1}`}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {payment.amount || "N/A"}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {payment.date
+                          ? new Date(payment.date).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                      <td
+                        key={index}
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {/* Render commission data */}
+                        {commissionData ? (
+                          <div>
+                            {commissionData.map((commission, idx) => (
+                              <div key={idx}>
+                                {/* Display agent name and agent ID directly from the commission object */}
+                                <div className="mb-2">
+                                  <br />
+                                  <h3 className="text-lg font-bold mb-2">
+                                    {idx === 0 ? (
+                                      <h3 className="text-lg font-bold mb-2">
+                                        Booking Agent Commission
+                                      </h3>
+                                    ) : (
+                                      idx === 1 && (
+                                        <h3 className="text-lg font-bold mb-2">
+                                          Other Agent Commission
+                                        </h3>
+                                      )
+                                    )}
+                                  </h3>
+                                  <strong>Agent Name:</strong>{" "}
+                                  {commission.agentname} <br />
+                                  <strong>Agent ID:</strong>{" "}
+                                  {commission.agent_id}
+                                </div>
+                                Amount: {commission.amount}, Percentage:{" "}
+                                {commission.percentage} %, Date:{" "}
+                                {commission.date?.split("T")[0]}
+                                <br />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span>No commission data</span>
+                        )}
+                      </td>
+
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.deedNumber}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.executionDate}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.buyer}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.saleAmount}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.witnesses}
+                      </td>
+                      <td
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                      >
+                        {data.saleDeedDetails.seller}
+                      </td>
                     </tr>
-                    <tr>
-                      <td className="font-medium">Amount</td>
-                      <td>{comm.amount}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium">Date</td>
-                      <td>{comm.date?.split("T")[0]}</td>
-                    </tr>
-                  
-                  </React.Fragment>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
-          ) : (
-            <p>No commission data available.</p>
-          )}
-        </div>
-      </td>
-    </tr>
-  ))}
-            {/* {renderAgentDataInTable(agents,index)}  */}
-            {/* Dynamically render payment fields */}
           </div>
-        </td>
-
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                 {data.saleDeedDetails.deedNumber}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                  {data.saleDeedDetails.executionDate}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                 {data.saleDeedDetails.buyer}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                  {data.saleDeedDetails.saleAmount}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                  {data.saleDeedDetails.witnesses}
-                  </td>
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
-                  >
-                  {data.saleDeedDetails.seller}
-                  </td>
-                  </tr>
-              );
-            })}
-            </tbody>
-          </table>
-
-      </div>
-    
-
-      
         </div>
-
-        
       )}
     </>
   );
