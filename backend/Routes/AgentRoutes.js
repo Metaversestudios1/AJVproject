@@ -40,7 +40,7 @@ router.post("/agentlogin", agentlogin);
 router.get("/getAllAgentproperty", getAllAgentproperty);
 router.get("/getNextAgentId", getNextAgentId);
 router.post("/getAgentCommition", getAgentCommition);
-outer.put("/updateAgentDetails", upload.fields([{ name: 'photo', maxCount: 1 }]), updateAgentDetails);
+router.put("/updateAgentDetails", upload.fields([{ name: 'photo', maxCount: 1 }]), updateAgentDetails);
  
 router.post("/getNotification", getNotification);
 router.post("/offNotification", offNotification);
