@@ -60,7 +60,23 @@ const AgentSchema = new mongoose.Schema({
       },
     },
   ],
-  updatedAt: {
+  adhaar_id: { type: String },
+  pan_id: { type: String },
+  photo: {
+    publicId: { type: String },
+    url: { type: String },
+    originalname: { type: String },
+    mimetype: { type: String },
+  },
+  bank_details: {
+    ifsc: { type: String },
+    acc_type: { type: String },
+    acc_holder_name: { type: String },
+    bank_name: { type: String },
+    acc_no: { type: String },
+    branch: { type: String },
+  },
+ updatedAt: {
     type: Date,
     default: Date.now, 
   },// Automatically set to the current date
