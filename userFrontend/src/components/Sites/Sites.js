@@ -10,6 +10,7 @@ import getUserFromToken from "../utils/getUserFromToken";
 const Sites = () => {
   const userInfo = getUserFromToken();
   const [sites, setSites] = useState([]);
+  const [commissions, setCommissions] = useState([]);
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +34,18 @@ const Sites = () => {
     const response = await res.json();
     return response?.result;
   };
-
+  const fetchClientName = async (id) => {
+    const nameRes = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleClient`,
+      {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const clientName = await nameRes.json();
+    return (clientName?.success && clientName?.result?.clientname) || "-";
+  };
   const fetchPropertyName = async (id) => {
     const nameRes = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/getSingleProperty`,
@@ -130,17 +142,21 @@ const Sites = () => {
           const sitesWithDetails = await Promise.all(
             filteredSites.map(async (site) => {
               let propertyName = "-";
+              let clientName = "-";
               if (site.propertyId) {
                 propertyName = await fetchPropertyName(site.propertyId);
+              }
+              if (site.clientId) {
+                clientName = await fetchClientName(site.clientId);
               }
 
               return {
                 ...site,
                 propertyName,
+                clientName,
               };
             })
           );
-          console.log(sitesWithDetails);
           setSites(sitesWithDetails);
           setCount(sitesWithDetails.length);
           setNoData(sitesWithDetails.length === 0);
@@ -154,19 +170,18 @@ const Sites = () => {
 
           // Fetch all sites
           const allSites = await fetchAllSites();
-          let sitesForClient = [];
           console.log(allSites);
+          let sitesForClient = [];
+          console.log(bookedProperties);
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties === site.propertyId._id;
-            console.log(isBookedProperty);
+            const isBookedProperty = bookedProperties === site?.propertyId?._id;
 
             // Check if site propertyId matches any booked property
             const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
-            console.log(isClientSite);
+
             return isBookedProperty && isClientSite; // Only return sites that match either condition
           });
-          console.log(matchingSites);
           sitesForClient = [...sitesForClient, ...matchingSites];
 
           let filteredSites = sitesForClient;
@@ -208,7 +223,7 @@ const Sites = () => {
               };
             })
           );
-
+          console.log(sitesWithDetails);
           setSites(sitesWithDetails);
           setCount(sitesWithDetails.length);
           setNoData(sitesWithDetails.length === 0);
@@ -221,15 +236,29 @@ const Sites = () => {
       setLoader(false);
     }
   };
-// const fetchCommission = async()=>{
-//   const res = await fetch(
-//     `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`
-//   );
-//   const siteData = await res.json();
-// }
+  // const fetchCommission = async()=>{
+  //   const res = await fetch(
+  //     `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent`
+  //   );
+  //   const siteData = await res.json();
+  // }
   // Fetch data when component mounts or relevant dependencies change
+
+  const fetchCommssion = async () => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userInfo?.id }),
+      }
+    );
+    const response = await res.json();
+    setCommissions(response.result.commissions);
+  };
   useEffect(() => {
     fetchData();
+    fetchCommssion();
     // fetchCommission()
   }, [currentPage, search, filter, pageSize]);
   const updatePaginatedSites = () => {
@@ -471,15 +500,28 @@ const Sites = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Sr no.
                 </th>
-                {/*    <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                Site no.
-                </th> */}
+                {
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Client name
+                  </th>
+                }
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Property Name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Payments
                 </th>
+                {(userInfo.role === "agent" || userInfo.role === "Agent") && (
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Commisions
+                  </th>
+                )}
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   total amount
                 </th>
@@ -509,26 +551,70 @@ const Sites = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
+                    {item?.clientName}
+                  </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
                     {item?.propertyName}
                   </td>
                   <td
                     scope="row"
-                    className={`${
-                      item?.payments?.length != 0 && "grid grid-cols-2 gap-4 justify-between"
-                    } px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300`}
+                    className={`px-6 py-4 font-medium text-gray-900  border-2 border-gray-300`}
                   >
-                    {item?.payments?.length != 0
-                      ? item?.payments.map((payment, index) => {
-                          return (
-                            <div className="border-[1px] border-gray-700 p-2 ">
-                              <div className="">Payment {index + 1}:-</div>
+                    <div
+                      className={`${
+                        item?.payments?.length !== 0 &&
+                        "grid grid-cols-2 gap-4 justify-between"
+                      }`}
+                    >
+                      {item?.payments?.length !== 0
+                        ? item?.payments.map((payment, index) => (
+                            <div
+                              key={index}
+                              className="border-[1px] border-gray-700 p-2 "
+                            >
+                              <div className="">Payment {index + 1}:</div>
                               <div>Amount: {payment?.amount}</div>
                               <div>Date: {payment?.date?.split("T")[0]}</div>
                             </div>
-                          );
-                        })
-                      : "N/A"}
+                          ))
+                        : "N/A"}
+                    </div>
                   </td>
+                  <td
+                    scope="row"
+                    className={` px-6 py-4 font-medium text-gray-900  border-2 border-gray-300`}
+                  >
+                    <div
+                      className={`${
+                        item?.payments?.length !== 0 &&
+                        "grid grid-cols-2 gap-4 justify-between"
+                      }`}
+                    >
+                      {commissions.length !== 0
+                        ? commissions
+                            .filter(
+                              (commission) => commission.siteId === item._id
+                            ) // Match siteId
+                            .map((commission, index) => (
+                              <div
+                                key={index}
+                                className="border-[1px] border-gray-700 p-2"
+                              >
+                                <div className="">Commission {index + 1}:</div>
+                                <div>Amount: {commission?.amount}</div>
+                                <div>Percentage: {commission?.percentage}</div>
+                                <div>
+                                  Date: {commission?.date?.split("T")[0]}
+                                </div>
+                              </div>
+                            ))
+                        : "N/A"}
+                    </div>
+                  </td>
+
                   <td
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
@@ -539,9 +625,10 @@ const Sites = () => {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
                   >
-                    {item?.propertyDetails?.amountPaid}
+                    {item?.propertyDetails?.totalValue -
+                      item?.propertyDetails?.balanceRemaining}
                   </td>
-                 {/* <td
+                  {/* <td
                     scope="row"
                     className={`${
                       item?.payments?.length != 0 && "grid grid-cols-2 gap-4 justify-between"

@@ -128,7 +128,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   </NavLink>
                 </li>
 
-              {userInfo.role==="agent" && <li className="hs-accordion " id="users-accordion ">
+              {/*userInfo.role==="agent" && <li className="hs-accordion " id="users-accordion ">
               <NavLink
               to="/clients"
               className={({ isActive }) =>
@@ -164,7 +164,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   </div>
                 </button>
                 </NavLink>
-              </li>}
+              </li>*/}
             </ul>
           </nav>
         </div>
