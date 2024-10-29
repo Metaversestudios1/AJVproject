@@ -3,6 +3,45 @@ const Site = require("../Models/SiteModel");
 const Rank = require("../Models/RankModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("cloudinary").v2;
+ 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+ 
+// Helper function to upload images
+const uploadImage = (buffer, originalname, mimetype) => {
+  return new Promise((resolve, reject) => {
+    if (!mimetype.startsWith("image")) {
+      return reject(new Error("Only image files are supported"));
+    }
+    const fileNameWithoutExtension = path.basename(originalname);
+    const publicId = `${fileNameWithoutExtension}`;
+    const options = {
+      resource_type: "image",
+      public_id: publicId,
+      use_filename: true,
+      unique_filename: false,
+      overwrite: true,
+    };
+ 
+    const dataURI = `data:${mimetype};base64,${buffer.toString("base64")}`;
+    cloudinary.uploader.upload(
+      dataURI,
+      options,
+      (error, result) => {
+        if (error) {
+          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+ 
+ 
 const getNextAgentId = async (req, res) => {
   try {
     const lastAgent = await Agent.findOne({ deleted_at: null })
@@ -327,6 +366,74 @@ const getAgentCommition = async (req, res) => {
   }
 };
 
+ 
+const updateAgentDetails = async (req, res) => {
+  const { id, adhaar_id, pan_id, bank_details } = req.body; // Get id from the request body
+  // Remove oldData from here since we won't be using it anymore
+ 
+  try {
+    let photo = null;
+ 
+    // Check for uploaded photo file
+    if (req.files && req.files["photo"] && req.files["photo"][0].buffer) {
+      const photoFile = req.files["photo"][0];
+      if (photoFile.mimetype.startsWith("image")) {
+        const uploadResult = await uploadImage(
+          photoFile.buffer,
+          photoFile.originalname,
+          photoFile.mimetype
+        );
+        photo = {
+          publicId: uploadResult.public_id,
+          url: uploadResult.secure_url,
+          originalname: photoFile.originalname,
+          mimetype: photoFile.mimetype,
+        };
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Unsupported file type for photo",
+        });
+      }
+    }
+ 
+    // Prepare update fields
+    const updateFields = {
+      adhaar_id,
+      pan_id,
+      bank_details,
+    };
+ 
+    if (photo) {
+      updateFields.photo = photo; // Add photo if it's available
+    }
+ 
+    // Update the agent in the database
+    const result = await Agent.updateOne(
+      { _id: id },
+      { $set: updateFields }
+    );
+ 
+    if (result.nModified === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Agent not found or no changes made",
+      });
+    }
+ 
+    res.status(200).json({ success: true, message: "Agent data updated successfully" });
+  } catch (err) {
+    console.error("Error updating agent data:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error updating data: " + err.message,
+    });
+  }
+};
+ 
+ 
+ 
+
 
 // Usage within another function (like insertAgent
 
@@ -339,5 +446,6 @@ module.exports = {
   deleteAgent,
   agentlogin,
   getNextAgentId,
-  getAgentCommition
+  getAgentCommition,
+  updateAgentDetails
 };
