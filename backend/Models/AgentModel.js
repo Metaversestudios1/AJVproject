@@ -48,6 +48,9 @@ const AgentSchema = new mongoose.Schema({
       hirarchy: {
         type: String,
       }, 
+      balanceRemaining:{
+        type: String,
+      },
       percentage:{
         type: Number,
       },
