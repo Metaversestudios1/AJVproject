@@ -6,7 +6,8 @@ const {
   deleteAgent,
   agentlogin,
   getAllAgentproperty,
-  getNextAgentId
+  getNextAgentId,
+  getAgentCommition
 } = require("../Controllers/AgentController");
 const express = require("express");
 const router = express.Router();
@@ -19,6 +20,8 @@ router.delete("/deleteAgent", deleteAgent);
 router.post("/agentlogin", agentlogin);
 router.get("/getAllAgentproperty", getAllAgentproperty);
 router.get("/getNextAgentId", getNextAgentId);
+router.post("/getAgentCommition", getAgentCommition);
+
 
 
 
