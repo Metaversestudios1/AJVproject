@@ -342,7 +342,6 @@ const handleChangeAndValidate = (e, remainingAmount) => {
     navigate(-1);
   };
 
-
   const renderPaymentFields = () => {
     return payments.map((payment, index) => {
       
@@ -351,134 +350,164 @@ const handleChangeAndValidate = (e, remainingAmount) => {
       return (
         <div key={index} className="space-y-2">
           {/* Display Amount and Date in a single row */}
-          {index > 0 && (
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span>Amount:</span> 
-                <span>{payments[index - 1].amount}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span>Date:</span> 
-                <span>{payments[index - 1].date ? new Date(payments[index - 1].date).toLocaleDateString() : 'N/A'}</span>
-              </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span>Amount:</span> 
+              <span>{payment.amount}</span>
             </div>
+            <div className="flex items-center space-x-2">
+              <span>Date:</span> 
+              <span>{payment.date ? new Date(payment.date).toLocaleDateString() : 'N/A'}</span>
+            </div>
+          </div>
+  
+          {/* Display the label and input fields if no payment is found */}
+          {!paymentFound && (
+            <>
+              <div className="flex items-center space-x-4">
+                <label
+                  htmlFor={`payment-${index}`}
+                  className="text-sm font-medium text-gray-900 dark:text-black"
+                >
+                  Payment {index + 1}
+                  <span className="text-red-900 text-lg">&#x2a;</span>
+                </label>
+              </div>
+  
+              {/* Input fields */}
+              <div className="w-full">
+                <input
+                  type="hidden"
+                  name={`payment-${index}`}
+                  value={index}
+                  id={`payment-${index}`}
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
+                  required
+                />
+                <input
+                  name="amountPaid"
+                  ref={inputRef}
+                  onChange={(e) => {
+                    const value = e.target.value; 
+                    const numValue = Number(value);
+  
+                    // Ensure value is valid
+                    if (numValue < 0 || numValue > remainingBalance) {
+                      inputRef.current.value = ''; // Clear the input if invalid
+                    } else if (value === "" || (numValue >= 1 && !isNaN(numValue))) {
+                      handleChange(e); // Call handleChange if valid
+                    }
+                  }}
+                  type="number"
+                  id="amountPaid"
+                  className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+                  placeholder="Eg. 1200.."
+                  onFocus={() => setindex(index)}
+                />
+              </div>
+            </>
           )}
-      
-          {/* Display the label in the same row */}
-          {/* Display the label in the same row */}
-{!paymentFound && (
- 
-  <>
-    <div className="flex items-center space-x-4">
-      <label
-        htmlFor={`payment-${index}`}
-        className="text-sm font-medium text-gray-900 dark:text-black"
-      >
-        Payment {index + 1}
-        <span className="text-red-900 text-lg">&#x2a;</span>
-      </label>
-    </div>
-
-    {/* Input fields */}
-    <div className="w-full">
-      <input
-        type="hidden"
-        name={`payment-${index}`}
-        value={index}
-        id={`payment-${index}`}
-        className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
-        required
-      />
-       <input
-        type="hidden"
-        name='index'
-        value={data.index}
-        id="index"
-        className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
-        required
-      />
-      <input
-        name="amountPaid"
-          ref={inputRef} //
-      //    onChange={(e) => {
-      //   const value = e.target.value;
-      //   // Ensure the value is greater than 0
-      //   if (value >= 1) {
-      //     handleChange(e); // Only call handleChange if value is valid
-      //   }
-      // }}
-
-       onChange={(e) => {
-          const value = e.target.value; // Get the raw input value
-          const numValue = Number(value); // Convert to a number for comparison
-
-          // Check for negative values or values greater than remainingValue
-          if (numValue < 0) {
-            inputRef.current.value = ''; // Clear the input if the value is negative
-          } else if (numValue > remainingBalance) {
-            inputRef.current.value = ''; // Clear the input if it exceeds remaining value
-          } else if (value === "" || (numValue >= 1 && !isNaN(numValue))) {
-            handleChange(e); // Call handleChange if the value is valid
-          }
-        }}
-      // value
-        // onChange={handleChange}
-        type="number"
-        id="amountPaid"
-        className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
-        placeholder="Eg.1200.."
-        onFocus={() => setindex(index)}
-      />
-    </div>
-  </>
-)}
-
         </div>
       );
-      
-     });
+    });
   };
   
-  // const renderPaymentFields = () => {
-  //   return payments.map((payment, index) => (
-  //     <div key={index}>
-  //       <label
-  //         htmlFor={`payment-${index}`}
-  //         className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
-  //       >
-  //         Payment {index + 1}
-  //         <span className="text-red-900 text-lg ">&#x2a;</span>
-  //       </label>
-  //       <input type="hidden"
-  //               name={`payment-${index}`}
-  //         value={index} 
-  //         id={`payment-${index}`}
-  //         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-  //         placeholder={`Enter payment ${index + 1}`}
-  //         min="1"
-  //         required></input>
-  //       <input
-  //        name="amountPaid"
-  //        value={data.propertyDetails.amountPaid}
-  //        onChange={handleChange}
-  //        type="number"
-  //        id="amountPaid"
-  //        className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-  //        placeholder="Eg.1200.."
-  //        required
-  //         // name={`payment-${index}`}
-  //         // value={payment.amount}
-  //         // onChange={(e) => handlePaymentChange(index, e.target.value)}
-  //         // type="number"
-  //         // id={`payment-${index}`}
-  //         // className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5 "
-  //         // placeholder={`Enter payment ${index + 1}`}
-  //         // min="1"
-  //         // required
-  //       />
-  //     </div>
-  //   ));
-  // };
+//   const renderPaymentFields = () => {
+//     return payments.map((payment, index) => {
+      
+//       // Check if a payment exists for this index
+//       const paymentFound = payment.amount > 0; // Assuming amount > 0 indicates a payment exists
+//       return (
+//         <div key={index} className="space-y-2">
+//           {/* Display Amount and Date in a single row */}
+//           {index > 0 && (
+//             <div className="flex items-center space-x-4">
+//               <div className="flex items-center space-x-2">
+//                 <span>Amount:</span> 
+//                 <span>{payments[index].amount}</span>
+//               </div>
+//               <div className="flex items-center space-x-2">
+//                 <span>Date:</span> 
+//                 <span>{payments[index].date ? new Date(payments[index - 1].date).toLocaleDateString() : 'N/A'}</span>
+//               </div>
+//             </div>
+//           )}
+      
+//           {/* Display the label in the same row */}
+//           {/* Display the label in the same row */}
+// {!paymentFound && (
+ 
+//   <>
+//     <div className="flex items-center space-x-4">
+//       <label
+//         htmlFor={`payment-${index}`}
+//         className="text-sm font-medium text-gray-900 dark:text-black"
+//       >
+//         Payment {index + 1}
+//         <span className="text-red-900 text-lg">&#x2a;</span>
+//       </label>
+//     </div>
+
+//     {/* Input fields */}
+//     <div className="w-full">
+//       <input
+//         type="hidden"
+//         name={`payment-${index}`}
+//         value={index}
+//         id={`payment-${index}`}
+//         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
+//         required
+//       />
+//        <input
+//         type="hidden"
+//         name='index'
+//         value={data.index}
+//         id="index"
+//         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black w-full"
+//         required
+//       />
+//       <input
+//         name="amountPaid"
+//           ref={inputRef} //
+//       //    onChange={(e) => {
+//       //   const value = e.target.value;
+//       //   // Ensure the value is greater than 0
+//       //   if (value >= 1) {
+//       //     handleChange(e); // Only call handleChange if value is valid
+//       //   }
+//       // }}
+
+//        onChange={(e) => {
+//           const value = e.target.value; // Get the raw input value
+//           const numValue = Number(value); // Convert to a number for comparison
+
+//           // Check for negative values or values greater than remainingValue
+//           if (numValue < 0) {
+//             inputRef.current.value = ''; // Clear the input if the value is negative
+//           } else if (numValue > remainingBalance) {
+//             inputRef.current.value = ''; // Clear the input if it exceeds remaining value
+//           } else if (value === "" || (numValue >= 1 && !isNaN(numValue))) {
+//             handleChange(e); // Call handleChange if the value is valid
+//           }
+//         }}
+//       // value
+//         // onChange={handleChange}
+//         type="number"
+//         id="amountPaid"
+//         className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
+//         placeholder="Eg.1200.."
+//         onFocus={() => setindex(index)}
+//       />
+//     </div>
+//   </>
+// )}
+
+//         </div>
+//       );
+      
+//      });
+//   };
+  
 
   // Automatically add a new payment field when there’s a remaining balance after each payment
   useEffect(() => {
@@ -572,7 +601,8 @@ const handleChangeAndValidate = (e, remainingAmount) => {
                   value={data?.agentId}
                   onChange={handleChange}
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
-                >
+                   disabled={isFirstUpdate === '1'} 
+               >
                   {agents.length === 0 ? (
                     <option value="">Assign property to agent first</option> // Show this option when no agents are available
                   ) : (
