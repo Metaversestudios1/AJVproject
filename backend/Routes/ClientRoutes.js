@@ -6,7 +6,9 @@ const {
   deleteClient,
   clientlogin,
   getNextclientId,
-  updateClientDetails
+  updateClientDetails,
+  getClientNotification,
+offClientNotification
 } = require("../Controllers/ClientController");
 const express = require("express");
 const router = express.Router();
