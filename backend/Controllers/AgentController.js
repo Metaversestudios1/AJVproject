@@ -428,7 +428,7 @@ const getNotification = async (req, res) => {
 
   try {
     // Fetch agent details to get notificationCount and notificationStatus
-    const agent = await Agent.findById(agent_id, 'notificationCount notificationStatus');
+    const agent = await Agent.findById(agent_id);
     if (!agent) {
       return res.status(404).json({ success: false, message: 'Agent not found' });
     }
