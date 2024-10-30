@@ -390,7 +390,7 @@ const Agent = () => {
                       />
                       {activePropertyId === item._id && (
                         <div className="absolute z-50 right-12 top-2 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                          <NavLink to={`/agents/editagent/${item._id}`}>
+                          <NavLink to={`/hierarchy/${item._id}`}>
                             <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
                               <CiEdit className="inline mr-2" /> Edit
                             </button>

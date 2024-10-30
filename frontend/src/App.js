@@ -28,6 +28,7 @@ import Ranks from './components/Rank/Ranks';
 import EditAgent from './components/Agent/EditAgent';
 import AssignProperties from './components/Agent/AssignProperties';
 import EditProperty from './components/Property/editproperty';
+import Hierarchy from './components/Agent/hierarchy';
 
 
 
@@ -153,6 +154,20 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <EditAgent/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/hierarchy/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Hierarchy/>
           </div>
         </div>
         </PrivateRoute>
