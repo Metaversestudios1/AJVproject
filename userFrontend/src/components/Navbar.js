@@ -76,6 +76,7 @@ const Navbar = ({ toggleSideBar }) => {
   };
 
   const handleCloseNotification = async () => {
+    setNotificationCount("0")
     const res = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/offNotification`,
       {
