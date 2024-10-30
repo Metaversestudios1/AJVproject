@@ -54,7 +54,11 @@ const login = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Password does not match" });
     }
-
+    if (admin.lastLoginToken) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Already logged in on another browser" });
+    }
     // Generate a JWT token
     const token = jwt.sign(
       { id: admin._id }, // Include role in the token payload if needed
@@ -62,6 +66,8 @@ const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    admin.lastLoginToken = token;
+    await admin.save();
     // Set cookie options
     const options = {
       expires: new Date(Date.now() + 2592000000), // 30 days
@@ -83,9 +89,27 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  res.clearCookie("connect.sid"); // Name of the session ID cookie
-  res.clearCookie("token"); // Name of the session ID cookie
-  res.status(200).json({ status: true, message: "Successfully logged out" });
+  try {
+    console.log(req.body);
+    const { id } = req.body;
+    // Clear the session cookies
+    res.clearCookie("connect.sid"); // Clear the session ID cookie
+    res.clearCookie("token"); // Clear the JWT cookie
+    
+    // Optionally, clear the lastLoginToken from the database if you want to allow a new login
+    const adminId = id; // Assuming you're using middleware to set req.user
+    if (adminId) {
+      await Admin.findByIdAndUpdate(adminId, { lastLoginToken: null });
+    }
+    console.log(Admin);
+
+    return res.status(200).json({ success: true, message: "Successfully logged out" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error: " + err.message });
+  }
+  // res.clearCookie("connect.sid"); // Name of the session ID cookie
+  // res.clearCookie("token"); // Name of the session ID cookie
+  // res.status(200).json({ status: true, message: "Successfully logged out" });
 };
 
 const updateAdmin = async (req, res) => {

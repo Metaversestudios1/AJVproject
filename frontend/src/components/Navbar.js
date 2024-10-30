@@ -13,18 +13,22 @@ const Navbar = ({ toggleSideBar }) => {
   const [settingDropdown, setSettingDropdown] = useState(false);
   const navigate = useNavigate();
   const userInfo = getUserFromToken();
-
   const handleLogout = async () => {
     try {
       const res = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/logout`,
         {
           method: "POST",
-          credentials: "include", // Send cookies with the request
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json", // Set content type to JSON
+          },
+          body: JSON.stringify({ id: userInfo.id }), // Include user ID in the request body
+        // Send cookies with the request
         }
       );
       const response = await res.json();
-      if (response.status) {
+      if (response.success) {
         Cookies.remove("jwt");
         toast.success("Logout Successfully", {
           position: "top-right",
