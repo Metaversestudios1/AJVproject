@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const path = require("path");
+const Property = require("../Models/PropertyModel");
  
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -428,7 +429,7 @@ const getNotification = async (req, res) => {
 
   try {
     // Fetch agent details to get notificationCount and notificationStatus
-    const agent = await Agent.findById(agent_id, 'notificationCount notificationStatus');
+    const agent = await Agent.findById(agent_id);
     if (!agent) {
       return res.status(404).json({ success: false, message: 'Agent not found' });
     }

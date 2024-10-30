@@ -59,6 +59,14 @@ const clientSchema = new mongoose.Schema(
     occupation: {
       type: String,
     },
+    notificationCount:{
+      type: Number,
+      default: 0,
+    },
+    notificationStatus:{
+      type: String,
+      default:"0"
+    },
     updatedAt: {
       type: Date,
       default: Date.now, // Automatically sets the updatedAt field to the current date/time

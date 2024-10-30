@@ -127,9 +127,6 @@ const Ranks = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Created At
                 </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Action
-                </th>
               </tr>
             </thead>
 
@@ -160,31 +157,7 @@ const Ranks = () => {
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.createdAt?.split("T")[0]}
                   </td>
-                  <td className="px-6 py-4 border-2 border-gray-300 relative">
-                  <div className="flex justify-center">
-                  <GoKebabHorizontal
-                  className="text-lg transform rotate-90 cursor-pointer"
-                  onClick={() => handleKebabClick(item._id)}
-                  />
-                  </div>
-                    {activePropertyId === item._id && (
-                      <div className="absolute z-50 right-5 top-7 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
-                      <NavLink to={`/ranks/editrank/${item._id}`}>
-                      <button
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                      >
-                      <CiEdit className="inline mr-2" /> Edit
-                      </button>
-                      </NavLink>
-                       {/* <button
-                          onClick={(e) => handleDelete(e, item._id)}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        >
-                          <MdDelete className="inline mr-2" /> Delete
-                        </button>*/}
-                      </div>
-                    )}
-                  </td>
+                 
                 </tr>
               ))}
             </tbody>

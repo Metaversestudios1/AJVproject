@@ -6,7 +6,9 @@ const {
   deleteClient,
   clientlogin,
   getNextclientId,
-  updateClientDetails
+  updateClientDetails,
+  getClientNotification,
+offClientNotification
 } = require("../Controllers/ClientController");
 const express = require("express");
 const router = express.Router();
@@ -36,5 +38,6 @@ router.delete("/deleteClient", deleteClient);
 router.get("/getNextclientId", getNextclientId);
 router.post("/clientlogin", clientlogin);
 router.put("/updateClientDetails", upload.fields([{ name: 'photo', maxCount: 1 }]), updateClientDetails);
-
+router.post("/getClientNotification", getClientNotification);
+router.post("/offClientNotification", offClientNotification);
 module.exports = router;
