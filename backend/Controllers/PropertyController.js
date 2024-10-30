@@ -1,14 +1,10 @@
 const Property = require("../Models/PropertyModel");
 const Site = require("../Models/SiteModel");
 const Agent = require("../Models/AgentModel");
-
-const bcrypt = require("bcrypt");
-const mongoose = require("mongoose");
-const fs = require("fs");
-const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const dotenv = require("dotenv");
 const path = require('path');
+const Client = require("../Models/ClientModel");
 
 
 dotenv.config();
@@ -57,7 +53,6 @@ const uploadImage = (buffer, originalname, mimetype) => {
 
 
 const insertProperty = async (req, res) => {
-  console.log(req.body);
   const { sites } = req.body; // Extract site numbers from request body
   let siteInsertions = [];
 
