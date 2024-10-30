@@ -17,7 +17,7 @@ const CommisionRoutes = require("./Routes/CommisionRoutes");
 const SiteRoutes = require("./Routes/SiteRoutes");
 const RankRoutes = require("./Routes/RankRoutes");
 const DashboardRoutes = require("./Routes/DashboardRoutes");
-
+const CommonRoute = require("./Routes/CommonRoute");
 // Connect to the database
 connectDB();
 const server = http.createServer(app);
@@ -45,6 +45,7 @@ app.use("/api", CommisionRoutes);
 app.use("/api", SiteRoutes);
 app.use("/api", RankRoutes);
 app.use("/api", DashboardRoutes);
+app.use("/api", CommonRoute);
 
 // Root route
 app.get("/", (req, res) => {

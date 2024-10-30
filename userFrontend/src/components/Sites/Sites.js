@@ -78,7 +78,7 @@ const Sites = () => {
 
   const fetchAllSites = async () => {
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSitesWithoutPagination`
     );
     const siteData = await res.json();
     if (siteData.success) {
@@ -107,10 +107,10 @@ const Sites = () => {
           const allSites = await fetchAllSites();
 
           let sitesForAgent = [];
-
+          console.log(allSites)
           agentProperties.forEach((property) => {
             const matchingSites = allSites.filter(
-              (site) => site.propertyId._id === property
+              (site) => site.propertyId === property
             );
             sitesForAgent = [...sitesForAgent, ...matchingSites];
           });
@@ -170,20 +170,19 @@ const Sites = () => {
 
           // Fetch all sites
           const allSites = await fetchAllSites();
-          console.log(allSites);
+          console.log(allSites)
           let sitesForClient = [];
-          console.log(bookedProperties);
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties === site?.propertyId?._id;
+            const isBookedProperty = bookedProperties === site?.propertyId;
 
             // Check if site propertyId matches any booked property
             const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
-
-            return isBookedProperty && isClientSite; // Only return sites that match either condition
+         console.log(isBookedProperty && isClientSite)
+            return (isBookedProperty && isClientSite) ; // Only return sites that match either condition
           });
+          console.log(matchingSites)
           sitesForClient = [...sitesForClient, ...matchingSites];
-
           let filteredSites = sitesForClient;
 
           // Apply filters based on the selected filter criteria
@@ -223,7 +222,6 @@ const Sites = () => {
               };
             })
           );
-          console.log(sitesWithDetails);
           setSites(sitesWithDetails);
           setCount(sitesWithDetails.length);
           setNoData(sitesWithDetails.length === 0);
