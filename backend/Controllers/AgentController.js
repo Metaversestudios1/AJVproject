@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const path = require("path");
+const Property = require("../Models/PropertyModel");
  
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
