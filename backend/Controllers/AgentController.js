@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const path = require("path");
-const Property = require("../Models/PropertyModel");
  
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -85,7 +84,7 @@ const insertAgent = async (req, res) => {
           isUnique = true; // Unique ID found
         }
       }
-    } else {
+    } else if(superior){
       const superior_res = await Agent.findById({ _id: superior });
       if (!superior_res) {
         return res.status(400).json({
@@ -94,12 +93,12 @@ const insertAgent = async (req, res) => {
         });
       }
       hierarchyId = superior_res.hierarchy;
-    }
+    } 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAgentData = {
       ...data,
       password: hashedPassword,
-      hierarchy: hierarchyId,
+      ...(hierarchyId && { hierarchy: hierarchyId }), // Only add hierarchy if it exists
     };
     const newAgent = new Agent(newAgentData);
     await newAgent.save();
@@ -429,7 +428,7 @@ const getNotification = async (req, res) => {
 
   try {
     // Fetch agent details to get notificationCount and notificationStatus
-    const agent = await Agent.findById(agent_id);
+    const agent = await Agent.findById(agent_id, 'notificationCount notificationStatus');
     if (!agent) {
       return res.status(404).json({ success: false, message: 'Agent not found' });
     }
