@@ -248,6 +248,77 @@ const updateClientDetails = async (req, res) => {
   }
 }
   
+const getClientNotification = async (req, res) => {
+  const { client_id } = req.body;
+
+  try {
+    // Fetch agent details to get notificationCount and notificationStatus
+    const client = await Client.findById(client_id);
+    if (!client) {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+
+    const { notificationCount, notificationStatus } = client;
+
+    // Check if notificationStatus is 1
+    if (notificationStatus === "1") {
+      // Fetch properties ordered by creation date in descending order, limited by notificationCount
+      const properties = await Property.find()
+        .sort({ createdAt: -1 }) // Descending order by creation date
+        .limit(notificationCount);
+
+      return res.status(200).json({
+        success: true,
+        data: properties,
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "No new notifications",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching notifications:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching notifications",
+      error: error.message,
+    });
+  }
+};
+
+const offClientNotification = async (req, res) => {
+  const { client_id } = req.body;
+
+  try {
+   
+
+    // Update notificationCount and notificationStatus for the agent
+    const result = await Client.updateOne(
+      { _id: client_id }, // Find the agent by agent_id
+      {
+        $set: {
+          notificationCount: 0, // Set the new notificationCount
+          notificationStatus: '0' // Set the new notificationStatus
+        }
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Client not found or no changes made' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Notification status updated successfully' });
+  } catch (error) {
+    console.error("Error updating notification status:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error updating notification status",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   insertClient,
   updateClient,
@@ -256,5 +327,7 @@ module.exports = {
   deleteClient,
   getNextclientId,
   clientlogin,
-  updateClientDetails
+  updateClientDetails,
+  offClientNotification,
+  getClientNotification
 };

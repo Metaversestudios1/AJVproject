@@ -26,12 +26,18 @@ const Navbar = ({ toggleSideBar }) => {
   }, []);
 
   const fetchNotifications = async () => {
+    let route;
+    if (userInfo.role === "client") {
+      route = "getClientNotification";
+    } else {
+      route = "getAgentNotification";
+    }
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getNotification`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/${route}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" }, // Send cookies with the request
-        body: JSON.stringify({ agent_id: userInfo.id }),
+        body: JSON.stringify({ [`${userInfo.role}_id`]: userInfo.id }),
       }
     );
     const response = await res.json();
@@ -76,13 +82,19 @@ const Navbar = ({ toggleSideBar }) => {
   };
 
   const handleCloseNotification = async () => {
-    setNotificationCount("0")
+    setNotificationCount("0");
+    let route;
+    if (userInfo.role === "client") {
+      route = "offClientNotification";
+    } else {
+      route = "offAgentNotification";
+    }
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/offNotification`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/${route}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" }, // Send cookies with the request
-        body: JSON.stringify({ agent_id: userInfo.id }),
+        body: JSON.stringify({ [`${userInfo.role}_id`]: userInfo.id }),
       }
     );
     const response = await res.json();

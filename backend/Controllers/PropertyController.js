@@ -55,6 +55,7 @@ const uploadImage = (buffer, originalname, mimetype) => {
 };
 
 
+
 const insertProperty = async (req, res) => {
   console.log(req.body);
   const { sites } = req.body; // Extract site numbers from request body
@@ -129,6 +130,13 @@ const insertProperty = async (req, res) => {
         $set: { notificationStatus: "1" } // Set notificationStatus to "1"
       }
     );
+     await Client.updateMany(
+      {}, // Select all agents
+      {
+        $inc: { notificationCount: 1 }, // Increment notificationCount by 1
+        $set: { notificationStatus: "1" } // Set notificationStatus to "1"
+      }
+    );
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error inserting Property with multiple files:", error.message);
@@ -164,6 +172,13 @@ const insertProperty = async (req, res) => {
         }
       }
       await Agent.updateMany(
+        {}, // Select all agents
+        {
+          $inc: { notificationCount: 1 }, // Increment notificationCount by 1
+          $set: { notificationStatus: "1" } // Set notificationStatus to "1"
+        }
+      );
+      await Client.updateMany(
         {}, // Select all agents
         {
           $inc: { notificationCount: 1 }, // Increment notificationCount by 1
