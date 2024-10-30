@@ -107,6 +107,7 @@ const Hierarchy = () => {
   >
     <h3 className="font-bold">{agent.agentname}</h3>
     <p>Rank: {agent.rank || "No Rank"}</p>
+    <p>Level: {agent.level || "No Rank"}</p>
     {agent.subordinates && agent.subordinates.length > 0 && (
       <div className="ml-6 border-l border-gray-300 pl-4">
         {agent.subordinates.map((sub) => (
