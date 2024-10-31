@@ -107,7 +107,7 @@ const Sites = () => {
           const allSites = await fetchAllSites();
 
           let sitesForAgent = [];
-          console.log(allSites)
+          console.log(allSites);
           agentProperties.forEach((property) => {
             const matchingSites = allSites.filter(
               (site) => site.propertyId === property
@@ -170,18 +170,16 @@ const Sites = () => {
 
           // Fetch all sites
           const allSites = await fetchAllSites();
-          console.log(allSites)
+          console.log(allSites);
           let sitesForClient = [];
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties === site?.propertyId;
-
-            // Check if site propertyId matches any booked property
-            const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
-         console.log(isBookedProperty && isClientSite)
-            return (isBookedProperty && isClientSite) ; // Only return sites that match either condition
+            return (
+              bookedProperties === site.propertyId._id ||
+              site.clientId === userInfo.id
+            ); // Only return sites that match either condition
           });
-          console.log(matchingSites)
+          console.log(matchingSites);
           sitesForClient = [...sitesForClient, ...matchingSites];
           let filteredSites = sitesForClient;
 
@@ -252,10 +250,9 @@ const Sites = () => {
       }
     );
     const response = await res.json();
-    if(response.success) {
+    if (response.success) {
       setCommissions(response.result.commissions);
     }
-      
   };
   useEffect(() => {
     fetchData();
@@ -581,37 +578,43 @@ const Sites = () => {
                         : "N/A"}
                     </div>
                   </td>
-                  { (userInfo.role === "agent" || userInfo.role === "Agent") && <td
-                    scope="row"
-                    className={` px-6 py-4 font-medium text-gray-900  border-2 border-gray-300`}
-                  >
-                    <div
-                      className={`${
-                        item?.payments?.length !== 0 &&
-                        "grid grid-cols-2 gap-4 justify-between"
-                      }`}
+                  {(userInfo.role === "agent" || userInfo.role === "Agent") && (
+                    <td
+                      scope="row"
+                      className={` px-6 py-4 font-medium text-gray-900  border-2 border-gray-300`}
                     >
-                      {commissions.length !== 0
-                        ? commissions
-                            .filter(
-                              (commission) => commission.siteId === item._id
-                            ) // Match siteId
-                            .map((commission, index) => (
-                              <div
-                                key={index}
-                                className="border-[1px] border-gray-700 p-2"
-                              >
-                                <div className="">Commission {index + 1}:</div>
-                                <div>Amount: {commission?.amount}</div>
-                                <div>Percentage: {commission?.percentage}</div>
-                                <div>
-                                  Date: {commission?.date?.split("T")[0]}
+                      <div
+                        className={`${
+                          item?.payments?.length !== 0 &&
+                          "grid grid-cols-2 gap-4 justify-between"
+                        }`}
+                      >
+                        {commissions.length !== 0
+                          ? commissions
+                              .filter(
+                                (commission) => commission.siteId === item._id
+                              ) // Match siteId
+                              .map((commission, index) => (
+                                <div
+                                  key={index}
+                                  className="border-[1px] border-gray-700 p-2"
+                                >
+                                  <div className="">
+                                    Commission {index + 1}:
+                                  </div>
+                                  <div>Amount: {commission?.amount}</div>
+                                  <div>
+                                    Percentage: {commission?.percentage}
+                                  </div>
+                                  <div>
+                                    Date: {commission?.date?.split("T")[0]}
+                                  </div>
                                 </div>
-                              </div>
-                            ))
-                        : "N/A"}
-                    </div>
-                  </td>}
+                              ))
+                          : "N/A"}
+                      </div>
+                    </td>
+                  )}
 
                   <td
                     scope="row"
