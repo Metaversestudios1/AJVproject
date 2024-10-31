@@ -111,10 +111,10 @@ const Home = () => {
       );
       const response = await res.json();
       const allSites = response.result;
-
+console.log(allSites, properties)
       properties.forEach((property) => {
         const sitesForProperty = allSites.filter(
-          (site) => site.propertyId === property
+          (site) => {console.log(site.propertyId === property);return site.propertyId === property}
         );
         totalSiteCount += sitesForProperty.length;
         availableSiteCount += sitesForProperty.filter(
