@@ -74,8 +74,8 @@ const Home = () => {
       const allSites = await fetchAllSites();
       console.log(allSites);
       const sitesForClient = allSites.filter((site) => {
-        console.log(bookedProperties === site.propertyId._id ||site.clientId === userInfo.id)
-        return ((bookedProperties === site.propertyId._id) ||
+        console.log(bookedProperties === site.propertyId ||site.clientId === userInfo.id)
+        return ((bookedProperties === site.propertyId) ||
           site.clientId === userInfo.id)
       });
       console.log(sitesForClient);
@@ -359,7 +359,7 @@ const Home = () => {
                 </NavLink>
               </div>
 
-              <br />
+              <br /> 
             </div>
           )}
         </div>
