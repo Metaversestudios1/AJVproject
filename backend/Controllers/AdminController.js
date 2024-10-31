@@ -40,7 +40,6 @@ const login = async (req, res) => {
     // Find the admin by email
     const admin = await Admin.findOne({ email });
     
-    console.log(admin);
     if (!admin) {
       return res
         .status(404)
@@ -90,7 +89,6 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    console.log(req.body);
     const { id } = req.body;
     // Clear the session cookies
     res.clearCookie("connect.sid"); // Clear the session ID cookie
@@ -101,7 +99,6 @@ const logout = async (req, res) => {
     if (adminId) {
       await Admin.findByIdAndUpdate(adminId, { lastLoginToken: null });
     }
-    console.log(Admin);
 
     return res.status(200).json({ success: true, message: "Successfully logged out" });
   } catch (err) {
