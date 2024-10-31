@@ -174,7 +174,7 @@ const Sites = () => {
           let sitesForClient = [];
           // Filter sites that match the booked property IDs or where the client_id matches the userInfo.id
           const matchingSites = allSites.filter((site) => {
-            const isBookedProperty = bookedProperties === site?.propertyId._id;
+            const isBookedProperty = bookedProperties === site?.propertyId;
 
             // Check if site propertyId matches any booked property
             const isClientSite = site.clientId === userInfo.id; // Check if site belongs to the client
