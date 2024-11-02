@@ -210,13 +210,18 @@ const Sites = () => {
           const sitesWithDetails = await Promise.all(
             filteredSites.map(async (site) => {
               let propertyName = "-";
+              let clientName = "-";
               if (site.propertyId) {
                 propertyName = await fetchPropertyName(site.propertyId);
+              }
+              if (site.clientId) {
+                clientName = await fetchClientName(site.clientId);
               }
 
               return {
                 ...site,
                 propertyName,
+                clientName,
               };
             })
           );
