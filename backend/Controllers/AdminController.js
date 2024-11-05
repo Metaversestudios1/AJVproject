@@ -54,11 +54,14 @@ const login = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Password does not match" });
     }
-    if (admin.lastLoginToken) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Already logged in on another browser" });
+    const tokenExpiryDuration = 1 * 60 * 60 * 1000; // 1 hour in milliseconds
+    if (admin.lastLoginToken && admin.lastLoginTime && Date.now() - admin.lastLoginTime < tokenExpiryDuration) {
+      return res.status(403).json({
+        success: false,
+        message: "Already logged in on another browser. Please log out from there first.",
+      });
     }
+
     // Generate a JWT token
     const token = jwt.sign(
       { id: admin._id }, // Include role in the token payload if needed
@@ -67,6 +70,7 @@ const login = async (req, res) => {
     );
 
     admin.lastLoginToken = token;
+    admin.lastLoginTime = Date.now();
     await admin.save();
     // Set cookie options
     const options = {

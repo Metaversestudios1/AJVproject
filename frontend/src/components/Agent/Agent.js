@@ -223,6 +223,50 @@ const Agent = () => {
     XLSX.writeFile(workbook, "Agentreport.xlsx");
   }
 
+  const handleStatusChange = async (id, newStatus) => {
+    let status = "Activate"; // changed to let
+    if (newStatus === 0) {
+      status = "Inactive";
+    }
+    const permissionOfDelete = window.confirm(`Are you sure you want to ${status} the Agent?`);
+    if (permissionOfDelete) {
+      let projectOne = agents.length === 1;
+      if (count === 1) {
+        projectOne = false;
+      }
+      try {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/updatestatus/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        const response = await res.json(); // Awaiting the response to parse it
+        if (response.success) {
+          toast.success(`Agent ${status} Successfully!`, {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          if (projectOne) {
+            setPage(page - 1);
+          } else {
+            fetchData();
+          }
+        }
+      } catch (error) {
+        console.error('Error updating status:', error);
+        alert('Error updating status');
+      }
+    }
+  };
   const startIndex = (page - 1) * pageSize;
 
   return (
@@ -332,6 +376,9 @@ const Agent = () => {
                   Assign Property
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                 Status
+                </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Action
                 </th>
               </tr>
@@ -382,6 +429,28 @@ const Agent = () => {
                       </button>
                     </NavLink>
                   </td>
+                  <td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap border-2 border-gray-300"
+                  >
+                    {item?.status === 0 ? (
+                      <button
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => handleStatusChange(item._id, 0)}
+                      >
+                        Activate
+                      </button>
+                    ) : (
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => handleStatusChange(item._id, 1)}
+                      >
+                        Inactive
+                      </button>
+                    )}
+                    &ensp;
+                                        
+                  </td>
                   <td className="px-6 py-4 border-2 border-gray-300 ">
                     <div className="flex justify-center relative">
                       <GoKebabHorizontal
@@ -392,7 +461,7 @@ const Agent = () => {
                         <div className="absolute z-50 right-12 top-2 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
                           <NavLink to={`/hierarchy/${item._id}`}>
                             <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                              Hierarchy
+                              <CiEdit className="inline mr-2" /> Hierarchy
                             </button>
                           </NavLink>
                           {/* <button

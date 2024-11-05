@@ -37,7 +37,7 @@ const getPropertyCount = async(req, res)=>{
 }
 const getagentcount = async(req,res)=>{
     try{
-        const agentcount = await Agent.countDocuments({ deleted_at: null });
+        const agentcount = await Agent.countDocuments({ deleted_at: null,status:1 });
         res.status(200).json({success:true,count:agentcount});
     } catch(err){
         res.status(500).json({sucess:false,message:'Server erro',err:err.message});

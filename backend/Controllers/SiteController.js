@@ -136,6 +136,7 @@ const hierarchy = agent.hierarchy;
     const commissionRate = totalCommissionFromLevels / 100;
     // console.log(commissionRate)
     const commissionDeduction = paidAmount * commissionRate;
+    const tdsDeduction =commissionDeduction * 0.05;
     console.log(commissionDeduction);
     const updateAgent = await Agent.updateOne(
           { 
@@ -149,7 +150,8 @@ const hierarchy = agent.hierarchy;
             amount: commissionDeduction,
             percentage: totalCommissionFromLevels,
             balanceRemaining: reaminingAmount,
-            date: new Date(),
+            date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+            tdsDeduction:tdsDeduction,
             index:index
           },
         },
@@ -170,7 +172,7 @@ const hierarchy = agent.hierarchy;
         const commissionRatelowers = getcommitionlower / 100;
 
         const commissionDeductionlower = paidAmount * commissionRatelowers;
-
+        const tdsDeductionlower  = commissionDeductionlower*0.05;
         const getagentid = await getAgentId(i);
 
         if (getagentid != null && agentId === getagentid.toString()) {
@@ -189,8 +191,9 @@ const hierarchy = agent.hierarchy;
                 amount: commissionDeductionlower,
                 percentage: getcommitionlower,
                 balanceRemaining: reaminingAmount,
-                date: new Date(),
-                index:index
+                date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+                index:index,
+                tdsDeduction:tdsDeductionlower,
               },
             },
             // $inc: { totalCommission: -commissionDeduction } // Deduct from totalCommission
@@ -351,6 +354,8 @@ const getAllSite = async (req, res) => {
     const search = req.query.search;
     const id = req.query.id;
     const filter = req.query.filter;
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : null; // Get startDate from query
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : null; // Get endDate from query
 
     // Build query to match sites
     const query = {
@@ -387,6 +392,19 @@ const getAllSite = async (req, res) => {
         return res.status(200).json({ success: true, result: [], count: 0 });
       }
     }
+    console.log(startDate);
+    console.log(endDate);
+    if (startDate && endDate) {
+      query.payments = {
+        $elemMatch: {
+          date: {
+            $gte: new Date(startDate), // Include all payments on the start date
+            $lt: new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1)), // Exclude the next day
+          },
+        },
+      };
+    }
+    
 
     // Perform the site query with pagination
     const result = await Site.find(query)
@@ -396,7 +414,7 @@ const getAllSite = async (req, res) => {
       .limit(pageSize);
 
     const count = await Site.find(query).countDocuments();
-
+console.log(result);
     res.status(200).json({ success: true, result, count });
   } catch (error) {
     console.error("Error fetching Sites:", error); // Log the actual error

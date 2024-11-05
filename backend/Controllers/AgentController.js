@@ -177,12 +177,27 @@ const getAllAgent = async (req, res) => {
     const pageSize = parseInt(req.query.limit);
     const page = parseInt(req.query.page);
     const search = req.query.search;
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : null; // Get startDate from query
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : null; // Get endDate from query
 
     const query = {
       deleted_at: null,
     };
     if (search) {
       query.agentname = { $regex: search, $options: "i" };
+    }
+
+    console.log(startDate);
+    console.log(endDate);
+    if (startDate && endDate) {
+      query.commissions = {
+        $elemMatch: {
+          date: {
+            $gte: new Date(startDate), // Include all payments on the start date
+            $lt: new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1)), // Exclude the next day
+          },
+        },
+      };
     }
 
     const result = await Agent.find(query)
@@ -494,7 +509,30 @@ const offNotification = async (req, res) => {
   }
 };
 
+const updatestatus  = async (req, res) => {
+  try {
+    
+    const { status } = req.body;
+    const newstatus = status === 1 ? "0" : "1";
+    const { id }= req.params;
+    console.log(status);
+    console.log(id)
+    const updatedRecord = await Agent.findByIdAndUpdate(
+      id,
+      { status: newstatus },
+      { new: true } // Return the updated record
+    );
 
+    if (!updatedRecord) {
+      throw new Error("Record not found");
+    }
+
+    return res.status(200).json({success: true, result: updatedRecord });; // Return response
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating status", error: err.message });
+  }
+
+}
 
 // Usage within another function (like insertAgent
 
@@ -510,5 +548,6 @@ module.exports = {
   getAgentCommition,
   updateAgentDetails,
   getNotification,
-  offNotification
+  offNotification,
+  updatestatus,
 };

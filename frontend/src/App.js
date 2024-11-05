@@ -29,6 +29,8 @@ import EditAgent from './components/Agent/EditAgent';
 import AssignProperties from './components/Agent/AssignProperties';
 import EditProperty from './components/Property/editproperty';
 import Hierarchy from './components/Agent/hierarchy';
+import Booking from './components/payouts/booking';
+import Commission from './components/payouts/commission';
 
 
 
@@ -374,6 +376,35 @@ function App() {
         </PrivateRoute>
       ),
     },
+    {
+      path: "/booking",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Booking/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/commission",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Commission/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    
     {
       path: "*",
       element: (

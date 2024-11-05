@@ -54,6 +54,9 @@ const AgentSchema = new mongoose.Schema({
       percentage:{
         type: Number,
       },
+      tdsDeduction:{
+        type: Number,
+      },
       date: {
         type: Date,
         default: Date.now,
@@ -84,6 +87,11 @@ const AgentSchema = new mongoose.Schema({
     type: String,
     default:"0"
   },
+  status: {
+    type: Number,
+    enum: [0, 1,], // 0 = inactive, 1 = active, 2 = hold
+    default: 0 // Default to 'active'
+},
  updatedAt: {
     type: Date,
     default: Date.now, 
