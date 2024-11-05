@@ -85,24 +85,45 @@ const Commission = () => {
       if (result.success && result.result) {
         if (result.success && result.result) {
             const allAgent = result.result;
-            const updatedAgent = await Promise.all(
-              allAgent.map(async (agent) => {
+            const start = new Date(startDate); // Define startDate and endDate as needed
+            const end = new Date(endDate);
+      
+            const allAgentsWithFilteredCommissions = await Promise.all(
+              result.result.map(async (agent) => {
                 const updatedCommissions = await Promise.all(
                   (agent.commissions || []).map(async (commission) => {
-                    const siteId = commission.siteId;
-                   
-                    if (siteId) {
-                      const propertyName = await fetchsite(siteId);
-                      console.log(propertyName);
-                      return { ...commission, propertyName }; // Add property name to each commission
+                    const commissionDate = new Date(commission.date);
+                    const normalizedCommissionDate = new Date(
+                      commissionDate.getFullYear(),
+                      commissionDate.getMonth(),
+                      commissionDate.getDate()
+                    );
+                    const normalizedStartDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                    const normalizedEndDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      
+                    // Filter by date range
+                    if (normalizedCommissionDate >= normalizedStartDate && normalizedCommissionDate <= normalizedEndDate) {
+                      const siteId = commission.siteId;
+      
+                      // Fetch property name if siteId exists
+                      if (siteId) {
+                        const propertyName = await fetchsite(siteId);
+                        console.log(propertyName);
+                        return { ...commission, propertyName }; // Add property name to each commission
+                      }
                     }
-                    return commission;
+      
+                    return null; // Return null for commissions outside the date range
                   })
                 );
-                return { ...agent, commissions: updatedCommissions }; // Replace commissions with updated array
+      
+                // Filter out null values from commissions array
+                const filteredCommissions = updatedCommissions.filter((commission) => commission !== null);
+                return { ...agent, commissions: filteredCommissions }; // Replace commissions with updated array
               })
             );
-            setAgent(updatedAgent);
+      
+            setAgent(allAgentsWithFilteredCommissions);
           
            // setPayments(allPayments); // Set payments state
           } else {

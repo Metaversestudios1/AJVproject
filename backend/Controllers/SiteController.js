@@ -391,15 +391,21 @@ const getAllSite = async (req, res) => {
         // If no matching properties found, return empty result
         return res.status(200).json({ success: true, result: [], count: 0 });
       }
-    }
-    console.log(startDate);
-    console.log(endDate);
+    }    
     if (startDate && endDate) {
+      // Set startDate to the start of the day in UTC
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+    
+      // Set endDate to the end of the day in UTC
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+  
       query.payments = {
         $elemMatch: {
           date: {
-            $gte: new Date(startDate), // Include all payments on the start date
-            $lt: new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1)), // Exclude the next day
+            $gte: start,
+            $lte: end, // Include all payments up to the end of endDate
           },
         },
       };
@@ -414,7 +420,6 @@ const getAllSite = async (req, res) => {
       .limit(pageSize);
 
     const count = await Site.find(query).countDocuments();
-console.log(result);
     res.status(200).json({ success: true, result, count });
   } catch (error) {
     console.error("Error fetching Sites:", error); // Log the actual error

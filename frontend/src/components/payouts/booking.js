@@ -65,6 +65,8 @@ const Booking = () => {
         `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?startDate=${startDate}&endDate=${endDate}`
       );
       const result = await response.json();
+      const start = new Date(startDate);
+      const end = new Date(endDate);
       if (result.success && result.result) {
         const formatDate = (dateString) => {
           if (dateString) {
@@ -80,7 +82,24 @@ const Booking = () => {
             const updatedSites = await Promise.all(
                 allSites.map(async (site) => {
                   const propertyName = await fetchPropertyName(site.propertyId); // Fetch property name using propertyId
-                  return { ...site, propertyName }; // Add property name to the site object
+                 
+                  const filteredPayments = site.payments.filter((payment) => {
+                    const paymentDate = new Date(payment.date);
+                    
+                    // Normalize the date components to only compare dates, not times
+                    const normalizedPaymentDate = new Date(
+                      paymentDate.getFullYear(),
+                      paymentDate.getMonth(),
+                      paymentDate.getDate()
+                    );
+                    const normalizedStartDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                    const normalizedEndDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                  
+                    // Compare only the dates
+                    return normalizedPaymentDate >= normalizedStartDate && normalizedPaymentDate <= normalizedEndDate;
+                  });
+                  
+                 return { ...site, propertyName, payments: filteredPayments }; // Add property name to the site object
                 })
               );
               setSites(updatedSites);
