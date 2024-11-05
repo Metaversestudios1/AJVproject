@@ -224,9 +224,9 @@ const Agent = () => {
   }
 
   const handleStatusChange = async (id, newStatus) => {
-    let status = "Activate"; // changed to let
+    let status = "Inactive"; // changed to let
     if (newStatus === 0) {
-      status = "Inactive";
+      status = "Activate";
     }
     const permissionOfDelete = window.confirm(`Are you sure you want to ${status} the Agent?`);
     if (permissionOfDelete) {

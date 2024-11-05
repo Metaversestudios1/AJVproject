@@ -187,7 +187,7 @@ const fetchtotalrank = async () =>{
                         {totalAgent}
                         </span>
                         <h3 className="text-base text-white font-normal text-gray-500">
-                          Total Agent
+                          Total Active Agent
                         </h3>
                       </div>
                     </div>
