@@ -59,8 +59,7 @@ const Navbar = ({ toggleSideBar }) => {
         }
       );
       const response = await res.json();
-      if (response.status) {
-        Cookies.remove("jwt");
+      if (response.success) {
         toast.success("Logout Successfully", {
           position: "top-right",
           autoClose: 1000,
@@ -71,6 +70,7 @@ const Navbar = ({ toggleSideBar }) => {
           progress: undefined,
           theme: "light",
         });
+        Cookies.remove("jwt");
         setAuth({ isAuthenticated: false, user: null });
         setTimeout(() => {
           navigate("/login");

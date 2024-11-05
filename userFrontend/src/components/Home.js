@@ -59,7 +59,7 @@ const Home = () => {
 
   const fetchAllSites = async () => {
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`
+      `${process.env.REACT_APP_BACKEND_URL}/api/getAllSitesWithoutPagination`
     );
     const siteData = await res.json();
     return siteData.success ? siteData.result : [];
@@ -69,14 +69,16 @@ const Home = () => {
     const clientData = await fetchClient();
     if (clientData && clientData.bookedProperties) {
       const bookedProperties = clientData.bookedProperties;
-
+      console.log(bookedProperties);
       // Fetch all sites and filter for the client’s booked properties
       const allSites = await fetchAllSites();
-      const sitesForClient = allSites.filter(
-        (site) =>
-          bookedProperties.includes(site.propertyId._id) ||
-          site.clientId === userInfo.id
-      );
+      console.log(allSites);
+      const sitesForClient = allSites.filter((site) => {
+        console.log(bookedProperties === site.propertyId ||site.clientId === userInfo.id)
+        return ((bookedProperties === site.propertyId) ||
+          site.clientId === userInfo.id)
+      });
+      console.log(sitesForClient);
       setTotalClientSites(sitesForClient.length);
     }
   };
@@ -105,14 +107,14 @@ const Home = () => {
       let bookedSiteCount = 0;
 
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite`
+        `${process.env.REACT_APP_BACKEND_URL}/api/getAllSitesWithoutPagination`
       );
       const response = await res.json();
       const allSites = response.result;
-
+console.log(allSites, properties)
       properties.forEach((property) => {
         const sitesForProperty = allSites.filter(
-          (site) => site.propertyId._id === property
+          (site) => {console.log(site.propertyId === property);return site.propertyId === property}
         );
         totalSiteCount += sitesForProperty.length;
         availableSiteCount += sitesForProperty.filter(
@@ -216,24 +218,23 @@ const Home = () => {
   };
 
   const renderHierarchy = (agent) => (
-  <div
-    key={agent.agent_id}
-    className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 mb-4"
-  >
-    <h3 className="font-bold">{agent.agentname}</h3>
-    <p>Rank: {agent.rank || "No Rank"}</p>
-    {agent.subordinates && agent.subordinates.length > 0 && (
-      <div className="ml-6 border-l border-gray-300 pl-4">
-        {agent.subordinates.map((sub) => (
-          <div key={sub.agent_id} className="pt-2">
-            {renderHierarchy(sub)}
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-);
-
+    <div
+      key={agent.agent_id}
+      className="bg-white shadow-lg shadow-gray-200 rounded-2xl p-4 mb-4"
+    >
+      <h3 className="font-bold">{agent.agentname}</h3>
+      <p>Rank: {agent.rank || "No Rank"}</p>
+      {agent.subordinates && agent.subordinates.length > 0 && (
+        <div className="ml-6 border-l border-gray-300 pl-4">
+          {agent.subordinates.map((sub) => (
+            <div key={sub.agent_id} className="pt-2">
+              {renderHierarchy(sub)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -358,7 +359,7 @@ const Home = () => {
                 </NavLink>
               </div>
 
-              <br />
+              <br /> 
             </div>
           )}
         </div>
