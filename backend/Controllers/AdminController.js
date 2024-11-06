@@ -136,6 +136,13 @@ const login = async (req, res) => {
     admin.lastLoginTime = Date.now();
     await admin.save();
 
+    const userIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    admin.loginHistory.push({
+      ipAddress: userIp,
+      date: new Date(),
+    });
+    await admin.save(); 
+    
     const options = {
       expires: new Date(Date.now() + 2592000000), // 30 days
       httpOnly: true,
