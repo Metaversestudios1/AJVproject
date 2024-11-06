@@ -13,7 +13,7 @@ const Ranks = () => {
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const [activePropertyId, setActivePropertyId] = useState(null); // For kebab menu popup
