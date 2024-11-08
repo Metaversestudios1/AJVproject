@@ -619,7 +619,7 @@ function downloadExcel() {
                 <div><strong>Agent ID:</strong> {commission.agent_id}</div>
                 <div><strong>Amount:</strong> {commission.amount}</div>
                 <div><strong>Percentage:</strong> {commission.percentage}%</div>
-                <div><strong>TDS Deduction:</strong> {commission.tdsDeduction} %</div>
+                <div><strong>TDS Deduction:5% :</strong> {commission.tdsDeduction} </div>
                 <div><strong>Date:</strong> {commission.date?.split("T")[0]}</div>
               </div>
             ))}
