@@ -25,6 +25,7 @@ const Property = () => {
 
   // Fetch agent details and property IDs
   const fetchAgentProperties = async () => {
+    console.log(userInfo?.id )
     setLoader(true);
     try {
       // Fetch agent details using agent id from userInfo
@@ -35,6 +36,7 @@ const Property = () => {
       });
 
       const agentResponse = await agentRes.json();
+      console.log(agentResponse)
       if (agentResponse.success) {
         const propertyIds = agentResponse.result?.properties || []; // Getting property IDs array
         fetchProperties(propertyIds);

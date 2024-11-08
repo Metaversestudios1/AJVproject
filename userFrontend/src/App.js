@@ -15,6 +15,8 @@ import AgentRoute from "./components/utils/AgentRoute";
 import Profile from "./components/profile/Profile";
 import EditAgent from "./components/profile/EditAgent";
 import EditClient from "./components/profile/EditClient";
+import Bookings from "./components/payout/Bookings";
+import Commision from "./components/payout/Commision";
 import getUserFromToken from "./components/utils/getUserFromToken";
 
 function App() {
@@ -149,6 +151,46 @@ function App() {
               <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
                 <Navbar toggleSideBar={toggleSideBar} />
                 <Property />
+              </div>
+            </div>
+          </AgentRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/bookings",
+      element: (
+        <PrivateRoute>
+          <AgentRoute>
+            <div className="flex h-screen">
+              <Sidebar
+                sidebar={sideBar}
+                className="flex-1"
+                toggleSideBar={toggleSideBar}
+              />
+              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+                <Navbar toggleSideBar={toggleSideBar} />
+                <Bookings />
+              </div>
+            </div>
+          </AgentRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/commisions",
+      element: (
+        <PrivateRoute>
+          <AgentRoute>
+            <div className="flex h-screen">
+              <Sidebar
+                sidebar={sideBar}
+                className="flex-1"
+                toggleSideBar={toggleSideBar}
+              />
+              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+                <Navbar toggleSideBar={toggleSideBar} />
+                <Commision />
               </div>
             </div>
           </AgentRoute>
