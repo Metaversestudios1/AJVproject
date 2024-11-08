@@ -161,7 +161,6 @@ function App() {
       path: "/bookings",
       element: (
         <PrivateRoute>
-          <AgentRoute>
             <div className="flex h-screen">
               <Sidebar
                 sidebar={sideBar}
@@ -173,7 +172,6 @@ function App() {
                 <Bookings />
               </div>
             </div>
-          </AgentRoute>
         </PrivateRoute>
       ),
     },
@@ -181,7 +179,6 @@ function App() {
       path: "/commisions",
       element: (
         <PrivateRoute>
-          <AgentRoute>
             <div className="flex h-screen">
               <Sidebar
                 sidebar={sideBar}
@@ -193,7 +190,6 @@ function App() {
                 <Commision />
               </div>
             </div>
-          </AgentRoute>
         </PrivateRoute>
       ),
     },
