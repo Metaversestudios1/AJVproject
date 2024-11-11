@@ -19,6 +19,9 @@ import Bookings from "./components/payout/Bookings";
 import Commision from "./components/payout/Commision";
 import getUserFromToken from "./components/utils/getUserFromToken";
 
+import Notification from './components/Notification/Notification';
+import AddNotification from './components/Notification/AddNotification';
+
 function App() {
   const userInfo = getUserFromToken()
   const [sideBar, setSideBar] = useState(true);
@@ -209,6 +212,20 @@ function App() {
               <Sites />
             </div>
           </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/notification",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Notification/>
+          </div>
+        </div>
         </PrivateRoute>
       ),
     },
