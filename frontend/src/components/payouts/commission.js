@@ -21,9 +21,15 @@ const Commission = () => {
     // You can set initial values to empty or a specific date format
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
-
+    const sevenDaysLater = new Date(today);
+    sevenDaysLater.setDate(today.getDate() + 7); // Add 7 days to the current date
+    
+    const formattedStartDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    const formattedEndDate = sevenDaysLater.toISOString().split('T')[0]; // Format to 7 days later
+  
+  
     setStartDate(formattedDate); // Optional: Set a specific date
-    setEndDate(formattedDate); // Optional: Set to the same date
+    setEndDate(formattedEndDate); // Optional: Set to the same date
   }, []); // Empty dependency array to run only once on mount
 
   // Call fetchOldData when startDate or endDate changes
@@ -32,6 +38,29 @@ const Commission = () => {
       fetchOldData();
     }
   }, [startDate, endDate]);
+  const fetchsite1 = async (id) => {
+  //  console.log("id",id);
+    try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/getSingleSite`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          }
+        );
+        const result = await response.json();
+        if (result.success) { 
+         // console.log('site number',result.result.site_count);
+             return result?.result?.site_count;
+       } else {
+          console.error("No data found for the given parameter.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch old data:", error);
+      }
+  };
+
   const fetchsite = async (id) => {
     try {
         const response = await fetch(
@@ -109,8 +138,9 @@ const Commission = () => {
                       // Fetch property name if siteId exists
                       if (siteId) {
                         const propertyName = await fetchsite(siteId);
+                        const siteNumber = await fetchsite1(siteId);
                         console.log(propertyName);
-                        return { ...commission, propertyName }; // Add property name to each commission
+                        return { ...commission, propertyName,siteNumber }; // Add property name to each commission
                       }
                     }
       
@@ -257,6 +287,9 @@ const Commission = () => {
                     Property Name
                   </th>
                   <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                    Site Number
+                  </th>
+                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                     Agent Name
                   </th>
                   <th scope="col" className="px-6 py-3 border-2 border-gray-300">
@@ -281,8 +314,10 @@ const Commission = () => {
               <tbody>
           {agent.flatMap((agents) => 
             agents.commissions.map((commissions, index) => (
-              <tr key={`${commissions._id}-${index}`}>      
+              <tr key={`${commissions._id}-${index}`}>                
                <td className="border border-gray-300 px-4 py-2">{commissions.propertyName}</td>
+               <td className="border border-gray-300 px-4 py-2">{commissions.siteNumber}</td>
+               
                 <td className="border border-gray-300 px-4 py-2">{agents.agentname}</td>
                 <td className="border border-gray-300 px-4 py-2">{agents.agent_id}</td>
                 <td className="border border-gray-300 px-4 py-2">{commissions.amount}</td>

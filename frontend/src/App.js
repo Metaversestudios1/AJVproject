@@ -31,6 +31,9 @@ import EditProperty from './components/Property/editproperty';
 import Hierarchy from './components/Agent/hierarchy';
 import Booking from './components/payouts/booking';
 import Commission from './components/payouts/commission';
+import Notification from './components/Notification/Notification';
+import AddNotification from './components/Notification/AddNotification';
+
 
 
 
@@ -404,7 +407,34 @@ function App() {
         </PrivateRoute>
       ),
     },
-    
+    {
+      path: "/notification",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <Notification/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/addnotification",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <AddNotification/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
     {
       path: "*",
       element: (

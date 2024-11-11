@@ -18,6 +18,7 @@ const SiteRoutes = require("./Routes/SiteRoutes");
 const RankRoutes = require("./Routes/RankRoutes");
 const DashboardRoutes = require("./Routes/DashboardRoutes");
 const CommonRoute = require("./Routes/CommonRoute");
+const NotificationRoute = require("./Routes/NotificationRoutes");
 // Connect to the database
 connectDB();
 const server = http.createServer(app);
@@ -46,6 +47,7 @@ app.use("/api", SiteRoutes);
 app.use("/api", RankRoutes);
 app.use("/api", DashboardRoutes);
 app.use("/api", CommonRoute);
+app.use("/api", NotificationRoute);
 
 // Root route
 app.get("/", (req, res) => {

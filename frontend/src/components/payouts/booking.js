@@ -29,9 +29,15 @@ const Booking = () => {
     // You can set initial values to empty or a specific date format
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
-
+    const sevenDaysLater = new Date(today);
+    sevenDaysLater.setDate(today.getDate() + 7); // Add 7 days to the current date
+    
+    const formattedStartDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    const formattedEndDate = sevenDaysLater.toISOString().split('T')[0]; // Format to 7 days later
+  
+  
     setStartDate(formattedDate); // Optional: Set a specific date
-    setEndDate(formattedDate); // Optional: Set to the same date
+    setEndDate(formattedEndDate); // Optional: Set to the same date
   }, []); // Empty dependency array to run only once on mount
 
   // Call fetchOldData when startDate or endDate changes
@@ -234,6 +240,9 @@ const Booking = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                     Property Name
                   </th>
+                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                    Site Number
+                  </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                     Total Amount
                   </th>
@@ -258,6 +267,7 @@ const Booking = () => {
             site.payments.map((payment, index) => (
               <tr key={`${site._id}-${index}`}>      
                <td className="border border-gray-300 px-4 py-2">{site.propertyName}</td>
+               <td className="border border-gray-300 px-4 py-2">{site.site_count}</td>
                          
                 <td className="border border-gray-300 px-4 py-2">{site.propertyDetails.totalValue}</td>
                 <td className="border border-gray-300 px-4 py-2">{site.propertyDetails.balanceRemaining}</td>
