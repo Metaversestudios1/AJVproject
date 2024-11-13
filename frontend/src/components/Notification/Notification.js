@@ -38,7 +38,42 @@ const Notification = () => {
     }
   };
 
-
+  const handleDelete = async (e, id) => {
+    e.preventDefault();
+    const permissionOfDelete = window.confirm("Are you sure, you want to delete the Project")
+    if (permissionOfDelete) {
+      let projectOne = notification.length === 1;
+      if (count === 1) {
+        projectOne = false;
+      }
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/deleteNotification`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const response = await res.json();
+      if (response.success) {
+        toast.success('Dashboard Notification is deleted Successfully!', {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        if (projectOne) {
+          setPage(page - 1);
+        } else {
+          fetchData();
+        }
+      }
+    }
+  };
 
 
   const handleChange = (e) => {
@@ -52,10 +87,10 @@ const Notification = () => {
       setPage(1);
     }
   };
-  const handleDeleteImage = async (propertyId, photoIndex) => {
+  const handleDeleteImage = async (notificationId, photoIndex) => {
     // e.preventDefault();
     const permissionOfDelete = window.confirm(
-      "Are you sure, you want to delete the property photo"
+      "Are you sure, you want to delete the notification photo"
     );
 
     if (permissionOfDelete) {
@@ -64,16 +99,16 @@ const Notification = () => {
         userOne = false;
       }
       const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/deletePropertyPhoto`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/deleteNotificationPhoto`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ propertyId, photoIndex }),
+          body: JSON.stringify({ notificationId, photoIndex }),
         }
       );
       const response = await res.json();
       if (response.success) {
-        toast.success("Property photo is deleted Successfully!", {
+        toast.success("Notification photo is deleted Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
@@ -145,7 +180,7 @@ const Notification = () => {
       />
 
       <div className="flex items-center">
-        <div className="text-2xl font-bold mx-2 my-8 px-4">Notification</div>
+        <div className="text-2xl font-bold mx-2 my-8 px-4">Dashboard Notification</div>
       </div>
       <div className="flex justify-between">
         <NavLink to="/addnotification">
@@ -219,6 +254,9 @@ const Notification = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Images
                 </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Action
+                </th>
               </tr>
             </thead>
 
@@ -258,11 +296,28 @@ const Notification = () => {
                                 style={{ width: "50px", height: "50px" }} // Set width and height to 50px
                               />
                             </a>
-                          
+                            <button
+                              onClick={() => handleDeleteImage(item._id, index)} // Call delete function on click
+                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
+                              style={{ cursor: "pointer" }}
+                            >
+                              &times; {/* Cross icon for delete */}
+                            </button>
                           </div>
                         ))}
                       </div>
                     )}
+                  </td>
+                  <td className="px-6 py-4 border-2 border-gray-300 relative">
+                  <div className="flex items-center">
+                      <NavLink to={`/editnotification/${item._id}`}>
+                        <CiEdit className="text-2xl cursor-pointer text-green-900" />
+                      </NavLink>
+                      <MdDelete
+                        onClick={(e) => handleDelete(e, item._id)}
+                        className="text-2xl cursor-pointer text-red-900"
+                      />
+                    </div>
                   </td>
                  
                   

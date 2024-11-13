@@ -113,27 +113,77 @@ const insertNotification = async (req, res) => {
 };
 
 const updateNotification = async (req, res) => {
-  const updatedata = req.body;
-  const id = updatedata.id;
   try {
-    const result = await Notification.updateOne(
-      { _id: id },
-      { $set: updatedata.oldData }
-    );
-    if (!result) {
-      res.status(404).json({ success: false, message: "Notification not found" });
+    const { id } = req.body; // Assume the notificationId is passed as a URL parameter
+    const pData = req.body;
+    let photos = []; // Array to store new image information
+
+    // Check if files were uploaded
+    if (req.files && req.files.length > 0) {
+      console.log("req.files is present");
+
+      // Loop through each file and upload it to Cloudinary (or another service)
+      for (const file of req.files) {
+        const { originalname, buffer, mimetype } = file;
+        if (!mimetype || typeof mimetype !== "string") {
+          console.error("Invalid MIME type:", mimetype);
+          return res.status(400).json({ success: false, message: "Invalid MIME type" });
+        }
+
+        // Upload file to Cloudinary (or your chosen service)
+        const uploadResult = await uploadImage(buffer, originalname, mimetype);
+        if (!uploadResult) {
+          return res.status(500).json({ success: false, message: "File upload error" });
+        }
+
+        // Store each uploaded image's details in the photos array
+        photos.push({
+          publicId: uploadResult.public_id,
+          url: uploadResult.secure_url,
+          originalname: originalname,
+          mimetype: mimetype,
+        });
+      }
     }
-    res.status(201).json({ success: true, result: result });
-  } catch (err) {
-    res
-      .status(500)
-      .json({
+console.log(id);
+    // Find the existing notification
+    const existingNotification = await Notification.findOne({ _id: id });
+console.log(existingNotification);
+    if (!existingNotification) {
+      return res.status(404).json({
         success: false,
-        message: "error in updating the Notification",
-        error: err.message,
+        message: "Notification not found",
       });
+    }
+
+    // If new images are uploaded, add them to the existing images in the database
+    const updatedPhotos = existingNotification.photos.concat(photos);
+
+    // Update the notification, keeping existing images and adding new ones
+    const updatedNotification = await Notification.findOneAndUpdate(
+      { _id: id }, // Find notification by ID
+      { 
+        ...pData, // Other fields in the body will be updated
+        photos: updatedPhotos, // Add new images while keeping old ones
+      },
+      { new: true } // 'new' returns the modified document
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Notification updated successfully",
+      data: updatedNotification,
+    });
+  } catch (error) {
+    console.error("Error updating notification:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error updating notification",
+      error: error.message,
+    });
   }
 };
+
 
 const getAllNotification = async (req, res) => {
   try {
@@ -198,10 +248,51 @@ const deleteNotification = async (req, res) => {
       .json({ success: false, message: "error fetching Notification" });
   }
 };
+
+const deleteNotificationPhoto = async(req,res) =>{
+  const { notificationId, photoIndex } = req.body;
+
+  try {
+    // Find the property by ID
+    const notification = await Notification.findById(notificationId);
+    console.log(notification);
+    if (!notification) {
+      return res.status(404).json({ message: 'notification not found' });
+    }
+
+    // Check if photoIndex is valid
+    if (photoIndex < 0 || photoIndex >= notification.photos.length) {
+      return res.status(400).json({ message: 'Invalid photo index' });
+    }
+
+    // Get the public ID of the photo to delete from Cloudinary
+    const photoPublicId = notification.photos[photoIndex].publicId; // Ensure your photo object has a public_id field
+    // Delete the photo from Cloudinary
+    await cloudinary.uploader.destroy(photoPublicId, (error, result) => {
+      if (error) {
+        console.error('Cloudinary error:', error);
+        return res.status(500).json({ message: 'Failed to delete photo from Cloudinary' });
+      }
+      console.log('Cloudinary result:', result);
+    });
+
+    // Remove the photo from the array
+    notification.photos.splice(photoIndex, 1);
+
+    // Save the updated property
+    await notification.save();
+
+    res.status(200).json({ success:true,message: 'Photo deleted successfully', photos: notification.photos });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({success:false, message: 'Server error' });
+  }
+}
 module.exports = {
   insertNotification,
   updateNotification,
   getAllNotification,
   getSingleNotification,
   deleteNotification,
+  deleteNotificationPhoto
 };

@@ -33,8 +33,7 @@ import Booking from './components/payouts/booking';
 import Commission from './components/payouts/commission';
 import Notification from './components/Notification/Notification';
 import AddNotification from './components/Notification/AddNotification';
-
-
+import EditNotification from './components/Notification/EditNotification';
 
 
 function App() {
@@ -430,6 +429,20 @@ function App() {
           <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
             <Navbar toggleSideBar={toggleSideBar} />
             <AddNotification/>
+          </div>
+        </div>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/editnotification/:id",
+      element: (
+        <PrivateRoute>
+        <div className="flex h-screen">
+          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
+          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+            <Navbar toggleSideBar={toggleSideBar} />
+            <EditNotification/>
           </div>
         </div>
         </PrivateRoute>

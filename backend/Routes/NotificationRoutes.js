@@ -4,6 +4,7 @@ const {
   getAllNotification,
   getSingleNotification,
   deleteNotification,
+  deleteNotificationPhoto
 } = require("../Controllers/NotificationController");
 const express = require("express");
 const router = express.Router();
@@ -24,9 +25,11 @@ const upload = multer({
 
 
 router.post("/insertNotification",upload, insertNotification);
-router.put("/updateNotification", updateNotification);
+router.put("/updateNotification",upload, updateNotification);
 router.get("/getAllNotification", getAllNotification);
 router.post("/getSingleNotification", getSingleNotification);
 router.delete("/deleteNotification", deleteNotification);
+router.delete("/deleteNotificationPhoto", deleteNotificationPhoto);
+
 
 module.exports = router;
