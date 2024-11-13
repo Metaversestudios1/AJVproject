@@ -6,8 +6,10 @@ import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
 import * as XLSX from "xlsx";
- 
+import getUserFromToken from "../utils/getUserFromToken";
+
 const Commission = () => {
+  const userInfo = getUserFromToken();
   const [loader, setLoader] = useState(false);
   const [commission, setcommission] = useState([]); // Initialize as an empty array
 
@@ -20,7 +22,7 @@ const Commission = () => {
   useEffect(() => {
     // You can set initial values to empty or a specific date format
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    const formattedDate = today.toISOString().split("T")[0]; // Format to YYYY-MM-DD
 
     setStartDate(formattedDate); // Optional: Set a specific date
     setEndDate(formattedDate); // Optional: Set to the same date
@@ -34,26 +36,26 @@ const Commission = () => {
   }, [startDate, endDate]);
   const fetchsite = async (id) => {
     try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/getSingleSite`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
-          }
-        );
-        const result = await response.json();
-        if (result.success) { 
-            //console.log(result.result)       
-             const propertyName = await fetchPropertyName(result.result.propertyId)
-             //console.log('property name',propertyName);
-             return propertyName;
-       } else {
-          console.error("No data found for the given parameter.");
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleSite`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
         }
-      } catch (error) {
-        console.error("Failed to fetch old data:", error);
+      );
+      const result = await response.json();
+      if (result.success) {
+        //console.log(result.result)
+        const propertyName = await fetchPropertyName(result.result.propertyId);
+        //console.log('property name',propertyName);
+        return propertyName;
+      } else {
+        console.error("No data found for the given parameter.");
       }
+    } catch (error) {
+      console.error("Failed to fetch old data:", error);
+    }
   };
 
   const fetchPropertyName = async (id) => {
@@ -66,78 +68,51 @@ const Commission = () => {
       }
     );
     const propertyName = await nameRes.json();
-    
+
     if (propertyName && propertyName.success && propertyName.result) {
-        //console.log('property name',propertyName.result.propertyname)
-       return propertyName.result.propertyname;
+      //console.log('property name',propertyName.result.propertyname)
+      return propertyName.result.propertyname;
     } else {
       return "-"; // Return "Unknown" if data is not present
     }
   };
 
   const fetchOldData = async () => {
-    console.log("Fetching data from", startDate, "to", endDate);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getAllAgent?startDate=${startDate}&endDate=${endDate}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgentCommisions?id=${userInfo.id}&startDate=${startDate}&endDate=${endDate}`
       );
       const result = await response.json();
-      if (result.success && result.result) {
-        if (result.success && result.result) {
-          setLoader(true);
-            const allAgent = result.result;
-            const start = new Date(startDate); // Define startDate and endDate as needed
-            const end = new Date(endDate);
-      
-            const allAgentsWithFilteredCommissions = await Promise.all(
-              result.result.map(async (agent) => {
-                const updatedCommissions = await Promise.all(
-                  (agent.commissions || []).map(async (commission) => {
-                    const commissionDate = new Date(commission.date);
-                    const normalizedCommissionDate = new Date(
-                      commissionDate.getFullYear(),
-                      commissionDate.getMonth(),
-                      commissionDate.getDate()
-                    );
-                    const normalizedStartDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-                    const normalizedEndDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-      
-                    // Filter by date range
-                    if (normalizedCommissionDate >= normalizedStartDate && normalizedCommissionDate <= normalizedEndDate) {
-                      const siteId = commission.siteId;
-      
-                      // Fetch property name if siteId exists
-                      if (siteId) {
-                        const propertyName = await fetchsite(siteId);
-                        console.log(propertyName);
-                        return { ...commission, propertyName }; // Add property name to each commission
-                      }
-                    }
-      
-                    return null; // Return null for commissions outside the date range
-                  })
-                );
-      
-                // Filter out null values from commissions array
-                const filteredCommissions = updatedCommissions.filter((commission) => commission !== null);
-                return { ...agent, commissions: filteredCommissions }; // Replace commissions with updated array
-              })
-            );
-      
-            setAgent(allAgentsWithFilteredCommissions); setLoader(false);
-          
-           // setPayments(allPayments); // Set payments state
-          } else {
-            console.error("No data found for the given parameter.");
-          }
 
+      if (result.success && result.result) {
+        const agent = result.result;
+
+        // Map over the commissions array directly to add property names
+        const updatedCommissions = await Promise.all(
+          agent.commissions.map(async (commission) => {
+            const siteId = commission.siteId;
+
+            if (siteId) {
+              // Fetch property name based on siteId
+              const propertyName = await fetchsite(siteId);
+              return { ...commission, propertyName };
+            }
+
+            return commission; // Return commission as is if no siteId
+          })
+        );
+        console.log(updatedCommissions);
+
+        setAgent({ ...agent, commissions: updatedCommissions });
+        setLoader(false);
       } else {
         console.error("No data found for the given parameter.");
       }
     } catch (error) {
-      console.error("Failed to fetch old data:", error);
+      console.error("Failed to fetch data:", error);
     }
   };
+  console.log(agent);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -156,7 +131,7 @@ const Commission = () => {
       const totalCells = cells.length;
 
       // Loop through cells except the last two
-      for (let index = 0; index < totalCells ; index++) {
+      for (let index = 0; index < totalCells; index++) {
         // Assuming you have predefined column headers
         const columnHeader =
           table.querySelectorAll("thead th")[index].innerText; // Get header name
@@ -198,7 +173,7 @@ const Commission = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Booking Amounts</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Commisions</div>
         </div>
       </div>
       <div className="flex justify-center">
@@ -221,7 +196,7 @@ const Commission = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)} // Update state on change
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
-   />
+          />
         </div>
         <div className="flex">
           <button
@@ -253,46 +228,78 @@ const Commission = () => {
             >
               <thead className="text-xs uppercase bg-gray-200">
                 <tr>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Property Name
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Agent Name
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Agent Id
                   </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Commission Amount
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Commission Percentage(%)
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Commission Percentage(%)
                   </th>
-                 
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                    TDS deduction
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    TdS Deduction
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                    Commission Date 
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
+                    Commission Date
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-          {agent.flatMap((agents) => 
-            agents.commissions.map((commissions, index) => (
-              <tr key={`${commissions._id}-${index}`}>      
-               <td className="border border-gray-300 px-4 py-2">{commissions.propertyName}</td>
-                <td className="border border-gray-300 px-4 py-2">{agents.agentname}</td>
-                <td className="border border-gray-300 px-4 py-2">{agents.agent_id}</td>
-                <td className="border border-gray-300 px-4 py-2">{commissions.amount}</td>
-                <td className="border border-gray-300 px-4 py-2">{commissions.percentage} % </td>
-                <td className="border border-gray-300 px-4 py-2">{commissions.tdsDeduction}</td>
-                <td className="border border-gray-300 px-4 py-2">{new Date(commissions.date).toLocaleDateString()}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
+                {agent?.commissions?.map((commissions, index) => (
+                  <tr key={`${commissions._id}-${index}`}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {commissions.propertyName}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {agent.agentname}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {agent.agent_id}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {commissions.amount}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {commissions.percentage} %{" "}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {commissions.tdsDeduction}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {new Date(commissions.date).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>

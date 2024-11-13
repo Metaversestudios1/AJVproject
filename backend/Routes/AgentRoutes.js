@@ -43,8 +43,8 @@ router.get("/getNextAgentId", getNextAgentId);
 router.post("/getAgentCommition", getAgentCommition);
 router.put("/updateAgentDetails", upload.fields([{ name: 'photo', maxCount: 1 }]), updateAgentDetails);
  
-router.post("/getNotification", getNotification);
-router.post("/offNotification", offNotification);
+router.post("/getAgentNotification", getNotification);
+router.post("/offAgentNotification", offNotification);
 router.post("/updatestatus/:id", updatestatus);
 
 

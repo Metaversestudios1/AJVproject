@@ -6,21 +6,13 @@ import "react-toastify/dist/ReactToastify.css";
 import $ from "jquery";
 import "jquery-validation";
 import * as XLSX from "xlsx";
+import getUserFromToken from "../utils/getUserFromToken";
 
 const Booking = () => {
+  const userInfo = getUserFromToken();
   const [loader, setLoader] = useState(false);
-  const [payments, setPayments] = useState([]); // Initialize as an empty array
-  const [clients, setClients] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [totalValue, settotalValue] = useState(0);
-  const [siteid, setsiteid] = useState([]);
-  const [clientName, setClientName] = useState("");
-  const [agentName, setAgentName] = useState("");
-  const [propertyName, setPropertyName] = useState("");
-  const [error, setError] = useState("");
-  const params = useParams();
+
   const navigate = useNavigate();
-  const [remainingBalance, setRemainingBalance] = useState(totalValue);
   const [sites, setSites] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -28,7 +20,7 @@ const Booking = () => {
   useEffect(() => {
     // You can set initial values to empty or a specific date format
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    const formattedDate = today.toISOString().split("T")[0]; // Format to YYYY-MM-DD
 
     setStartDate(formattedDate); // Optional: Set a specific date
     setEndDate(formattedDate); // Optional: Set to the same date
@@ -50,66 +42,67 @@ const Booking = () => {
       }
     );
     const propertyName = await nameRes.json();
-    
-    if (propertyName && propertyName.success && propertyName.result) {
-       return propertyName.result.propertyname;
-    } else {
-      return "-"; // Return "Unknown" if data is not present
-    }
+    return propertyName?.success && propertyName.result
+      ? propertyName.result.propertyname
+      : "-";
   };
 
   const fetchOldData = async () => {
     console.log("Fetching data from", startDate, "to", endDate);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/getAllSite?startDate=${startDate}&endDate=${endDate}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgentSiteBookings?id=${userInfo.id}&startDate=${startDate}&endDate=${endDate}`
       );
       const result = await response.json();
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+console.log(result)
       if (result.success && result.result) {
-        const formatDate = (dateString) => {
-          if (dateString) {
-            const date = new Date(dateString);
-            return date.toISOString().split("T")[0]; // Convert to yyyy-mm-dd format
-          }
-          return ""; // Return empty if dateString is null/undefined
-        };
-        if (result.success && result.result) {
-          setLoader(true);
-            const allSites = result.result;
-            setSites(allSites); // Store al
-            // Assuming result.result is an array of sites
-            const updatedSites = await Promise.all(
-                allSites.map(async (site) => {
-                  const propertyName = await fetchPropertyName(site.propertyId); // Fetch property name using propertyId
-                 
-                  const filteredPayments = site.payments.filter((payment) => {
-                    const paymentDate = new Date(payment.date);
-                    
-                    // Normalize the date components to only compare dates, not times
-                    const normalizedPaymentDate = new Date(
-                      paymentDate.getFullYear(),
-                      paymentDate.getMonth(),
-                      paymentDate.getDate()
-                    );
-                    const normalizedStartDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-                    const normalizedEndDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-                  
-                    // Compare only the dates
-                    return normalizedPaymentDate >= normalizedStartDate && normalizedPaymentDate <= normalizedEndDate;
-                  });
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-                 return { ...site, propertyName, payments: filteredPayments }; // Add property name to the site object
-                })
+        setLoader(true);
+        const allSites = result.result;
+console.log(allSites)
+        // Fetch property names and filter by agentId
+        const updatedSites = await Promise.all(
+          allSites.map(async (site) => {
+            const propertyName = await fetchPropertyName(site.propertyId);
+
+            // Filter payments by date range
+            const filteredPayments = site.payments.filter((payment) => {
+              const paymentDate = new Date(payment.date);
+              const normalizedPaymentDate = new Date(
+                paymentDate.getFullYear(),
+                paymentDate.getMonth(),
+                paymentDate.getDate()
               );
-              setSites(updatedSites);
-              setLoader(false);
-           // setPayments(allPayments); // Set payments state
-          } else {
-            console.error("No data found for the given parameter.");
-          }
+              const normalizedStartDate = new Date(
+                start.getFullYear(),
+                start.getMonth(),
+                start.getDate()
+              );
+              const normalizedEndDate = new Date(
+                end.getFullYear(),
+                end.getMonth(),
+                end.getDate()
+              );
 
+              return (
+                normalizedPaymentDate >= normalizedStartDate &&
+                normalizedPaymentDate <= normalizedEndDate
+              );
+            });
+
+            return { ...site, propertyName, payments: filteredPayments };
+          })
+        );
+console.log(updatedSites)
+        // Filter sites by logged-in agent ID
+        const filteredSites = updatedSites.filter(
+          (site) => site.agentId === userInfo.id
+        );
+
+        setSites(filteredSites);
+        setLoader(false);
       } else {
         console.error("No data found for the given parameter.");
       }
@@ -117,11 +110,11 @@ const Booking = () => {
       console.error("Failed to fetch old data:", error);
     }
   };
-
+console.log(sites)
   const handleGoBack = () => {
     navigate(-1);
   };
-  function downloadExcel() { 
+  function downloadExcel() {
     const table = document.getElementById("sitetable"); // Your table ID
     const allDataRows = []; // This will hold all the table rows data
 
@@ -134,7 +127,7 @@ const Booking = () => {
       const totalCells = cells.length;
 
       // Loop through cells except the last two
-      for (let index = 0; index < totalCells ; index++) {
+      for (let index = 0; index < totalCells; index++) {
         // Assuming you have predefined column headers
         const columnHeader =
           table.querySelectorAll("thead th")[index].innerText; // Get header name
@@ -176,7 +169,9 @@ const Booking = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Booking Amounts</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">
+            Booking Amounts
+          </div>
         </div>
       </div>
       <div className="flex justify-center">
@@ -199,7 +194,7 @@ const Booking = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)} // Update state on change
             className={`text-black border-[1px] rounded-lg bg-white p-2 m-5`}
-   />
+          />
         </div>
         <div className="flex">
           <button
@@ -231,43 +226,73 @@ const Booking = () => {
             >
               <thead className="text-xs uppercase bg-gray-200">
                 <tr>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Property Name
                   </th>
-                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Total Amount
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     balanceRemaining
                   </th>
-                 
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Payments
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Payments Amount
                   </th>
-                  <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 border-2 border-gray-300"
+                  >
                     Payments Date
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-          {sites.flatMap((site) => 
-            site.payments.map((payment, index) => (
-              <tr key={`${site._id}-${index}`}>      
-               <td className="border border-gray-300 px-4 py-2">{site.propertyName}</td>
-                         
-                <td className="border border-gray-300 px-4 py-2">{site.propertyDetails.totalValue}</td>
-                <td className="border border-gray-300 px-4 py-2">{site.propertyDetails.balanceRemaining}</td>
-                <td className="border border-gray-300 px-4 py-2">{index+1}</td>
-                <td className="border border-gray-300 px-4 py-2">{payment.amount}</td>
-                <td className="border border-gray-300 px-4 py-2">{new Date(payment.date).toLocaleDateString()}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
+                {sites.flatMap((site) =>
+                  site.payments.map((payment, index) => (
+                    <tr key={`${site._id}-${index}`}>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {site.propertyName}
+                      </td>
+
+                      <td className="border border-gray-300 px-4 py-2">
+                        {site.propertyDetails.totalValue}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {site.propertyDetails.balanceRemaining}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {payment.amount}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {new Date(payment.date).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
             </table>
           </div>
         </div>

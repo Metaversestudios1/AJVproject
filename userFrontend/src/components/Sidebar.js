@@ -6,7 +6,7 @@ import { IoHomeOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 const Sidebar = ({ sidebar, toggleSideBar }) => {
   const userInfo = getUserFromToken();
-  console.log(userInfo)
+  console.log(userInfo.role)
   return (
     <>
       <div
@@ -21,15 +21,15 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
         >
           <div className="px-6">
             <a
-              className="flex-none text-xl font-semibold text-white"
+              
               href="/"
               aria-label="Brand"
             >
-              {userInfo.username}
-            </a>
+              <img src="/navbarLogo.png" className="w-12 text-center"/>
+              </a>
           </div>
           <nav
-            className="hs-accordion-group p-3 w-full flex flex-col flex-wrap mt-8"
+            className="hs-accordion-group p-3 w-full flex flex-col flex-wrap mt-4"
             data-hs-accordion-always-open
           >
             <ul className="space-y-1.5">
@@ -167,7 +167,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                 </NavLink>
               </li>*/}
               {
-                (userInfo.role = "agent" && (
+                (userInfo.role === "agent" && (
                   <li className="hs-accordion" id="users-accordion">
                     <NavLink
                       to="/bookings"
@@ -191,7 +191,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                 ))
               }
               {
-                (userInfo.role = "agent" && (
+                (userInfo.role ==="agent" && (
                   <li className="hs-accordion" id="users-accordion">
                     <NavLink
                       to="/commisions"

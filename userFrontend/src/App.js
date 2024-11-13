@@ -19,11 +19,11 @@ import Bookings from "./components/payout/Bookings";
 import Commision from "./components/payout/Commision";
 import getUserFromToken from "./components/utils/getUserFromToken";
 
-import Notification from './components/Notification/Notification';
-import AddNotification from './components/Notification/AddNotification';
+import Notification from "./components/Notification/Notification";
+import AddNotification from "./components/Notification/AddNotification";
 
 function App() {
-  const userInfo = getUserFromToken()
+  const userInfo = getUserFromToken();
   const [sideBar, setSideBar] = useState(true);
   const toggleSideBar = () => {
     setSideBar(!sideBar);
@@ -107,17 +107,17 @@ function App() {
       path: `editclient/:id`,
       element: (
         <PrivateRoute>
-            <div className="flex h-screen">
-              <Sidebar
-                sidebar={sideBar}
-                className="flex-1"
-                toggleSideBar={toggleSideBar}
-              />
-              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-                <Navbar toggleSideBar={toggleSideBar} />
-                <EditClient />
-              </div>
+          <div className="flex h-screen">
+            <Sidebar
+              sidebar={sideBar}
+              className="flex-1"
+              toggleSideBar={toggleSideBar}
+            />
+            <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+              <Navbar toggleSideBar={toggleSideBar} />
+              <EditClient />
             </div>
+          </div>
         </PrivateRoute>
       ),
     },
@@ -125,17 +125,17 @@ function App() {
       path: `editagent/:id`,
       element: (
         <PrivateRoute>
-            <div className="flex h-screen">
-              <Sidebar
-                sidebar={sideBar}
-                className="flex-1"
-                toggleSideBar={toggleSideBar}
-              />
-              <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-                <Navbar toggleSideBar={toggleSideBar} />
-                <EditAgent />
-              </div>
+          <div className="flex h-screen">
+            <Sidebar
+              sidebar={sideBar}
+              className="flex-1"
+              toggleSideBar={toggleSideBar}
+            />
+            <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+              <Navbar toggleSideBar={toggleSideBar} />
+              <EditAgent />
             </div>
+          </div>
         </PrivateRoute>
       ),
     },
@@ -164,6 +164,7 @@ function App() {
       path: "/bookings",
       element: (
         <PrivateRoute>
+          <AgentRoute>
             <div className="flex h-screen">
               <Sidebar
                 sidebar={sideBar}
@@ -175,6 +176,7 @@ function App() {
                 <Bookings />
               </div>
             </div>
+          </AgentRoute>
         </PrivateRoute>
       ),
     },
@@ -182,6 +184,7 @@ function App() {
       path: "/commisions",
       element: (
         <PrivateRoute>
+          <AgentRoute>
             <div className="flex h-screen">
               <Sidebar
                 sidebar={sideBar}
@@ -193,6 +196,7 @@ function App() {
                 <Commision />
               </div>
             </div>
+          </AgentRoute>
         </PrivateRoute>
       ),
     },
@@ -219,13 +223,17 @@ function App() {
       path: "/notification",
       element: (
         <PrivateRoute>
-        <div className="flex h-screen">
-          <Sidebar sidebar={sideBar} className="flex-1" toggleSideBar={toggleSideBar}/>
-          <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
-            <Navbar toggleSideBar={toggleSideBar} />
-            <Notification/>
+          <div className="flex h-screen">
+            <Sidebar
+              sidebar={sideBar}
+              className="flex-1"
+              toggleSideBar={toggleSideBar}
+            />
+            <div className="flex flex-col flex-grow overflow-y-auto flex-[3]">
+              <Navbar toggleSideBar={toggleSideBar} />
+              <Notification />
+            </div>
           </div>
-        </div>
         </PrivateRoute>
       ),
     },
