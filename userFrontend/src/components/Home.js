@@ -17,7 +17,7 @@ const Home = () => {
   const [totalSites, setTotalSites] = useState(0);
   const [totalAvailableSites, setTotalAvailableSites] = useState(0);
   const [totalBookedSites, setTotalBookedSites] = useState(0);
-
+  const [dashboardNotification, setDashboardNotification] = useState([]);
   useEffect(() => {
     setLoader(true); // Start loader before data fetches begin
 
@@ -26,10 +26,9 @@ const Home = () => {
         // Define all requests based on the role
         const requests = [
           fetchAgentHierarchy(),
+          fetchNotifications(),
           ...(userInfo.role === "client" ? [fetchClientSites()] : []),
-          ...(userInfo.role === "agent"
-            ? [fetchPropertyCount(), fetchClientCount()]
-            : []),
+          ...(userInfo.role === "agent" ? [fetchPropertyCount()] : []),
         ];
 
         // Await all fetch requests
@@ -43,6 +42,20 @@ const Home = () => {
 
     fetchData();
   }, [userInfo.role]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/getAllNotification`
+      );
+      const notificationsData = await response.json();
+      if (notificationsData.success) {
+        setDashboardNotification(notificationsData.result);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   const fetchClient = async () => {
     const res = await fetch(
@@ -69,16 +82,13 @@ const Home = () => {
     const clientData = await fetchClient();
     if (clientData && clientData.bookedProperties) {
       const bookedProperties = clientData.bookedProperties;
-      console.log(bookedProperties);
       // Fetch all sites and filter for the client’s booked properties
       const allSites = await fetchAllSites();
-      console.log(allSites);
       const sitesForClient = allSites.filter((site) => {
-        console.log(bookedProperties === site.propertyId ||site.clientId === userInfo.id)
-        return ((bookedProperties === site.propertyId) ||
-          site.clientId === userInfo.id)
+        return (
+          bookedProperties === site.propertyId || site.clientId === userInfo.id
+        );
       });
-      console.log(sitesForClient);
       setTotalClientSites(sitesForClient.length);
     }
   };
@@ -111,11 +121,10 @@ const Home = () => {
       );
       const response = await res.json();
       const allSites = response.result;
-console.log(allSites, properties)
       properties.forEach((property) => {
-        const sitesForProperty = allSites.filter(
-          (site) => {console.log(site.propertyId === property);return site.propertyId === property}
-        );
+        const sitesForProperty = allSites.filter((site) => {
+          return site.propertyId === property;
+        });
         totalSiteCount += sitesForProperty.length;
         availableSiteCount += sitesForProperty.filter(
           (site) => site.status === "Available"
@@ -131,14 +140,6 @@ console.log(allSites, properties)
     } catch (error) {
       console.error("Error fetching sites:", error);
     }
-  };
-
-  const fetchClientCount = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/getclientcount`
-    );
-    const response = await res.json();
-    setTotalClient(response.count);
   };
 
   const fetchAgentHierarchy = async () => {
@@ -251,7 +252,6 @@ console.log(allSites, properties)
         </div>
       ) : (
         <div className="flex flex-col flex-wrap md:flex-row p-3 mb-6 w-full">
-          {/* Property Summary */}
           {userInfo.role === "Agent" || userInfo.role === "agent" ? (
             <>
               <div className="flex gap-2 flex-wrap flex-col md:flex-row  flex-1 my-1">
@@ -359,9 +359,30 @@ console.log(allSites, properties)
                 </NavLink>
               </div>
 
-              <br /> 
+              <br />
             </div>
           )}
+          <div>
+            <div className="">
+              {dashboardNotification.map((item, index) => {
+                return (
+                  <>
+                    <div className="font-bold my-5">{index + 1}.</div>
+                    <div className="grid grid-cols-2">
+                      <div>
+                        {item?.photos.map((img) => {
+                          return <img src={img.url} />;
+                        })}
+                      </div>
+                      <div className="mx-5">
+                        <b>Description:</b> {item.description}
+                      </div>
+                    </div>
+                  </>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
