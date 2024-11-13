@@ -128,7 +128,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { id: admin._id },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      // { expiresIn: "1h" }
     );
 
     // Update last login fields with the new session info
@@ -144,7 +144,7 @@ const login = async (req, res) => {
     await admin.save(); 
     
     const options = {
-      expires: new Date(Date.now() + 2592000000), // 30 days
+      // expires: new Date(Date.now() + 2592000000), // 30 days
       httpOnly: true,
       sameSite: "None",
     };
