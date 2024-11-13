@@ -367,14 +367,16 @@ const Home = () => {
               {dashboardNotification.map((item, index) => {
                 return (
                   <>
-                  <div className="font-bold my-5">
-                  {index+1}. 
-                  </div>
-                  <div className="grid grid-cols-2">
-                    <div>
-                      <img src= {item.photos[index].url}/>
-                    </div>
-                    <div className="mx-5"><b>Description:</b> {item.description}</div>
+                    <div className="font-bold my-5">{index + 1}.</div>
+                    <div className="grid grid-cols-2">
+                      <div>
+                        {item?.photos.map((img) => {
+                          return <img src={img.url} />;
+                        })}
+                      </div>
+                      <div className="mx-5">
+                        <b>Description:</b> {item.description}
+                      </div>
                     </div>
                   </>
                 );
