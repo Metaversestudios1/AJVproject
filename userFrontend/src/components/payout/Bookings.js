@@ -18,12 +18,15 @@ const Booking = () => {
   const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-    // You can set initial values to empty or a specific date format
     const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+    const sevenDaysLater = new Date(today);
+    sevenDaysLater.setDate(today.getDate() + 7); // Add 7 days to the current date
 
-    setStartDate(formattedDate); // Optional: Set a specific date
-    setEndDate(formattedDate); // Optional: Set to the same date
+    const formattedStartDate = today.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+    const formattedEndDate = sevenDaysLater.toISOString().split("T")[0]; // Format to 7 days later
+
+    setStartDate(formattedStartDate); // Optional: Set a specific date
+    setEndDate(formattedEndDate); // Optional: Set to the same date
   }, []); // Empty dependency array to run only once on mount
 
   // Call fetchOldData when startDate or endDate changes
@@ -48,20 +51,17 @@ const Booking = () => {
   };
 
   const fetchOldData = async () => {
-    console.log("Fetching data from", startDate, "to", endDate);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/getSingleAgentSiteBookings?id=${userInfo.id}&startDate=${startDate}&endDate=${endDate}`
       );
       const result = await response.json();
-console.log(result)
       if (result.success && result.result) {
         const start = new Date(startDate);
         const end = new Date(endDate);
 
         setLoader(true);
         const allSites = result.result;
-console.log(allSites)
         // Fetch property names and filter by agentId
         const updatedSites = await Promise.all(
           allSites.map(async (site) => {
@@ -95,7 +95,6 @@ console.log(allSites)
             return { ...site, propertyName, payments: filteredPayments };
           })
         );
-console.log(updatedSites)
         // Filter sites by logged-in agent ID
         const filteredSites = updatedSites.filter(
           (site) => site.agentId === userInfo.id
@@ -110,7 +109,6 @@ console.log(updatedSites)
       console.error("Failed to fetch old data:", error);
     }
   };
-console.log(sites)
   const handleGoBack = () => {
     navigate(-1);
   };

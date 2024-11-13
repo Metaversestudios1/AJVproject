@@ -6,7 +6,7 @@ import { IoHomeOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 const Sidebar = ({ sidebar, toggleSideBar }) => {
   const userInfo = getUserFromToken();
-  console.log(userInfo.role)
+  console.log(userInfo.role);
   return (
     <>
       <div
@@ -20,13 +20,9 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
           }`}
         >
           <div className="px-6">
-            <a
-              
-              href="/"
-              aria-label="Brand"
-            >
-              <img src="/navbarLogo.png" className="w-12 text-center"/>
-              </a>
+            <a href="/" aria-label="Brand">
+              <img src="/navbarLogo.png" className="w-12 text-center" />
+            </a>
           </div>
           <nav
             className="hs-accordion-group p-3 w-full flex flex-col flex-wrap mt-4"
@@ -166,56 +162,52 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                 </button>
                 </NavLink>
               </li>*/}
-              {
-                (userInfo.role === "agent" && (
-                  <li className="hs-accordion" id="users-accordion">
-                    <NavLink
-                      to="/bookings"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "flex items-center gap-x-3.5  text-sm text-white bg-[#0472ff] rounded-lg"
-                          : "flex items-center gap-x-3.5  text-sm text-white rounded-lg hover:text-black hover:bg-white transition-all duration-200 hover:scale-105"
-                      }
+              {userInfo.role === "agent" && (
+                <li className="hs-accordion" id="users-accordion">
+                  <NavLink
+                    to="/bookings"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "flex items-center gap-x-3.5  text-sm text-white bg-[#0472ff] rounded-lg"
+                        : "flex items-center gap-x-3.5  text-sm text-white rounded-lg hover:text-black hover:bg-white transition-all duration-200 hover:scale-105"
+                    }
+                  >
+                    <button
+                      type="button"
+                      className="w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg transition-all duration-200 hover:bg-gray-100 hover:text-black"
                     >
-                      <button
-                        type="button"
-                        className="w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg transition-all duration-200 hover:bg-gray-100 hover:text-black"
-                      >
-                        <div className="flex items-center">
-                          <IoHomeOutline className="mr-4" />
-                          Bookings
-                        </div>
-                      </button>
-                    </NavLink>
-                  </li>
-                ))
-              }
-              {
-                (userInfo.role ==="agent" && (
-                  <li className="hs-accordion" id="users-accordion">
-                    <NavLink
-                      to="/commisions"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "flex items-center gap-x-3.5  text-sm text-white bg-[#0472ff] rounded-lg"
-                          : "flex items-center gap-x-3.5  text-sm text-white rounded-lg hover:text-black hover:bg-white transition-all duration-200 hover:scale-105"
-                      }
+                      <div className="flex items-center">
+                        <IoHomeOutline className="mr-4" />
+                        Bookings
+                      </div>
+                    </button>
+                  </NavLink>
+                </li>
+              )}
+              {userInfo.role === "agent" && (
+                <li className="hs-accordion" id="users-accordion">
+                  <NavLink
+                    to="/commisions"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "flex items-center gap-x-3.5  text-sm text-white bg-[#0472ff] rounded-lg"
+                        : "flex items-center gap-x-3.5  text-sm text-white rounded-lg hover:text-black hover:bg-white transition-all duration-200 hover:scale-105"
+                    }
+                  >
+                    <button
+                      type="button"
+                      className="w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg transition-all duration-200 hover:bg-gray-100 hover:text-black"
                     >
-                      <button
-                        type="button"
-                        className="w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-white rounded-lg transition-all duration-200 hover:bg-gray-100 hover:text-black"
-                      >
-                        <div className="flex items-center">
-                          <IoHomeOutline className="mr-4" />
-                          Commisions
-                        </div>
-                      </button>
-                    </NavLink>
-                  </li>
-                ))
-              }
-                            
-<li
+                      <div className="flex items-center">
+                        <IoHomeOutline className="mr-4" />
+                        Commisions
+                      </div>
+                    </button>
+                  </NavLink>
+                </li>
+              )}
+
+              {/*<li
                 className=" hover:scale-105 transition-transform duration-200 "
                 onClick={toggleSideBar}
               >
@@ -245,7 +237,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   Notification
                 </NavLink>
               </li>
-              
+              */}
             </ul>
             {/* <li className="hs-accordion " id="users-accordion ">
                 <button
@@ -280,7 +272,6 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
                   )}
                 </button>
               </li> */}
-
           </nav>
         </div>
       </div>
