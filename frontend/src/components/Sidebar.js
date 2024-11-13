@@ -40,7 +40,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
         style={{ width: "50px", height: "50px" }}
         className="mr-2" // Adjust size as needed
       />
-              Admin
+              
             </a>
           </div>
           <nav
