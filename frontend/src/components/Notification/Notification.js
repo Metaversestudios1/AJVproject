@@ -40,7 +40,7 @@ const Notification = () => {
 
   const handleDelete = async (e, id) => {
     e.preventDefault();
-    const permissionOfDelete = window.confirm("Are you sure, you want to delete the Project")
+    const permissionOfDelete = window.confirm("Are you sure, you want to delete the notification")
     if (permissionOfDelete) {
       let projectOne = notification.length === 1;
       if (count === 1) {
