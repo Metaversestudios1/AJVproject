@@ -44,7 +44,7 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
             </a>
           </div>
           <nav
-            className="hs-accordion-group p-3 w-full flex flex-col flex-wrap mt-4"
+            className="hs-accordion-group p-2 w-full flex flex-col flex-wrap mt-4"
             data-hs-accordion-always-open
           >
             <ul className="space-y-1.5">
