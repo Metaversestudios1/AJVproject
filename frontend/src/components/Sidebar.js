@@ -34,6 +34,12 @@ const Sidebar = ({ sidebar, toggleSideBar }) => {
               href="/"
               aria-label="Brand"
             >
+              <img
+        src="/avjlogo.png" // Update this path to your logo image path
+        alt="Admin Logo"
+        style={{ width: "50px", height: "50px" }}
+        className="mr-2" // Adjust size as needed
+      />
               Admin
             </a>
           </div>
