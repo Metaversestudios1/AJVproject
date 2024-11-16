@@ -20,7 +20,6 @@ const Home = () => {
   const [dashboardNotification, setDashboardNotification] = useState([]);
   useEffect(() => {
     setLoader(true); // Start loader before data fetches begin
-
     const fetchData = async () => {
       try {
         // Define all requests based on the role
