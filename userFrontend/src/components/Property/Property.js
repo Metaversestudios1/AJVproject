@@ -41,11 +41,11 @@ const Property = () => {
         const propertyIds = agentResponse.result?.properties || []; // Getting property IDs array
         fetchProperties(propertyIds);
       } else {
-        toast.error("Failed to fetch agent details.");
+        toast.error("Failed to fetch Advisor details.");
         setLoader(false);
       }
     } catch (error) {
-      toast.error("Error fetching agent details.");
+      toast.error("Error fetching Advisor details.");
       setLoader(false);
     }
   };

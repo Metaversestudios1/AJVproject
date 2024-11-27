@@ -116,7 +116,7 @@ const Profile = () => {
 
           <div className="flex items-center">
             <div className="text-2xl font-bold mx-2 my-8 px-4">
-              {userInfo.role === "agent" ? "Agent" : "Client"}
+              {userInfo.role === "agent" ? "Advisor" : "Client"}
             </div>
           </div>
         </div>
@@ -143,7 +143,7 @@ const Profile = () => {
         <div className="w-[70%] m-auto my-2">
           <form id="siteform">
             <label>
-              <b className="underline">Agent profile</b>
+              <b className="underline">Advisor profile</b>
             </label>
             <div className="grid gap-6 mb-6 md:grid-cols-2 items-center mt-3">
               {agent && (
@@ -153,7 +153,7 @@ const Profile = () => {
                       htmlFor="agentName"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                     >
-                      <b>Agent Name</b>: {agent.agentname}
+                      <b>Advisor Name</b>: {agent.agentname}
                     </label>
                   </div>
                   <div>
@@ -161,7 +161,7 @@ const Profile = () => {
                       htmlFor="agentId"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                     >
-                      <b>Agent ID</b>: {agent.agent_id}
+                      <b>Advisor ID</b>: {agent.agent_id}
                     </label>
                   </div>
                   <div>
@@ -213,7 +213,7 @@ const Profile = () => {
                       htmlFor="superior"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                     >
-                      <b>Referal Agent</b> : {superiorAgent || "None"}
+                      <b>Referal Advisor</b> : {superiorAgent || "None"}
                     </label>
                   </div>
                   <div>

@@ -180,7 +180,7 @@ const Home = () => {
       );
       setHierarchy(hierarchyData);
     } catch (error) {
-      console.error("Error fetching agent hierarchy:", error);
+      console.error("Error fetching advisor hierarchy:", error);
     }
   };
 

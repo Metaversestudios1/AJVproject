@@ -80,7 +80,7 @@ const Login = () => {
               className="border text-sm rounded-lg block w-full p-2.5"
             >
               <option value="">Select a role</option>
-              <option value="agent">Agent</option>
+              <option value="agent">Advisor</option>
               <option value="client">Client</option>
             </select>
           </div>

@@ -67,7 +67,7 @@ const EditAgent = () => {
         bank_details,
       });
     } else {
-      toast.error("Failed to fetch agent data");
+      toast.error("Failed to fetch Advisor data");
     }
   };
 
@@ -123,7 +123,7 @@ const EditAgent = () => {
 
       const result = await response.json();
       if (result.success) {
-        toast.success("Agent updated Successfully!", {
+        toast.success("Advisor updated Successfully!", {
           position: "top-right",
           autoClose: 1000,
           hideProgressBar: false,
@@ -140,8 +140,8 @@ const EditAgent = () => {
         alert(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error("Error updating agent data:", error);
-      alert("An error occurred while updating agent data.");
+      console.error("Error updating Advisor data:", error);
+      alert("An error occurred while updating Advisor data.");
     }
   };
 
@@ -172,7 +172,7 @@ const EditAgent = () => {
         </div>
         <div className="flex items-center">
           <div className="text-2xl font-bold mx-2 my-8 px-4">
-            Edit agent details
+            Edit Advisor details
           </div>
         </div>
       </div>
