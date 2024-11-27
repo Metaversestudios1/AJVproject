@@ -47,7 +47,7 @@ const EditAgent = () => {
         setAgents(response.result); // Set agents data from API response
       }
     } catch (error) {
-      console.error("Failed to fetch agents:", error);
+      console.error("Failed to fetch Advisor:", error);
     }
   };
   const fetchOldData = async () => {
@@ -151,10 +151,10 @@ const EditAgent = () => {
       },
       messages: {
         agentname: {
-          required: "Please enter agent name",
+          required: "Please enter Advisor name",
         },
         agent_id: {
-          required: "Please enter agent id",
+          required: "Please enter Advisor id",
         },
         password: {
           required: "Please enter password",
@@ -208,12 +208,12 @@ const EditAgent = () => {
       );
       const response = await res.json();
       if (response.success) {
-        toast.success("Agent is updated successfully!", {
+        toast.success("Advisor is updated successfully!", {
           position: "top-right",
           autoClose: 1000,
         });
         setTimeout(() => {
-          navigate("/agents");
+          navigate("/advisors");
         }, 1500);
       } else {
         setLoader(false);
@@ -237,7 +237,7 @@ const EditAgent = () => {
           />
         </div>
         <div className="flex items-center">
-          <div className="text-2xl font-bold mx-2 my-8 px-4">Edit Agent</div>
+          <div className="text-2xl font-bold mx-2 my-8 px-4">Edit Advisor</div>
         </div>
       </div>
       {loader ? (
@@ -277,7 +277,7 @@ const EditAgent = () => {
                   htmlFor="agent_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Agent id <span className="text-red-900 text-lg ">&#x2a;</span>
+                Advisor id <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
                   name="agent_id"
@@ -294,7 +294,7 @@ const EditAgent = () => {
                   htmlFor="agentname"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Agent name{" "}
+                Advisor name{" "}
                   <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <input
@@ -304,12 +304,12 @@ const EditAgent = () => {
                   type="text"
                   id="agentname"
                   className="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-black block w-full p-2.5"
-                  placeholder="Enter Agent name"
+                  placeholder="Enter Advisor name"
                 />
               </div>
               <div>
                 <label htmlFor="agentname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                Referal Agent <span className="text-red-900 text-lg ">&#x2a;</span>
+                Referal Advisor <span className="text-red-900 text-lg ">&#x2a;</span>
                 </label>
                 <div>
                 <select
@@ -319,7 +319,7 @@ const EditAgent = () => {
       disabled // Handle change to update the state
       className="bg-gray-200 border text-gray-900 text-sm rounded-lg p-2.5 w-full"
     >
-      <option value="">Select a referal agent</option>
+      <option value="">Select a referal Advisor</option>
       {agents.map((agent) => (
         <option key={agent._id} value={agent._id}>
           {agent.agentname}

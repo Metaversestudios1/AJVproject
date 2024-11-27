@@ -81,12 +81,12 @@ const AssignProperties = () => {
 
       const response = await res.json();
       if (response.success) {
-        toast.success("Properties assigned to agent successfully!", {
+        toast.success("Properties assigned to Advisor successfully!", {
           position: "top-right",
           autoClose: 1000,
         });
         setTimeout(() => {
-          navigate("/agents");
+          navigate("/advisors");
         }, 1500);
       } else {
         setLoader(false);

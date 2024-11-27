@@ -59,7 +59,7 @@ const Hierarchy = () => {
    
       setHierarchy(hierarchyData);
     } catch (error) {
-      console.error("Error fetching agent hierarchy:", error);
+      console.error("Error fetching Advisor hierarchy:", error);
     }
   };
 

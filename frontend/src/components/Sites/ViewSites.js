@@ -174,7 +174,7 @@ const AddPropertyDetails = () => {
         setAgentName(agentResult.result); // Adjust based on the response structure
       }
     } catch (error) {
-      console.error("Error fetching client and agent names:", error);
+      console.error("Error fetching client and Advisor names:", error);
     }
   };
 
@@ -405,7 +405,7 @@ function downloadExcel() {
                     scope="col"
                     className="px-6 py-3 border-2 border-gray-300"
                   >
-                    Agent Name
+                    Advisor Name
                   </th>
                   {/* <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Site Number
@@ -561,25 +561,25 @@ function downloadExcel() {
       <div>
         {commissionData.map((commission, idx) => (
           <div key={idx}>
-            {/* Display agent name and agent ID directly from the commission object */}
+            {/* Display Advisor name and Advisor ID directly from the commission object */}
             <div className="mb-2">
               <br />
               <h3 className="text-lg font-bold mb-2">
                 {idx === 0 ? (
                   <h3 className="text-lg font-bold mb-2">
-                    Booking Agent Commission
+                    Booking Advisor Commission
                   </h3>
                 ) : (
                   idx === 1 && (
                     <h3 className="text-lg font-bold mb-2">
-                      Other Agent Commission
+                      Other Advisor Commission
                     </h3>
                   )
                 )}
               </h3>
-              <strong>Agent Name:</strong>{" "}
+              <strong>Advisor Name:</strong>{" "}
               {commission.agentname} <br />
-              <strong>Agent ID:</strong>{" "}
+              <strong>Advisor ID:</strong>{" "}
               {commission.agent_id}
             </div>
             Amount: {commission.amount}, Percentage:{" "}{commission.percentage} %,
@@ -612,11 +612,11 @@ function downloadExcel() {
           <div>
             {commissionData.map((commission, idx) => (
               <div key={idx} className="mb-4">
-                {idx === 0 && <h3 className="text-lg font-bold mb-2">Booking Agent Commission</h3>}
-                {idx === 1 && <h3 className="text-lg font-bold mb-2">Other Agent Commission</h3>}
+                {idx === 0 && <h3 className="text-lg font-bold mb-2">Booking Advisor Commission</h3>}
+                {idx === 1 && <h3 className="text-lg font-bold mb-2">Other Advisor Commission</h3>}
                 
-                <div><strong>Agent Name:</strong> {commission.agentname}</div>
-                <div><strong>Agent ID:</strong> {commission.agent_id}</div>
+                <div><strong>Advisor Name:</strong> {commission.agentname}</div>
+                <div><strong>Advisor ID:</strong> {commission.agent_id}</div>
                 <div><strong>Amount:</strong> {commission.amount}</div>
                 <div><strong>Percentage:</strong> {commission.percentage}%</div>
                 <div><strong>TDS Deduction:5% :</strong> {commission.tdsDeduction} </div>

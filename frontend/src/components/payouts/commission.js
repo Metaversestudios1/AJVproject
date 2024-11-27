@@ -290,10 +290,10 @@ const Commission = () => {
                     Site Number
                   </th>
                   <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                    Agent Name
+                  Advisor Name
                   </th>
                   <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                    Agent Id
+                  Advisor Id
                   </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                     Commission Amount

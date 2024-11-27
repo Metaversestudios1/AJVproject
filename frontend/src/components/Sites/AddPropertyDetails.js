@@ -151,7 +151,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
           number: "Please enter a valid number", // Custom message for number validation
         },
         agentId: {
-          required: "Please select agent",
+          required: "Please select Advisor",
         },
         clientId: {
           required: "Please select client",
@@ -602,7 +602,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
                   htmlFor="agentId"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-black"
                 >
-                  Agents
+                  Advisor
                 </label>
                 <select
                   name="agentId"
@@ -612,10 +612,10 @@ const handleChangeAndValidate = (e, remainingAmount) => {
                    disabled={isFirstUpdate === '1'} 
                >
                   {agents.length === 0 ? (
-                    <option value="">Assign property to agent first</option> // Show this option when no agents are available
+                    <option value="">Assign property to Advisor first</option> // Show this option when no agents are available
                   ) : (
                     <>
-                      <option value="">Select an agent.</option>
+                      <option value="">Select an Advisor.</option>
                       {agents.map((option) => (
                         <option
                           key={option?._id}
@@ -630,7 +630,7 @@ const handleChangeAndValidate = (e, remainingAmount) => {
                   )}
                 </select>
                 {agents.length === 0 && (
-                  <NavLink to={`/agents`}>
+                  <NavLink to={`/advisors`}>
                     <button className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">
                       <CiEdit className="inline mr-2" /> Assign Properties
                     </button>

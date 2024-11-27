@@ -121,7 +121,7 @@ function App() {
     },
    
     {
-      path: "/agents",
+      path: "/advisors",
       element: (
         <PrivateRoute>
         <div className="flex h-screen">
@@ -136,7 +136,7 @@ function App() {
     },
 
     {
-      path: "/agents/addagent",
+      path: "/advisors/addadvisor",
       element: (
         <PrivateRoute>
         <div className="flex h-screen">
@@ -150,7 +150,7 @@ function App() {
       ),
     },
     {
-      path: "/agents/editagent/:id",
+      path: "/advisors/editadvisor/:id",
       element: (
         <PrivateRoute>
         <div className="flex h-screen">

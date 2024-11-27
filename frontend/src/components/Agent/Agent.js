@@ -12,7 +12,7 @@ const Agent = () => {
   const [noData, setNoData] = useState(false);
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const [activePropertyId, setActivePropertyId] = useState(null);
@@ -105,7 +105,7 @@ const Agent = () => {
       }
       return null;
     } catch (error) {
-      console.error("Error fetching superior agent:", error);
+      console.error("Error fetching superior advisor:", error);
       return null;
     }
   };
@@ -135,7 +135,7 @@ const Agent = () => {
   const handleDelete = async (e, id) => {
     e.preventDefault();
     const permissionOfDelete = window.confirm(
-      "Are you sure, you want to delete the user"
+      "Are you sure, you want to delete the advisor"
     );
     if (permissionOfDelete) {
       let agentOne = agents.length === 1;
@@ -190,7 +190,7 @@ const Agent = () => {
   };
 
   function downloadExcel() {
-    const table = document.getElementById("agenttable"); // Your table ID
+    const table = document.getElementById("advisortable"); // Your table ID
     const allDataRows = []; // This will hold all the table rows data
 
     // Get all rows from the table body (skip the header)
@@ -217,10 +217,10 @@ const Agent = () => {
     const workbook = XLSX.utils.book_new();
 
     // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Agent Report");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Advisor Report");
 
     // Generate Excel file and prompt for download
-    XLSX.writeFile(workbook, "Agentreport.xlsx");
+    XLSX.writeFile(workbook, "Advisorreport.xlsx");
   }
 
   const handleStatusChange = async (id, newStatus) => {
@@ -228,7 +228,7 @@ const Agent = () => {
     if (newStatus === 0) {
       status = "Activate";
     }
-    const permissionOfDelete = window.confirm(`Are you sure you want to ${status} the Agent?`);
+    const permissionOfDelete = window.confirm(`Are you sure you want to ${status} the Advisor?`);
     if (permissionOfDelete) {
       let projectOne = agents.length === 1;
       if (count === 1) {
@@ -245,7 +245,7 @@ const Agent = () => {
 
         const response = await res.json(); // Awaiting the response to parse it
         if (response.success) {
-          toast.success(`Agent ${status} Successfully!`, {
+          toast.success(`Advisor ${status} Successfully!`, {
             position: "top-right",
             autoClose: 1000,
             hideProgressBar: false,
@@ -285,10 +285,10 @@ const Agent = () => {
       />
 
       <div className="flex items-center">
-        <div className="text-2xl font-bold mx-2 my-8 px-4">Agents List</div>
+        <div className="text-2xl font-bold mx-2 my-8 px-4">Advisors List</div>
       </div>
       <div className="flex justify-between">
-        <NavLink to="/agents/addagent">
+        <NavLink to="/advisors/addadvisor">
           <button className="bg-blue-800 text-white p-3 m-5 text-sm rounded-lg">
             Add New
           </button>
@@ -345,7 +345,7 @@ const Agent = () => {
       <div className="relative overflow-x-auto m-5 mb-0 min-h-[430px]">
         {agents.length > 0 && (
           <table
-            id="agenttable"
+            id="advisortable"
             className="w-full text-sm text-left rtl:text-right border-2 border-gray-300 "
           >
             <thead className="text-xs uppercase bg-gray-200">
@@ -354,16 +354,16 @@ const Agent = () => {
                   Sr no.
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Agent Name
+                Advisor Name
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Superior Agent
+                  Superior Advisor
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Commission Rate(%)
                 </th>                
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  agent id
+                advisor id
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   rank
@@ -461,7 +461,7 @@ const Agent = () => {
                         <div className="absolute z-50 right-12 top-2 mt-2 w-28 bg-white border border-gray-200 shadow-lg rounded-md">
                           <NavLink to={`/hierarchy/${item._id}`}>
                             <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                              <CiEdit className="inline mr-2" /> Hierarchy
+                             Hierarchy
                             </button>
                           </NavLink>
                           {/* <button
@@ -482,7 +482,7 @@ const Agent = () => {
       </div>
       {noData && (
         <div className="text-center text-xl">
-          Currently! There are no agents in the storage.
+          Currently! There are no advisors in the storage.
         </div>
       )}
 

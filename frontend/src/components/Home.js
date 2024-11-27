@@ -168,7 +168,7 @@ const fetchtotalrank = async () =>{
                   </NavLink>
                 </div>
                 <div className="bg-blue-900 shadow-lg shadow-gray-200 rounded-2xl p-2 my-2">
-                  <NavLink to="/agents">
+                  <NavLink to="/advisors">
                     <div className="flex items-center">
                       <div className="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-white bg-[#1E88E5] to-voilet-500 rounded-lg">
                         <svg
@@ -189,7 +189,7 @@ const fetchtotalrank = async () =>{
                         {totalAgent}
                         </span>
                         <h3 className="text-base text-white font-normal text-gray-500">
-                          Total Active Agent
+                          Total Active Advisors
                         </h3>
                       </div>
                     </div>

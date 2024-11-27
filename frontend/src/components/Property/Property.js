@@ -284,7 +284,7 @@ const Property = () => {
                   property Image
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
-                  Agent Assigned
+                Advisor Assigned
                 </th>
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   description
