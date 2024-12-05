@@ -29,7 +29,6 @@ const Home = () => {
           ...(userInfo.role === "client" ? [fetchClientSites()] : []),
           ...(userInfo.role === "agent" ? [fetchPropertyCount()] : []),
         ];
-
         // Await all fetch requests
         await Promise.all(requests);
       } catch (error) {
