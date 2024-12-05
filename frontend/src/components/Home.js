@@ -16,8 +16,7 @@ const Home = () => {
   const [availableRanks, setavailablerank] = useState(0);
   const [events, setEvents] = useState([]); // State to hold events
   useEffect(() => {
-    setLoader(true);
-        
+    setLoader(true);    
     // console.log(userInfo);
     // Execute all fetch requests in parallel and only hide loader when all of them are done.
     Promise.all([
