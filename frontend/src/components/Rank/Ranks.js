@@ -127,6 +127,9 @@ const Ranks = () => {
                 <th scope="col" className="px-6 py-3 border-2 border-gray-300">
                   Created At
                 </th>
+                <th scope="col" className="px-6 py-3 border-2 border-gray-300">
+                  Action
+                </th>
               </tr>
             </thead>
 
@@ -157,7 +160,11 @@ const Ranks = () => {
                   <td className="px-6 py-4 border-2 border-gray-300">
                     {item?.createdAt?.split("T")[0]}
                   </td>
-                 
+                  <td className="px-6 py-4 border-2 border-gray-300 p-4">
+                        <NavLink to={`/ranks/editrank/${item?._id}`}>
+                        <CiEdit className="text-2xl cursor-pointer text-green-900" />
+                      </NavLink>
+                  </td>
                 </tr>
               ))}
             </tbody>
