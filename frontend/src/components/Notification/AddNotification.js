@@ -67,6 +67,7 @@ const AddNotification = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!$("#propertyform").valid()) {
       return;
     }

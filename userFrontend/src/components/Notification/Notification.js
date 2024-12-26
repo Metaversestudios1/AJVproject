@@ -16,6 +16,7 @@ const Notification = () => {
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const [activePropertyId, setActivePropertyId] = useState(null); // For kebab menu popup
+
   useEffect(() => {
     fetchData();
   }, [page, search, pageSize]);
